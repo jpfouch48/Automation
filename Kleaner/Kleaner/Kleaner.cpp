@@ -271,7 +271,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       default:                    set_recirc_off();       break;
     };
 
-    // TODO : State Specific initialization
+    // State Specific initialization
     if(aState->get_id() == mSplashState.get_id())
     {
       mLCD.at(0, 0, SPLASH_LINE_1);
