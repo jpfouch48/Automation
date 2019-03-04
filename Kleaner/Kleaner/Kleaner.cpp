@@ -19,17 +19,18 @@ Kleaner::Kleaner() :
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER, LOW),
 
     // State init
-    mCurrentState(&mMenuState),
+    mCurrentState(&mSplashState),
     mCommandState(NULL),
-    mMenuState        (0, "Menu      ", NULL),
-    mPurgeState       (1, "Purge     ", &mPreRinseState,   20, InputSource::None,      RecircDest::Waste),
-    mPreRinseState    (2, "Pre Rinse ", &mWashState,       20, InputSource::Water,     RecircDest::Waste),
-    mWashState        (3, "Wash      ", &mPostRinseState,  30, InputSource::Cleaner,   RecircDest::Cleaner),
-    mPostRinseState   (4, "Post Rinse", &mSanitizeState,   20, InputSource::Water,     RecircDest::Waste),
-    mSanitizeState    (5, "Sanitize  ", &mPressurizeState, 30, InputSource::Sanitizer, RecircDest::Sanitizer),
-    mPressurizeState  (6, "Pressurize", &mCompleteState,   10, InputSource::None,      RecircDest::None),
-    mCompleteState    (7, "Complete  ", NULL),
-    mTestMenuState    (8, "Test Menu ", NULL),
+    mSplashState      (0, "Splash,   ", &mMenuState,        10),
+    mMenuState        (1, "Menu      ", NULL),
+    mPurgeState       (2, "Purge     ", &mPreRinseState,   20, InputSource::None,      RecircDest::Waste),
+    mPreRinseState    (3, "Pre Rinse ", &mWashState,       20, InputSource::Water,     RecircDest::Waste),
+    mWashState        (4, "Wash      ", &mPostRinseState,  30, InputSource::Cleaner,   RecircDest::Cleaner),
+    mPostRinseState   (5, "Post Rinse", &mSanitizeState,   20, InputSource::Water,     RecircDest::Waste),
+    mSanitizeState    (6, "Sanitize  ", &mPressurizeState, 30, InputSource::Sanitizer, RecircDest::Sanitizer),
+    mPressurizeState  (7, "Pressurize", &mCompleteState,   10, InputSource::None,      RecircDest::None),
+    mCompleteState    (8, "Complete  ", NULL),
+    mTestMenuState    (9, "Test Menu ", NULL),
     mStateComplete(false),
     mFirstTimeInState(true),
 
@@ -109,10 +110,12 @@ void Kleaner::on_en_button(int aState)
     // Process menu option for menu state
     if(mCurrentState->get_id() == mMenuState.get_id())
     {
+      // Start Cleaning
       if(mCurrentMenuItem->get_id() == mStartMenuItem.get_id())
       {
         mCommandState = &mPurgeState;
       }
+      // Goto Test Menu
       else if (mCurrentMenuItem->get_id() == mTestMenuItem.get_id())
       {
         mCommandState = &mTestMenuState;      
@@ -120,6 +123,7 @@ void Kleaner::on_en_button(int aState)
     } 
     else if(mCurrentState->get_id() == mTestMenuItem.get_id())
     {
+      // Cycle Input
       if(mCurrentMenuItem->get_id() == mTestMenuCycleInput.get_id())
       {
         // TODO - Cycle Input
@@ -129,24 +133,29 @@ void Kleaner::on_en_button(int aState)
 //          mTestInputSource = (InputSource)((int)mTestInputSource)++;
 
       }
+      // Cycle Recirc
       else if (mCurrentMenuItem->get_id() == mTestMenuCycleRecirc.get_id())
       {
         // TODO - Cycle Recirc   
       }
+      // Toggle Pump
       else if (mCurrentMenuItem->get_id() == mTestMenuTogglePump.get_id())
       {
         // TODO - Toggle Pump
       }
+      // Toggle Co2
       else if (mCurrentMenuItem->get_id() == mTestMenuToggleCo2.get_id())
       {
         // TODO - Toggle Co2
       }
+      // Exit Test Menu
       else if (mCurrentMenuItem->get_id() == mTestMenuExit.get_id())
       {
         mCommandState = &mMenuState;
       }
     }
-    else if(mCurrentState->get_id() == mCompleteState.get_id())
+    else if(mCurrentState->get_id() == mCompleteState.get_id() ||
+            mCurrentState->get_id() == mSplashState.get_id())
     {
       mCommandState = &mMenuState;
     }
@@ -263,7 +272,12 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     };
 
     // TODO : State Specific initialization
-    if(aState->get_id() == mMenuState.get_id())
+    if(aState->get_id() == mSplashState.get_id())
+    {
+      mLCD.at(0, 0, SPLASH_LINE_1);
+      mLCD.at(1, 0, SPLASH_LINE_2);
+    }
+    else if(aState->get_id() == mMenuState.get_id())
     {
       // Set the menu to the first option
       mCurrentMenuItem = &mStartMenuItem;

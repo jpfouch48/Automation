@@ -64,6 +64,7 @@ class Kleaner
     // States
     KleanerState *mCurrentState;
     KleanerState *mCommandState;
+    KleanerState mSplashState;
     KleanerState mMenuState;
     KleanerState mPurgeState;
     KleanerState mPreRinseState;
