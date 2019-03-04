@@ -10,6 +10,21 @@ enum class InputSource
   None      = 3
 };
 
+static InputSource cycle_input_source(InputSource aInputSource)
+{
+  InputSource lInputSource = InputSource::None;
+
+  switch(aInputSource)
+  {
+    case InputSource::Water:     lInputSource = InputSource::Cleaner;   break;
+    case InputSource::Cleaner:   lInputSource = InputSource::Sanitizer; break;
+    case InputSource::Sanitizer: lInputSource = InputSource::None;      break;
+    case InputSource::None:      lInputSource = InputSource::Water;     break;
+  }
+  
+  return lInputSource;
+}
+
 enum class RecircDest
 {
   Waste     = 0,
@@ -18,5 +33,20 @@ enum class RecircDest
 
   None      = 3
 };
+
+static RecircDest cycle_recirc_desk(RecircDest aRecircDest)
+{
+  RecircDest lRecircDest = RecircDest::None;
+
+  switch(aRecircDest)
+  {
+    case RecircDest::Waste:     lRecircDest = RecircDest::Cleaner;   break;
+    case RecircDest::Cleaner:   lRecircDest = RecircDest::Sanitizer; break;
+    case RecircDest::Sanitizer: lRecircDest = RecircDest::None;      break;    
+    case RecircDest::None:      lRecircDest = RecircDest::Waste;     break;
+  }
+  
+  return lRecircDest;
+}
 
 #endif

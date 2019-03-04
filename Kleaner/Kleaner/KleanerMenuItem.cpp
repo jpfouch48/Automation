@@ -1,14 +1,16 @@
 #include "KleanerMenuItem.h"
 
+
+int KleanerMenuItem::gMenuItemCount = 0;
+
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-KleanerMenuItem::KleanerMenuItem(int              aId,
-                                 String           aTitle,
+KleanerMenuItem::KleanerMenuItem(String           aTitle,
                                  KleanerMenuItem *aPrevItem, 
                                  KleanerMenuItem *aNextItem) :
+  mId(gMenuItemCount++),
   mTitle(aTitle),
-  mId(aId),
   mPrevItem(aPrevItem),
   mNextItem(aNextItem)
 {

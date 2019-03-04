@@ -12,8 +12,7 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerMenuItem(int             aId,
-                  String          aTitle, 
+  KleanerMenuItem(String          aTitle, 
                   KleanerMenuItem *aPrevItem, 
                   KleanerMenuItem *aNextItem);
 
@@ -31,6 +30,7 @@ private:
   int              mId;
   KleanerMenuItem *mNextItem;
   KleanerMenuItem *mPrevItem;
+  static int       gMenuItemCount;
 };
 
 

@@ -1,15 +1,14 @@
 #include "KleanerState.h"
 
 
+int KleanerState::gStateCount = 0;
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-KleanerState::KleanerState(int           aId,
-                           String        aStateName, 
+KleanerState::KleanerState(String        aStateName, 
                            KleanerState *aNextState) :
-  KleanerState(aId, 
-               aStateName, 
+  KleanerState(aStateName, 
                aNextState, 
                0)
 {
@@ -19,12 +18,10 @@ KleanerState::KleanerState(int           aId,
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-KleanerState::KleanerState(int           aId,
-                           String        aStateName, 
+KleanerState::KleanerState(String        aStateName, 
                            KleanerState *aNextState, 
                            int           aStateTimeInSec) :
-  KleanerState(aId,
-               aStateName, 
+  KleanerState(aStateName, 
                aNextState, 
                aStateTimeInSec, 
                InputSource::None, 
@@ -36,13 +33,12 @@ KleanerState::KleanerState(int           aId,
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-KleanerState::KleanerState(int           aId,
-                           String        aStateName, 
+KleanerState::KleanerState(String        aStateName, 
                            KleanerState *aNextState,
                            int           aStateTimeInSec, 
                            InputSource   aInputSource, 
                            RecircDest    aRecircDest) :
-  mId(aId),
+  mId(gStateCount++),
   mStateName(aStateName),
   mNextState(aNextState),
   mStateTimeInSec(aStateTimeInSec),

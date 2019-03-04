@@ -13,17 +13,17 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(int aId, String aStateName, KleanerState *aNextState);
+  KleanerState(String aStateName, KleanerState *aNextState);
 
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(int aId, String aStateName, KleanerState *aNextState, int aStateTimeInSec);
+  KleanerState(String aStateName, KleanerState *aNextState, int aStateTimeInSec);
 
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(int aId, String aStateName, KleanerState *aNextState, int aStateTimeInSec, InputSource aInputSource, RecircDest aRecircDest);
+  KleanerState(String aStateName, KleanerState *aNextState, int aStateTimeInSec, InputSource aInputSource, RecircDest aRecircDest);
 
   // Accessor functions
   int           get_id()                const { return mId;             }
@@ -44,6 +44,8 @@ private:
   InputSource   mInputSource;
   RecircDest    mRecircDest;
   KleanerState *mNextState;
+
+  static int    gStateCount;
 };
 
 

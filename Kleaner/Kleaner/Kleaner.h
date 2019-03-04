@@ -1,13 +1,12 @@
 #ifndef KLEANER_H
 #define KLEANER_H
 
-#include <ParallaxLCD.h>
-
 #include "KleanerState.h"
 #include "KleanerMenuItem.h"
 
 #include "InputWrapper.h"
 #include "OutputWrapper.h"
+#include "DisplayWrapper.h"
 
 
 class Kleaner
@@ -40,13 +39,10 @@ class Kleaner
     void set_recirc_sanitizer();
     void set_recirc_cleaner();
 
-    void set_pump_off();
-    void set_pump_on();
-
     void set_all_off();
 
-    // LCD Object
-    ParallaxLCD mLCD;
+    // Display Wrappers
+    DisplayWrapper mDisplayWrapper;
 
     // Output Wrappers
     OutputWrapper mCo2Wrapper;
@@ -100,7 +96,6 @@ class Kleaner
 
     InputSource mTestInputSource;
     RecircDest  mTestRecircDest;
-
 };
 
 
