@@ -22,10 +22,7 @@ Kleaner::Kleaner() :
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER, LOW),
 
     // State init
-    mCurrentState(&mSplashState),
-    mCommandState(NULL),
-    mSplashState      ("Splash,   ", &mMenuState,        10),
-    mMenuState        ("Menu      ", NULL),
+    mSplashState      ("Splash,   ", &mMenuState,        5),
     mPurgeState       ("Purge     ", &mPreRinseState,   20, InputSource::None,      RecircDest::Waste),
     mPreRinseState    ("Pre Rinse ", &mWashState,       20, InputSource::Water,     RecircDest::Waste),
     mWashState        ("Wash      ", &mPostRinseState,  30, InputSource::Cleaner,   RecircDest::Cleaner),
@@ -33,7 +30,13 @@ Kleaner::Kleaner() :
     mSanitizeState    ("Sanitize  ", &mPressurizeState, 30, InputSource::Sanitizer, RecircDest::Sanitizer),
     mPressurizeState  ("Pressurize", &mCompleteState,   10, InputSource::None,      RecircDest::None),
     mCompleteState    ("Complete  ", NULL),
+    
+    // Menu States
+    mMenuState        ("Menu      ", NULL),
     mTestMenuState    ("Test Menu ", NULL),
+
+    mCurrentState(&mSplashState),
+    mCommandState(NULL),
     mStateComplete(false),
     mFirstTimeInState(true),
 
@@ -140,12 +143,28 @@ void Kleaner::on_en_button(int aState)
       // Toggle Pump
       else if (mCurrentMenuItem->get_id() == mTestMenuTogglePump.get_id())
       {
-        // TODO - Toggle Pump
+        // Toggle Pump
+        if(mPumpWrapper.is_pulse_running())
+        {
+          mPumpWrapper.start_pulse();
+        }
+        else
+        {
+          mPumpWrapper.reset_pulse();
+        }        
       }
       // Toggle Co2
       else if (mCurrentMenuItem->get_id() == mTestMenuToggleCo2.get_id())
       {
-        // TODO - Toggle Co2
+        // Toggle Pump
+        if(mCo2Wrapper.is_pulse_running())
+        {
+          mCo2Wrapper.start_pulse();
+        }
+        else
+        {
+          mCo2Wrapper.reset_pulse();
+        }
       }
       // Exit Test Menu
       else if (mCurrentMenuItem->get_id() == mTestMenuExit.get_id())

@@ -13,17 +13,11 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(String aStateName, KleanerState *aNextState);
-
-  // **************************************************************************
-  //
-  //***************************************************************************
-  KleanerState(String aStateName, KleanerState *aNextState, int aStateTimeInSec);
-
-  // **************************************************************************
-  //
-  //***************************************************************************
-  KleanerState(String aStateName, KleanerState *aNextState, int aStateTimeInSec, InputSource aInputSource, RecircDest aRecircDest);
+  KleanerState(String                 aStateName, 
+               KleanerState          *aNextState, 
+               int                    aStateTimeInSec = 0, 
+               InputSource            aInputSource    = InputSource::None, 
+               RecircDest             aRecircDest     = RecircDest::None);
 
   // Accessor functions
   int           get_id()                const { return mId;             }
@@ -32,7 +26,6 @@ public:
   InputSource   get_input_source()      const { return mInputSource;    }
   RecircDest    get_recirc_dest()       const { return mRecircDest;     } 
   KleanerState* get_next_state()        const { return mNextState;      }
-
 
 protected:
 

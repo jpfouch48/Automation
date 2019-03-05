@@ -6,13 +6,9 @@
 // See header file for details
 // ****************************************************************************
 OutputWrapper::OutputWrapper(int aPin, 
-              int aIdleState) :
+                             int aIdleState) :
   mPin(aPin),
-  mIdleState(aIdleState),
-  mInitialState(aIdleState),
-  mType(OutputType::Manual),
-  mCycleTimeInMs(0),
-  mInitialTimeInMs(0),
+  mConfig(aIdleState),
   mPulseRunning(false)
 {
 }
@@ -22,48 +18,17 @@ OutputWrapper::OutputWrapper(int aPin,
 // See header file for details
 // ****************************************************************************
 OutputWrapper::OutputWrapper(int aPin, 
-              int aIdleState,
-              int aInitialState, 
-              int aCycleTimeInMs, 
-              int aInitialTimeInMs) :
+                             int aIdleState,
+                             int aInitialState, 
+                             int aCycleTimeInMs, 
+                             int aInitialTimeInMs) :
   mPin(aPin),
-  mIdleState(aIdleState),
-  mInitialState(aInitialState),
-  mType(OutputType::Pulsing),
-  mCycleTimeInMs(aCycleTimeInMs),
-  mInitialTimeInMs(aInitialTimeInMs),
+  mConfig(aIdleState, 
+          aInitialState, 
+          aCycleTimeInMs, 
+          aInitialTimeInMs),
   mPulseRunning(false)
 {
-}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-void OutputWrapper::set_mode_manual(int aIdleState)
-{
-  mIdleState = aIdleState;
-  mInitialState = aIdleState;
-  mType = OutputType::Manual;
-  mCycleTimeInMs = 0;
-  mInitialTimeInMs = 0;
-  mPulseRunning = false;
-  digitalWrite(mPin, mIdleState);  
-}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-void OutputWrapper::set_mode_pulse(int aIdleState,
-                         int aInitialState, 
-                         int aCycleTimeInMs, 
-                         int aInitialTimeInMs)
-{
-  mType = OutputType::Pulsing;
-  mIdleState = aIdleState;
-  mInitialState = aInitialState;
-  mCycleTimeInMs = aCycleTimeInMs;
-  mInitialTimeInMs = aInitialTimeInMs;
-  reset_pulse();
 }
 
 // ****************************************************************************
@@ -72,28 +37,28 @@ void OutputWrapper::set_mode_pulse(int aIdleState,
 void OutputWrapper::setup()
 {
   pinMode(mPin, OUTPUT);
-  digitalWrite(mPin, mIdleState);     
+  digitalWrite(mPin, mConfig.get_idle_state());     
 }
-
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
 void OutputWrapper::loop()
 {
-  if(mType == OutputType::Pulsing)
+  if(mConfig.get_type() == Config::Type::Pulsing)
   {
     if(true == mPulseRunning)
     {
       int lCurrentState = digitalRead(mPin);
 
-      if(lCurrentState == mInitialState && mPulseTimer.delta() > mInitialTimeInMs)
+      if(lCurrentState == mConfig.get_initial_state() && 
+         mPulseTimer.delta() > mConfig.get_initial_time_in_ms())
       {
         digitalWrite(mPin, !lCurrentState);
       }
-      else if(mPulseTimer.delta() > mCycleTimeInMs)
+      else if(mPulseTimer.delta() > mConfig.get_cycle_time_in_ms())
       {
-        digitalWrite(mPin, mInitialState);
+        digitalWrite(mPin, mConfig.get_initial_state());
         mPulseTimer.reset();
       }
     }
@@ -106,7 +71,7 @@ void OutputWrapper::loop()
 // ****************************************************************************
 bool OutputWrapper::set_state(int aState)
 {
-  if(mType != OutputType::Manual)
+  if(mConfig.get_type() != Config::Type::Manual)
     return false;
 
   digitalWrite(mPin, aState);    
@@ -114,17 +79,16 @@ bool OutputWrapper::set_state(int aState)
   return true;
 }
 
-
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
 bool OutputWrapper::start_pulse()
 {
-  if(mType != OutputType::Pulsing)
+  if(mConfig.get_type() != Config::Type::Pulsing)
     return false;
 
     reset_pulse();
-    digitalWrite(mPin, mInitialState);
+    digitalWrite(mPin, mConfig.get_initial_state());
     mPulseRunning = true;
 
   return true;
@@ -135,13 +99,13 @@ bool OutputWrapper::start_pulse()
 // ****************************************************************************
 bool OutputWrapper::reset_pulse()
 {
-  if(mType != OutputType::Pulsing)
+  if(mConfig.get_type() != Config::Type::Pulsing)
     return false;
 
   mPulseRunning = false;
   mPulseTimer.reset();
 
-  digitalWrite(mPin, mIdleState);      
+  digitalWrite(mPin, mConfig.get_idle_state());      
 
   return true;
 }

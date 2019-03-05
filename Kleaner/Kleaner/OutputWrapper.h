@@ -1,28 +1,68 @@
 #ifndef OUTPUT_WRAPPER_H
 #define OUTPUT_WRAPPER_H
 
+#include <Arduino.h>
 #include "MilliTimer.h"
 
 class OutputWrapper
 {
   public:
-    // ************************************************************************
-    // OutputType - Enumeration
-    // ************************************************************************
-    // Manual: 
-    //  A manual output type is used when the user of the class wants to 
-    //  manually set the state of the output via the provided set_state 
-    //  command.
-    //
-    // Pulsing:
-    //  A pulsing output is used when the caller wants the state of the output 
-    //  to be controlled via a timer. The output will pulse on and off based on 
-    //  the provided parameters.
-    // ************************************************************************
-    enum class OutputType
+    class Config
     {
-      Manual,
-      Pulsing
+      public:
+        // ********************************************************************
+        // OutputType - Enumeration
+        // ********************************************************************
+        // Manual: 
+        //  A manual output type is used when the user of the class wants to 
+        //  manually set the state of the output via the provided set_state 
+        //  command.
+        //
+        // Pulsing:
+        //  A pulsing output is used when the caller wants the state of the 
+        //  output to be controlled via a timer. The output will pulse on and 
+        //  off based on the provided parameters.
+        // ********************************************************************
+        enum class Type
+        {
+          Manual, 
+          Pulsing
+        };
+
+        Config(int aIdleState) :
+          mIdleState(aIdleState),
+          mInitialState(aIdleState),
+          mType(Type::Manual),
+          mCycleTimeInMs(0),
+          mInitialTimeInMs(0)
+        {
+        }
+
+        Config(int aIdleState,
+               int aInitialState, 
+               int aCycleTimeInMs, 
+               int aInitialTimeInMs) :
+          mIdleState(aIdleState),
+          mInitialState(aInitialState),
+          mType(Type::Pulsing),
+          mCycleTimeInMs(aCycleTimeInMs),
+          mInitialTimeInMs(aInitialTimeInMs)               
+        {
+        }
+
+        Type get_type()               const { return mType; }
+        int  get_idle_state()         const { return mIdleState; }
+        int  get_initial_state()      const { return mInitialState; }
+        int  get_cycle_time_in_ms()   const { return mCycleTimeInMs; }
+        int  get_initial_time_in_ms() const { return mInitialTimeInMs; }
+
+      protected:
+      private:
+        Type mType;
+        int  mIdleState;
+        int  mInitialState; 
+        int  mCycleTimeInMs; 
+        int  mInitialTimeInMs;
     };
 
     // ************************************************************************
@@ -90,20 +130,6 @@ class OutputWrapper
                   int aCycleTimeInMs, 
                   int aInitialTimeInMs);
 
-
-    // ************************************************************************
-    //
-    // ************************************************************************
-    void set_mode_manual(int aIdleState);
-
-    // ************************************************************************
-    //
-    // ************************************************************************
-    void set_mode_pulse(int aIdleState,
-                        int aInitialState, 
-                        int aCycleTimeInMs, 
-                        int aInitialTimeInMs);
-
     // ************************************************************************
     //
     // ************************************************************************
@@ -132,15 +158,17 @@ class OutputWrapper
     // ************************************************************************
     bool reset_pulse();
 
+    // ************************************************************************
+    //
+    // - used for pulse type only
+    // ************************************************************************
+    bool is_pulse_running() { return mPulseRunning; }
+
   protected:
 
   private:
     int        mPin;
-    OutputType mType;
-    int        mIdleState;
-    int        mInitialState;
-    int        mCycleTimeInMs;
-    int        mInitialTimeInMs;
+    Config     mConfig;
     bool       mPulseRunning;
     MilliTimer mPulseTimer;
 };
