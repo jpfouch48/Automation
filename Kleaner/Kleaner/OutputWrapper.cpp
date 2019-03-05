@@ -2,33 +2,15 @@
 #include "OutputWrapper.h"
 #include <Arduino.h>
 
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-OutputWrapper::OutputWrapper(int aPin, 
-                             int aIdleState) :
-  mPin(aPin),
-  mConfig(aIdleState),
-  mPulseRunning(false)
-{
-}
-
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-OutputWrapper::OutputWrapper(int aPin, 
-                             int aIdleState,
-                             int aInitialState, 
-                             int aCycleTimeInMs, 
-                             int aInitialTimeInMs) :
-  mPin(aPin),
-  mConfig(aIdleState, 
-          aInitialState, 
-          aCycleTimeInMs, 
-          aInitialTimeInMs),
-  mPulseRunning(false)
+void OutputWrapper::update_config(Config aConfig)
 {
+  mConfig = aConfig;
+  mPulseRunning = false;
+  digitalWrite(mPin, mConfig.get_idle_state());
 }
 
 // ****************************************************************************
@@ -49,17 +31,35 @@ void OutputWrapper::loop()
   {
     if(true == mPulseRunning)
     {
-      int lCurrentState = digitalRead(mPin);
-
-      if(lCurrentState == mConfig.get_initial_state() && 
-         mPulseTimer.delta() > mConfig.get_initial_time_in_ms())
+      if(true == mInDelay)
       {
-        digitalWrite(mPin, !lCurrentState);
+        if(mPulseTimer.delta() > mConfig.get_initial_state_time_in_ms())
+        {
+            digitalWrite(mPin, mConfig.get_initial_state());
+            mInDelay = false;
+        }
       }
-      else if(mPulseTimer.delta() > mConfig.get_cycle_time_in_ms())
+      else
       {
-        digitalWrite(mPin, mConfig.get_initial_state());
-        mPulseTimer.reset();
+        int lCurrentState = digitalRead(mPin);
+
+        if(lCurrentState == mConfig.get_initial_state() && 
+          mPulseTimer.delta() > mConfig.get_initial_state_time_in_ms())
+        {
+          digitalWrite(mPin, !lCurrentState);
+        }
+        else if(mPulseTimer.delta() > mConfig.get_cycle_time_in_ms())
+        {
+          if(0 == mConfig.get_initial_delay_time_in_ms())
+            digitalWrite(mPin, mConfig.get_initial_state());
+          else
+          { 
+            digitalWrite(mPin, mConfig.get_idle_state());
+            mInDelay = true;
+          }
+
+          mPulseTimer.reset();
+        }
       }
     }
   }
@@ -88,7 +88,15 @@ bool OutputWrapper::start_pulse()
     return false;
 
     reset_pulse();
-    digitalWrite(mPin, mConfig.get_initial_state());
+
+    // If no initial delay is set we will transition to the initial state
+    // now, otherwise, the loop function will set the initial state
+    // once the initial delay has elapsed
+    if(0 == mConfig.get_initial_delay_time_in_ms())
+      digitalWrite(mPin, mConfig.get_initial_state());
+    else
+      mInDelay = true;
+
     mPulseRunning = true;
 
   return true;
@@ -103,6 +111,7 @@ bool OutputWrapper::reset_pulse()
     return false;
 
   mPulseRunning = false;
+  mInDelay = false;
   mPulseTimer.reset();
 
   digitalWrite(mPin, mConfig.get_idle_state());      

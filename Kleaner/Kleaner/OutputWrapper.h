@@ -7,6 +7,9 @@
 class OutputWrapper
 {
   public:
+    // ************************************************************************
+    // 
+    // ************************************************************************
     class Config
     {
       public:
@@ -29,40 +32,53 @@ class OutputWrapper
           Pulsing
         };
 
+
+        // ********************************************************************
+        // 
+        // ********************************************************************
         Config(int aIdleState) :
           mIdleState(aIdleState),
           mInitialState(aIdleState),
           mType(Type::Manual),
           mCycleTimeInMs(0),
-          mInitialTimeInMs(0)
+          mInitialStateTimeInMs(0),
+          mInitialDelayInMs(0)
         {
         }
 
+        // ************************************************************************
+        // 
+        // ************************************************************************
         Config(int aIdleState,
                int aInitialState, 
                int aCycleTimeInMs, 
-               int aInitialTimeInMs) :
+               int aInitialStateTimeInMs,
+               int aInitialDelayInMs=0) :
           mIdleState(aIdleState),
           mInitialState(aInitialState),
           mType(Type::Pulsing),
           mCycleTimeInMs(aCycleTimeInMs),
-          mInitialTimeInMs(aInitialTimeInMs)               
+          mInitialStateTimeInMs(aInitialStateTimeInMs),
+          mInitialDelayInMs(aInitialDelayInMs)               
         {
         }
 
-        Type get_type()               const { return mType; }
-        int  get_idle_state()         const { return mIdleState; }
-        int  get_initial_state()      const { return mInitialState; }
-        int  get_cycle_time_in_ms()   const { return mCycleTimeInMs; }
-        int  get_initial_time_in_ms() const { return mInitialTimeInMs; }
+        Type get_type()                     const { return mType; }
+        int  get_idle_state()               const { return mIdleState; }
+        int  get_initial_state()            const { return mInitialState; }
+        int  get_cycle_time_in_ms()         const { return mCycleTimeInMs; }
+        int  get_initial_state_time_in_ms() const { return mInitialStateTimeInMs; }
+        int  get_initial_delay_time_in_ms() const { return mInitialDelayInMs; }
 
       protected:
       private:
+        int  mPin;
         Type mType;
         int  mIdleState;
         int  mInitialState; 
         int  mCycleTimeInMs; 
-        int  mInitialTimeInMs;
+        int  mInitialStateTimeInMs;
+        int  mInitialDelayInMs;
     };
 
     // ************************************************************************
@@ -82,7 +98,12 @@ class OutputWrapper
     //   output pin is set to this value during setup processing
     // ************************************************************************
     OutputWrapper(int aPin, 
-                  int aIdleState);
+                  int aIdleState) :
+      mPin(aPin),
+      mConfig(aIdleState),
+      mPulseRunning(false)
+    {
+    }
 
     // ************************************************************************
     // OuputWrapper - Constructor (Pulsing Output)
@@ -128,7 +149,33 @@ class OutputWrapper
                   int aIdleState,
                   int aInitialState, 
                   int aCycleTimeInMs, 
-                  int aInitialTimeInMs);
+                  int aInitialStateTimeInMs,
+                  int aInitialDelayInMs=0) :
+      mPin(aPin),
+      mConfig(aIdleState, 
+              aInitialState, 
+              aCycleTimeInMs, 
+              aInitialStateTimeInMs,
+              aInitialDelayInMs),
+      mPulseRunning(false),
+      mInDelay(false)
+    {
+    }
+
+    // ************************************************************************
+    //
+    // ************************************************************************
+    OutputWrapper(Config aConfig) :
+      mConfig(aConfig),
+      mPulseRunning(false),
+      mInDelay(false)
+    {
+    }
+
+    // ************************************************************************
+    //
+    // ************************************************************************
+    void update_config(Config aConfig);
 
     // ************************************************************************
     //
@@ -164,11 +211,16 @@ class OutputWrapper
     // ************************************************************************
     bool is_pulse_running() { return mPulseRunning; }
 
+
+    int get_pin() const { return mPin; }
+    const Config* get_config() const { return &mConfig; }
+
   protected:
 
   private:
     int        mPin;
     Config     mConfig;
+    bool       mInDelay;
     bool       mPulseRunning;
     MilliTimer mPulseTimer;
 };

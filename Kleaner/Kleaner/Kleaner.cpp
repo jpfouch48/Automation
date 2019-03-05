@@ -22,13 +22,42 @@ Kleaner::Kleaner() :
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER, LOW),
 
     // State init
-    mSplashState      ("Splash,   ", &mMenuState,        5),
-    mPurgeState       ("Purge     ", &mPreRinseState,   20, InputSource::None,      RecircDest::Waste),
-    mPreRinseState    ("Pre Rinse ", &mWashState,       20, InputSource::Water,     RecircDest::Waste),
-    mWashState        ("Wash      ", &mPostRinseState,  30, InputSource::Cleaner,   RecircDest::Cleaner),
-    mPostRinseState   ("Post Rinse", &mSanitizeState,   20, InputSource::Water,     RecircDest::Waste),
-    mSanitizeState    ("Sanitize  ", &mPressurizeState, 30, InputSource::Sanitizer, RecircDest::Sanitizer),
-    mPressurizeState  ("Pressurize", &mCompleteState,   10, InputSource::None,      RecircDest::None),
+    mSplashState      ("Splash,   ", &mMenuState,       5),
+    mPurgeState       ("Purge     ", &mPreRinseState,   
+                       20,       
+                       InputSource::None,
+                       RecircDest::Waste,     
+                       NULL,
+                       new OutputWrapper::Config(LOW, HIGH, 10000, 6000)),
+    mPreRinseState    ("Pre Rinse ", &mWashState,       
+                       20,       
+                       InputSource::Water,     RecircDest::Waste,     
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000), 
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000)),
+    mWashState        ("Wash      ", &mPostRinseState,  
+                       30,       
+                       InputSource::Cleaner,
+                       RecircDest::Cleaner,   
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000), 
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000)),
+    mPostRinseState   ("Post Rinse", &mSanitizeState,   
+                       20,       
+                       InputSource::Water,
+                       RecircDest::Waste,     
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000), 
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000)),
+    mSanitizeState    ("Sanitize  ", &mPressurizeState, 
+                       30,       
+                       InputSource::Sanitizer, 
+                       RecircDest::Sanitizer, 
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000), 
+                       new OutputWrapper::Config(LOW, LOW,  10000, 8000)),
+    mPressurizeState  ("Pressurize", &mCompleteState,   
+                       10,       
+                       InputSource::None,
+                       RecircDest::None,      
+                       NULL,                                              
+                       new OutputWrapper::Config(LOW, HIGH, 10000, 2000)),
     mCompleteState    ("Complete  ", NULL),
     
     // Menu States
@@ -273,6 +302,22 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     set_input(aState->get_input_source());
     set_recirc(aState->get_recirc_dest());
+
+    if(NULL != aState->get_co2_config())
+    {
+      mCo2Wrapper.update_config(*aState->get_co2_config());
+      if(mCo2Wrapper.get_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+        mCo2Wrapper.start_pulse();
+    }
+
+    if(NULL != aState->get_pump_config())
+    {
+      mPumpWrapper.update_config(*aState->get_pump_config());
+
+      if(mPumpWrapper.get_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+        mPumpWrapper.start_pulse();
+    }
+
 
     // State Specific initialization
     if(aState->get_id() == mSplashState.get_id())

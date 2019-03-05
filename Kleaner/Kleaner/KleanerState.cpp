@@ -6,17 +6,21 @@ int KleanerState::gStateCount = 0;
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-KleanerState::KleanerState(String        aStateName, 
-                           KleanerState *aNextState,
-                           int           aStateTimeInSec, 
-                           InputSource   aInputSource, 
-                           RecircDest    aRecircDest) :
+KleanerState::KleanerState(String                 aStateName, 
+                           KleanerState          *aNextState,
+                           int                    aStateTimeInSec, 
+                           InputSource            aInputSource, 
+                           RecircDest             aRecircDest,
+                           OutputWrapper::Config *aPumpConfig,
+                           OutputWrapper::Config *aCo2Config) :
   mId(gStateCount++),
   mStateName(aStateName),
   mNextState(aNextState),
   mStateTimeInSec(aStateTimeInSec),
   mInputSource(aInputSource),
-  mRecircDest(aRecircDest)
+  mRecircDest(aRecircDest),
+  mPumpConfig(aPumpConfig),
+  mCo2Config(aCo2Config)
 {
 
 }
