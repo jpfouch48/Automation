@@ -11,6 +11,7 @@ Kleaner::Kleaner() :
     mDisplayWrapper(DO_PIN_DISPLAY, LCD_ROW_COUNT, LCD_COL_COUNT),
 
     // Input wrapper init
+    // Note: Timing values will be updated based on state configuration
     mCo2Wrapper(DO_PIN_RELAY_CO2, LOW, HIGH, 5, 3),
     mPumpWrapper(DO_PIN_PUMP, LOW, HIGH, 5, 3),
 
@@ -28,30 +29,50 @@ Kleaner::Kleaner() :
                        InputSource::None,
                        RecircDest::Waste,     
               /*PUMP*/ NULL,
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 6000)), /* On for 6 seconds, off for 4 */
+               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 5000)),
+    // Timeline - 0123456789
+    // PUMP     -           
+    // CO2      - XXXXX
+
     mPreRinseState    ("Pre Rinse ", &mWashState,       
                        20,       
                        InputSource::Water,     RecircDest::Waste,     
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 6000, 2000), 
+              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
                /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+    // Timeline - 0123456789
+    // PUMP     -   XXXXX           
+    // CO2      -         XX
+    
     mWashState        ("Wash      ", &mPostRinseState,  
                        30,       
                        InputSource::Cleaner,
                        RecircDest::Cleaner,   
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 8000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH,  10000, 8000)),
+              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+    // Timeline - 0123456789
+    // PUMP     -   XXXXX           
+    // CO2      -         XX
+
     mPostRinseState   ("Post Rinse", &mSanitizeState,   
                        20,       
                        InputSource::Water,
                        RecircDest::Waste,     
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 8000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH,  10000, 8000)),
+              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+    // Timeline - 0123456789
+    // PUMP     -   XXXXX           
+    // CO2      -         XX
+               
     mSanitizeState    ("Sanitize  ", &mPressurizeState, 
                        30,       
                        InputSource::Sanitizer, 
                        RecircDest::Sanitizer, 
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 8000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH,  10000, 8000)),
+              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+    // Timeline - 0123456789
+    // PUMP     -   XXXXX           
+    // CO2      -         XX
+
     mPressurizeState  ("Pressurize", &mCompleteState,   
                        10,       
                        InputSource::None,
@@ -59,7 +80,10 @@ Kleaner::Kleaner() :
               /*PUMP*/ NULL,                                              
                /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 2000)),
     mCompleteState    ("Complete  ", NULL),
-    
+    // Timeline - 0123456789
+    // PUMP     -           
+    // CO2      - XX
+        
     // Menu States
     mMenuState        ("Menu      ", NULL),
     mTestMenuState    ("Test Menu ", NULL),
