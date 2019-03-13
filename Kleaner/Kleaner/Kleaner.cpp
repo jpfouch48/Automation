@@ -112,9 +112,6 @@ Kleaner::Kleaner() :
 // ****************************************************************************   
 void Kleaner::on_up_button(int aState)
 {
-//  Serial.print("Kleaner::on_up_button - ");
-//  Serial.println(aState);  
-
   if(aState == LOW)
   {
     // Process menu menu option for menu and test menu state
@@ -135,9 +132,6 @@ void Kleaner::on_up_button(int aState)
 // ****************************************************************************   
 void Kleaner::on_dn_button(int aState)
 {
-//  Serial.print("Kleaner::on_dn_button - ");
-//  Serial.println(aState);
-
   if(aState == LOW)
   {
     // Process menu menu option for menu and test menu state
@@ -158,9 +152,6 @@ void Kleaner::on_dn_button(int aState)
 // ****************************************************************************   
 void Kleaner::on_en_button(int aState)
 {
-  Serial.print("Kleaner::on_en_button - ");
-  Serial.println(aState);
-
   if(aState == LOW)
   {
     // Process menu option for menu state
@@ -182,7 +173,6 @@ void Kleaner::on_en_button(int aState)
       // Cycle Input
       if(mCurrentMenuItem->get_id() == mTestMenuCycleInput.get_id())
       {
-        Serial.println("Cycle Input");
         // Cycle Input
         mTestInputSource = cycle_input_source(mTestInputSource);
         set_input(mTestInputSource);
@@ -190,7 +180,6 @@ void Kleaner::on_en_button(int aState)
       // Cycle Recirc
       else if (mCurrentMenuItem->get_id() == mTestMenuCycleRecirc.get_id())
       {
-        Serial.println("Cycle Recirc");
         // Cycle Recirc   
         mTestRecircDest = cycle_recirc_desk(mTestRecircDest);
         set_recirc(mTestRecircDest);
@@ -198,7 +187,6 @@ void Kleaner::on_en_button(int aState)
       // Toggle Pump
       else if (mCurrentMenuItem->get_id() == mTestMenuTogglePump.get_id())
       {
-        Serial.println("Toggle Pump");
         // Toggle Pump
         if(mPumpWrapper.is_pulse_running())
         {
@@ -212,7 +200,6 @@ void Kleaner::on_en_button(int aState)
       // Toggle Co2
       else if (mCurrentMenuItem->get_id() == mTestMenuToggleCo2.get_id())
       {
-        Serial.println("Toggle Co2");
         // Toggle Pump
         if(mCo2Wrapper.is_pulse_running())
         {
@@ -226,14 +213,8 @@ void Kleaner::on_en_button(int aState)
       // Exit Test Menu
       else if (mCurrentMenuItem->get_id() == mTestMenuExit.get_id())
       {
-        Serial.println("Exit Menu Pressed");
         mCommandState = &mMenuState;
       }
-      else
-      {
-        Serial.println("??");
-      }
-      
     }
     else if(mCurrentState->get_id() == mCompleteState.get_id() ||
             mCurrentState->get_id() == mSplashState.get_id())
