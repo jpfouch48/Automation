@@ -48,7 +48,19 @@ void DisplayWrapper::clear(int aRow)
     // TODO: Find better way to clear a single line
     mLCD.at(aRow, 0, "                ");
   }
-};
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void DisplayWrapper::backlight_on(bool aOn)
+{
+  if(true == aOn)
+    mLCD.backLightOn();
+  else
+    mLCD.backLightOff();
+
+}
 
 
 // ****************************************************************************
