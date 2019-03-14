@@ -33,7 +33,7 @@ void OutputWrapper::loop()
     {
       if(true == mInDelay)
       {
-        if(mPulseTimer.delta() > mConfig.get_initial_state_time_in_ms())
+        if(mPulseTimer.delta() > mConfig.get_initial_delay_time_in_ms())
         {
             digitalWrite(mPin, mConfig.get_initial_state());
             mInDelay = false;

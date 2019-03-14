@@ -23,8 +23,8 @@ Kleaner::Kleaner() :
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER, LOW),
 
     // State init
-    mSplashState      ("Splash,   ", &mMenuState,       2),
-    mPurgeState       ("Purge     ", &mPreRinseState,   
+    mSplashState      ("Splash", &mMenuState,       2),
+    mPurgeState       ("Purge", &mPreRinseState,   
                        20,       
                        InputSource::None,
                        RecircDest::Waste,     
@@ -34,7 +34,7 @@ Kleaner::Kleaner() :
     // PUMP     -           
     // CO2      - XXXXX
 
-    mPreRinseState    ("Pre Rinse ", &mWashState,       
+    mPreRinseState    ("Pre Rinse", &mWashState,       
                        20,       
                        InputSource::Water,     RecircDest::Waste,     
               /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
@@ -43,7 +43,7 @@ Kleaner::Kleaner() :
     // PUMP     -   XXXXX           
     // CO2      -         XX
     
-    mWashState        ("Wash      ", &mPostRinseState,  
+    mWashState        ("Wash", &mPostRinseState,  
                        30,       
                        InputSource::Cleaner,
                        RecircDest::Cleaner,   
@@ -63,7 +63,7 @@ Kleaner::Kleaner() :
     // PUMP     -   XXXXX           
     // CO2      -         XX
                
-    mSanitizeState    ("Sanitize  ", &mPressurizeState, 
+    mSanitizeState    ("Sanitize", &mPressurizeState, 
                        30,       
                        InputSource::Sanitizer, 
                        RecircDest::Sanitizer, 
@@ -85,8 +85,8 @@ Kleaner::Kleaner() :
     // CO2      - XX
         
     // Menu States
-    mMenuState        ("Menu      ", NULL),
-    mTestMenuState    ("Test Menu ", NULL),
+    mMenuState        ("Menu", NULL),
+    mTestMenuState    ("Test Menu", NULL),
 
     mCurrentState(&mSplashState),
     mCommandState(NULL),
@@ -95,8 +95,8 @@ Kleaner::Kleaner() :
 
     // Menu init
     mCurrentMenuItem(&mStartMenuItem),
-    mStartMenuItem         (" Start          ",  NULL,                 &mTestMenuItem),
-    mTestMenuItem          (" Test Menu ...  ",  &mStartMenuItem,      NULL),
+    mStartMenuItem         ("Start",  NULL,                 &mTestMenuItem),
+    mTestMenuItem          ("Test Menu",  &mStartMenuItem,      NULL),
 
     mTestMenuCycleInput    (" Cycle Input    ", NULL,                  &mTestMenuCycleRecirc),
     mTestMenuCycleRecirc   (" Cycle Recirc   ", &mTestMenuCycleInput,  &mTestMenuTogglePump),
@@ -190,11 +190,11 @@ void Kleaner::on_en_button(int aState)
         // Toggle Pump
         if(mPumpWrapper.is_pulse_running())
         {
-          mPumpWrapper.start_pulse();
+          mPumpWrapper.reset_pulse();
         }
         else
         {
-          mPumpWrapper.reset_pulse();
+          mPumpWrapper.start_pulse();
         }        
       }
       // Toggle Co2
@@ -203,11 +203,11 @@ void Kleaner::on_en_button(int aState)
         // Toggle Pump
         if(mCo2Wrapper.is_pulse_running())
         {
-          mCo2Wrapper.start_pulse();
+          mCo2Wrapper.reset_pulse();
         }
         else
         {
-          mCo2Wrapper.reset_pulse();
+          mCo2Wrapper.start_pulse();
         }
       }
       // Exit Test Menu
@@ -356,14 +356,27 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
       mTestInputSource = InputSource::None;
       mTestRecircDest = RecircDest::None;
+
+
+      //int aIdleState,
+      //int aInitialState, 
+      //int aCycleTimeInMs, 
+      //int aInitialStateTimeInMs,
+      //int aInitialDelayInMs=0
+      // Timeline - 0123456789
+      // PUMP     -   XXXXX           
+      // CO2      -   XXXXX
+      static OutputWrapper::Config mPumpConfig(LOW, HIGH, 10000, 5000, 3000);
+      static OutputWrapper::Config mCo2Config(LOW,  HIGH, 10000, 5000, 0);
+
+      mCo2Wrapper.update_config(mCo2Config);
+      mPumpWrapper.update_config(mPumpConfig);
     }
   }
   else
   {
     // TODO: Generic processing
-
     // TODO : State Specific processing
-
   }
 
   // Check to see if our processing time has completed 
@@ -397,10 +410,10 @@ void Kleaner::set_input(InputSource aInputSource)
     default:                     set_input_off();       break;
   };
 }
-void Kleaner::set_input_off()        { mInWaterWrapper.set_state(LOW); mInSaniWrapper.set_state(LOW); mInCleanerWrapper.set_state(LOW); }
-void Kleaner::set_input_water()      { set_input_off(); mInWaterWrapper.set_state(HIGH); }
-void Kleaner::set_input_cleaner()    { set_input_off(); mInCleanerWrapper.set_state(HIGH); }
-void Kleaner::set_input_sanitizer()  { set_input_off(); mInSaniWrapper.set_state(HIGH); }
+void Kleaner::set_input_off()        { Serial.println("In OFF"); mInWaterWrapper.set_state(LOW); mInSaniWrapper.set_state(LOW); mInCleanerWrapper.set_state(LOW); }
+void Kleaner::set_input_water()      { Serial.println("In WTR"); set_input_off(); mInWaterWrapper.set_state(HIGH); }
+void Kleaner::set_input_cleaner()    { Serial.println("In CLN"); set_input_off(); mInCleanerWrapper.set_state(HIGH); }
+void Kleaner::set_input_sanitizer()  { Serial.println("In SAN"); set_input_off(); mInSaniWrapper.set_state(HIGH); }
 
 // ****************************************************************************
 // See header file for details
@@ -419,9 +432,9 @@ void Kleaner::set_recirc(RecircDest aRecircDest)
     default:                    set_recirc_off();       break;
   };
 }
-void Kleaner::set_recirc_off()       { mReWasteWrapper.set_state(LOW); mReSaniWrapper.set_state(LOW); mReCleanerWrapper.set_state(LOW); }
-void Kleaner::set_recirc_waste()     { set_recirc_off(); mReWasteWrapper.set_state(HIGH); }
-void Kleaner::set_recirc_sanitizer() { set_recirc_off(); mReSaniWrapper.set_state(HIGH); }
-void Kleaner::set_recirc_cleaner()   { set_recirc_off(); mReCleanerWrapper.set_state(HIGH); }
+void Kleaner::set_recirc_off()       { Serial.println("Re OFF"); mReWasteWrapper.set_state(LOW); mReSaniWrapper.set_state(LOW); mReCleanerWrapper.set_state(LOW); }
+void Kleaner::set_recirc_waste()     { Serial.println("Re WST"); set_recirc_off(); mReWasteWrapper.set_state(HIGH); }
+void Kleaner::set_recirc_sanitizer() { Serial.println("Re SAN"); set_recirc_off(); mReSaniWrapper.set_state(HIGH); }
+void Kleaner::set_recirc_cleaner()   { Serial.println("Re CLN"); set_recirc_off(); mReCleanerWrapper.set_state(HIGH); }
 
 void Kleaner::set_all_off()          { mCo2Wrapper.reset_pulse(); mPumpWrapper.reset_pulse(); set_input_off(); set_recirc_off(); }
