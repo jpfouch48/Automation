@@ -60,6 +60,8 @@ class Kleaner
     // States
     KleanerState *mCurrentState;
     KleanerState *mCommandState;
+    KleanerState *mReturnToState;
+
     KleanerState mSplashState;
     KleanerState mMenuState;
     KleanerState mPurgeState;
@@ -69,7 +71,11 @@ class Kleaner
     KleanerState mSanitizeState;
     KleanerState mPressurizeState;
     KleanerState mCompleteState;
+
+#if defined KLEANER_TEST_MENU  
     KleanerState mTestMenuState;
+    KleanerState mTestStateMenuState;
+#endif
 
     MilliTimer mStateTimer;
     bool mStateComplete;
@@ -82,7 +88,10 @@ class Kleaner
     // Main Menu
     // ****************************************************************************
     KleanerMenuItem mStartMenuItem;
+
+#if defined KLEANER_TEST_MENU
     KleanerMenuItem mTestMenuItem;
+    KleanerMenuItem mTestStateMenuItem;
 
     // Test Menu
     // ****************************************************************************
@@ -91,6 +100,17 @@ class Kleaner
     KleanerMenuItem mTestMenuTogglePump;
     KleanerMenuItem mTestMenuToggleCo2;
     KleanerMenuItem mTestMenuExit;
+
+    // Test State Menu
+    // ****************************************************************************
+    KleanerMenuItem mTestStateMenuPurge;    
+    KleanerMenuItem mTestStateMenuPreRinse;
+    KleanerMenuItem mTestStateMenuWash;
+    KleanerMenuItem mTestStateMenuPostRinse;
+    KleanerMenuItem mTestStateMenuSanitize;
+    KleanerMenuItem mTestStateMenuPressurize;
+    KleanerMenuItem mTestStateMenuExit;
+#endif
 
     KleanerMenuItem *mCurrentMenuItem;
 

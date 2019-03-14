@@ -1,6 +1,9 @@
 #ifndef KLEANER_DEFINES_H
 #define KLEANER_DEFINES_H
 
+#define KLEANER_TEST_MENU
+
+
 enum class InputSource
 {
   Water     = 0,
