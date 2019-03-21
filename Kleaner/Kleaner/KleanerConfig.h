@@ -1,6 +1,10 @@
 #ifndef KLEANER_CONFIG_h
 #define KLEANER_CONFIG_h
 
+#define KLEANER_TEST_MENU
+//#define KLEANER_TEST_STATE_MENU
+
+
 // ****************************************************************************
 //
 // ****************************************************************************
@@ -34,12 +38,20 @@
 // Splash Display
 // ****************************************************************************
 #define SPLASH_LINE_1    "Kleaner"
-#define SPLASH_LINE_2    "V 0.1"
+#define SPLASH_LINE_2    "V 0.2"
 
 
-
-
-
+// ****************************************************************************
+// Dump Config
+//   Timeline - 0123456789
+//   PUMP     -           
+//   CO2      - XXXXX
+// ****************************************************************************
+#define DUMP_DURATION      20
+#define DUMP_INPUT         InputSource::None
+#define DUMP_RECIRC        RecircDest::Waste 
+#define DUMP_PUMP          NULL
+#define DUMP_CO2           new OutputWrapper::Config(LOW, HIGH, 10000, 5000)
 
 // ****************************************************************************
 // Purge Config
@@ -52,7 +64,6 @@
 #define PURGE_RECIRC        RecircDest::Waste 
 #define PURGE_PUMP          NULL
 #define PURGE_CO2           new OutputWrapper::Config(LOW, HIGH, 10000, 5000)
-
 
 // ****************************************************************************
 // Pre Rinse Config

@@ -1,6 +1,9 @@
 #ifndef KLEANER_H
 #define KLEANER_H
 
+#include "KleanerConfig.h"
+#include "KleanerDefines.h"
+
 #include "KleanerState.h"
 #include "KleanerMenuItem.h"
 
@@ -64,11 +67,15 @@ class Kleaner
 
     KleanerState mSplashState;
     KleanerState mMenuState;
-    KleanerState mPurgeState;
+    KleanerState mDumpState;
     KleanerState mPreRinseState;
+    KleanerState mPurge1State;
     KleanerState mWashState;
+    KleanerState mPurge2State;
     KleanerState mPostRinseState;
+    KleanerState mPurge3State;
     KleanerState mSanitizeState;
+    KleanerState mPurge4State;
     KleanerState mPressurizeState;
     KleanerState mCompleteState;
 
@@ -109,7 +116,7 @@ class Kleaner
     // ****************************************************************************
     KleanerMenuItem mTestStateMenuItem;
 
-    KleanerMenuItem mTestStateMenuPurge;    
+    KleanerMenuItem mTestStateMenuDump;    
     KleanerMenuItem mTestStateMenuPreRinse;
     KleanerMenuItem mTestStateMenuWash;
     KleanerMenuItem mTestStateMenuPostRinse;

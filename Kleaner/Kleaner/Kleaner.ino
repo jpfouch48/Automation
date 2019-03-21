@@ -57,7 +57,7 @@ void on_button_en(int aCurrentState)
 void setup()
 {
   // Setup serial for logging
-  Serial.begin(115200);
+//  Serial.begin(115200);
 
   gKleaner.setup();
 

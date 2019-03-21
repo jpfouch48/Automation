@@ -43,6 +43,7 @@ class DisplayWrapper
     //  ** Display Cenetered
     // ************************************************************************
     void display(int aRow, String aTxt, bool aClear=true);
+
   protected:
 
   private:
