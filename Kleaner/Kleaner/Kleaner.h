@@ -74,6 +74,9 @@ class Kleaner
 
 #if defined KLEANER_TEST_MENU  
     KleanerState mTestMenuState;
+#endif
+
+#if defined KLEANER_TEST_STATE_MENU
     KleanerState mTestStateMenuState;
 #endif
 
@@ -90,19 +93,22 @@ class Kleaner
     KleanerMenuItem mStartMenuItem;
 
 #if defined KLEANER_TEST_MENU
-    KleanerMenuItem mTestMenuItem;
-    KleanerMenuItem mTestStateMenuItem;
-
     // Test Menu
     // ****************************************************************************
+    KleanerMenuItem mTestMenuItem;
+
     KleanerMenuItem mTestMenuCycleInput;    
     KleanerMenuItem mTestMenuCycleRecirc;
     KleanerMenuItem mTestMenuTogglePump;
     KleanerMenuItem mTestMenuToggleCo2;
     KleanerMenuItem mTestMenuExit;
+#endif
 
+#if defined KLEANER_TEST_STATE_MENU
     // Test State Menu
     // ****************************************************************************
+    KleanerMenuItem mTestStateMenuItem;
+
     KleanerMenuItem mTestStateMenuPurge;    
     KleanerMenuItem mTestStateMenuPreRinse;
     KleanerMenuItem mTestStateMenuWash;

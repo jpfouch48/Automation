@@ -2,6 +2,7 @@
 #define KLEANER_DEFINES_H
 
 #define KLEANER_TEST_MENU
+//#define KLEANER_TEST_STATE_MENU
 
 
 enum class InputSource

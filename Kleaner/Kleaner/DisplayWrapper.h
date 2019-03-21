@@ -37,12 +37,12 @@ class DisplayWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    void display(int aRow, int aCol, String aTxt);
+    void display(int aRow, int aCol, String aTxt, bool aCLear=true);
 
     // ************************************************************************
     //  ** Display Cenetered
     // ************************************************************************
-    void display(int aRow, String aTxt);
+    void display(int aRow, String aTxt, bool aClear=true);
   protected:
 
   private:

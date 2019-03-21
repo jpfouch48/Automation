@@ -17,19 +17,22 @@ DisplayWrapper::DisplayWrapper(int aPin,
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::display(int aRow, int aCol, String aTxt)
+void DisplayWrapper::display(int aRow, int aCol, String aTxt, bool aClear)
 {
-  clear(aRow);
+  if(aClear)
+    clear(aRow);
+
   mLCD.at(aRow, aCol, aTxt);
 }
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::display(int aRow, String aTxt)
+void DisplayWrapper::display(int aRow, String aTxt, bool aClear)
 {
   int lCol = 0;
 
-  clear(aRow);
+  if(aClear)
+    clear(aRow);
 
   lCol = (mColCount - aTxt.length())/2;
 

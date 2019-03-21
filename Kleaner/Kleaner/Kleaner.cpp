@@ -29,16 +29,19 @@ Kleaner::Kleaner() :
                        InputSource::None,
                        RecircDest::Waste,     
               /*PUMP*/ NULL,
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 5000)),
+               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 5000),
+                       true),
     // Timeline - 0123456789
     // PUMP     -           
     // CO2      - XXXXX
 
     mPreRinseState    ("Pre Rinse", &mWashState,       
                        20,       
-                       InputSource::Water,     RecircDest::Waste,     
+                       InputSource::Water,     
+                       RecircDest::Waste,     
               /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
+                       true),
     // Timeline - 0123456789
     // PUMP     -   XXXXX           
     // CO2      -         XX
@@ -48,7 +51,8 @@ Kleaner::Kleaner() :
                        InputSource::Cleaner,
                        RecircDest::Cleaner,   
               /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
+                       true),
     // Timeline - 0123456789
     // PUMP     -   XXXXX           
     // CO2      -         XX
@@ -58,7 +62,8 @@ Kleaner::Kleaner() :
                        InputSource::Water,
                        RecircDest::Waste,     
               /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
+                       true),
     // Timeline - 0123456789
     // PUMP     -   XXXXX           
     // CO2      -         XX
@@ -68,7 +73,8 @@ Kleaner::Kleaner() :
                        InputSource::Sanitizer, 
                        RecircDest::Sanitizer, 
               /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000)),
+               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
+                       true),
     // Timeline - 0123456789
     // PUMP     -   XXXXX           
     // CO2      -         XX
@@ -78,7 +84,8 @@ Kleaner::Kleaner() :
                        InputSource::None,
                        RecircDest::None,      
               /*PUMP*/ NULL,                                              
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 2000)),
+               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 2000),
+                       true),
     mCompleteState    ("Complete  ", NULL),
     // Timeline - 0123456789
     // PUMP     -           
@@ -88,6 +95,9 @@ Kleaner::Kleaner() :
     mMenuState          ("Menu", NULL),
 #if defined KLEANER_TEST_MENU    
     mTestMenuState      ("Test Menu", NULL),
+#endif
+
+#if defined KLEANER_TEST_STATE_MENU    
     mTestStateMenuState ("Test State", NULL),
 #endif
     mCurrentState(&mSplashState),
@@ -97,29 +107,42 @@ Kleaner::Kleaner() :
     mFirstTimeInState(true),
 
     // Menu init
-    mCurrentMenuItem(&mStartMenuItem),
+#if defined KLEANER_TEST_MENU  
+    mStartMenuItem         ("Start",           NULL,                 &mTestMenuItem),    
+#elif defined KLEANER_TEST_STATE_MENU
+    mStartMenuItem         ("Start",           NULL,                 &mTestStateMenuItem),    
+#else
+    mStartMenuItem         ("Start",           NULL,                 NULL),    
+#endif
 
 #if defined KLEANER_TEST_MENU  
-    mStartMenuItem         ("Start",  NULL,                 &mTestMenuItem),    
+  #if defined KLEANER_TEST_STATE_MENU
     mTestMenuItem          ("Test Menu",       &mStartMenuItem,      &mTestStateMenuItem),
-    mTestStateMenuItem     ("Test State Menu", &mTestMenuItem,       NULL),
-
-    mTestMenuCycleInput    (" Cycle Input    ", NULL,                  &mTestMenuCycleRecirc),
-    mTestMenuCycleRecirc   (" Cycle Recirc   ", &mTestMenuCycleInput,  &mTestMenuTogglePump),
-    mTestMenuTogglePump    (" Toggle Pump    ", &mTestMenuCycleRecirc, &mTestMenuToggleCo2),
-    mTestMenuToggleCo2     (" Toggle Co2     ", &mTestMenuTogglePump,  &mTestMenuExit),
-    mTestMenuExit          (" <Exit Menu>    ", &mTestMenuToggleCo2,   NULL),
-
-    mTestStateMenuPurge      (" Purge          ", NULL,                      &mTestStateMenuPreRinse),
-    mTestStateMenuPreRinse   (" Pre Rinse      ", &mTestStateMenuPurge,      &mTestStateMenuWash),
-    mTestStateMenuWash       (" Wash           ", &mTestStateMenuPreRinse,   &mTestStateMenuPostRinse),
-    mTestStateMenuPostRinse  (" Post Rinse     ", &mTestStateMenuWash,       &mTestStateMenuSanitize),
-    mTestStateMenuSanitize   (" Sanitize       ", &mTestStateMenuPostRinse,  &mTestStateMenuPressurize),
-    mTestStateMenuPressurize (" Pressurize     ", &mTestStateMenuSanitize,   &mTestStateMenuExit),
-    mTestStateMenuExit       (" <Exit Menu>    ", &mTestStateMenuPressurize, NULL)    
-#else
-    mStartMenuItem         ("Start",           NULL,                 NULL)
+  #else
+    mTestMenuItem          ("Test Menu",       &mStartMenuItem,      NULL),
+  #endif
+    mTestMenuCycleInput    (" Cycle Input", NULL,                  &mTestMenuCycleRecirc),
+    mTestMenuCycleRecirc   (" Cycle Recirc", &mTestMenuCycleInput,  &mTestMenuTogglePump),
+    mTestMenuTogglePump    (" Toggle Pump", &mTestMenuCycleRecirc, &mTestMenuToggleCo2),
+    mTestMenuToggleCo2     (" Toggle Co2", &mTestMenuTogglePump,  &mTestMenuExit),
+    mTestMenuExit          (" <Exit Menu>", &mTestMenuToggleCo2,   NULL),
 #endif
+
+#if defined KLEANER_TEST_STATE_MENU
+  #if defined KLEANER_TEST_MENU
+    mTestStateMenuItem       ("Test State Menu", &mTestMenuItem,       NULL),
+  #else
+    mTestStateMenuItem       ("Test State Menu", &mStartMenuItem,       NULL),
+  #endif
+    mTestStateMenuPurge      (" Purge", NULL,                      &mTestStateMenuPreRinse),
+    mTestStateMenuPreRinse   (" Pre Rinse", &mTestStateMenuPurge,      &mTestStateMenuWash),
+    mTestStateMenuWash       (" Wash", &mTestStateMenuPreRinse,   &mTestStateMenuPostRinse),
+    mTestStateMenuPostRinse  (" Post Rinse", &mTestStateMenuWash,       &mTestStateMenuSanitize),
+    mTestStateMenuSanitize   (" Sanitize", &mTestStateMenuPostRinse,  &mTestStateMenuPressurize),
+    mTestStateMenuPressurize (" Pressurize", &mTestStateMenuSanitize,   &mTestStateMenuExit),
+    mTestStateMenuExit       (" <Exit Menu>", &mTestStateMenuPressurize, NULL),
+#endif
+    mCurrentMenuItem(&mStartMenuItem)
 {
 
 }
@@ -134,14 +157,18 @@ void Kleaner::on_up_button(int aState)
     // Process menu menu option for menu and test menu state
     if(mCurrentState->get_id() == mMenuState.get_id() 
 #if defined KLEANER_TEST_MENU        
-       || 
-       mCurrentState->get_id() == mTestMenuState.get_id()
+       || mCurrentState->get_id() == mTestMenuState.get_id()
+#endif
+#if defined KLEANER_TEST_STATE_MENU
+       || mCurrentState->get_id() == mTestStateMenuState.get_id()
 #endif
       )
     {
       if(mCurrentMenuItem->get_prev_item() != NULL)
       {
         mCurrentMenuItem = mCurrentMenuItem->get_prev_item();
+        Serial.print(mCurrentMenuItem->get_title());
+        Serial.println(mCurrentMenuItem->get_id());
         mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
       }
     } 
@@ -158,14 +185,18 @@ void Kleaner::on_dn_button(int aState)
     // Process menu menu option for menu and test menu state
     if(mCurrentState->get_id() == mMenuState.get_id() 
 #if defined KLEANER_TEST_MENU        
-       ||
-       mCurrentState->get_id() == mTestMenuState.get_id()
+       || mCurrentState->get_id() == mTestMenuState.get_id()
+#endif
+#if defined KLEANER_TEST_STATE_MENU
+       || mCurrentState->get_id() == mTestStateMenuState.get_id()
 #endif       
       )
     {
       if(mCurrentMenuItem->get_next_item() != NULL)
       {
         mCurrentMenuItem = mCurrentMenuItem->get_next_item();
+        Serial.print(mCurrentMenuItem->get_title());
+        Serial.println(mCurrentMenuItem->get_id());
         mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
       }
     } 
@@ -193,11 +224,16 @@ void Kleaner::on_en_button(int aState)
       {
         mCommandState = &mTestMenuState;      
       }
+#endif
+
+#if defined KLEANER_TEST_STATE_MENU      
       else if (mCurrentMenuItem->get_id() == mTestStateMenuItem.get_id())
       {
         mCommandState = &mTestStateMenuState;          
       }
-    } 
+#endif 
+    }
+#if defined KLEANER_TEST_MENU    
     else if(mCurrentState->get_id() == mTestMenuState.get_id())
     {
       // Cycle Input
@@ -246,6 +282,9 @@ void Kleaner::on_en_button(int aState)
         mCommandState = &mMenuState;
       }
     }
+#endif
+
+#if defined KLEANER_TEST_STATE_MENU
     else if(mCurrentState->get_id() == mTestStateMenuState.get_id())
     {    
       if (mCurrentMenuItem->get_id() == mTestStateMenuPurge.get_id())
@@ -280,10 +319,10 @@ void Kleaner::on_en_button(int aState)
       }       
       else if (mCurrentMenuItem->get_id() == mTestStateMenuExit.get_id())
       {
-        mCommandState = &mTestMenuState;
+        mCommandState = &mMenuState;
       }      
-#endif
     }    
+#endif
     else if(mCurrentState->get_id() == mCompleteState.get_id() ||
             mCurrentState->get_id() == mSplashState.get_id())
     {
@@ -450,6 +489,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       mCo2Wrapper.update_config(mCo2Config);
       mPumpWrapper.update_config(mPumpConfig);
     }
+#endif
+
+#if defined KLEANER_TEST_STATE_MENU
     else if(aState->get_id() == mTestStateMenuState.get_id())
     {
       // Set the menu to the first option
@@ -462,6 +504,10 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   {
     // TODO: Generic processing
     // TODO : State Specific processing
+    if(true == aState->get_is_process_state())
+    {
+      mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
+    }
   }
 
   // Check to see if our processing time has completed 

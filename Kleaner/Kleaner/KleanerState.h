@@ -16,11 +16,12 @@ public:
   //***************************************************************************
   KleanerState(String                 aStateName, 
                KleanerState          *aNextState, 
-               int                    aStateTimeInSec = 0, 
-               InputSource            aInputSource    = InputSource::None, 
-               RecircDest             aRecircDest     = RecircDest::None,
-               OutputWrapper::Config *aPumpConfig     = NULL,
-               OutputWrapper::Config *aCo2Config      = NULL);
+               int                    aStateTimeInSec  = 0, 
+               InputSource            aInputSource     = InputSource::None, 
+               RecircDest             aRecircDest      = RecircDest::None,
+               OutputWrapper::Config *aPumpConfig      = NULL,
+               OutputWrapper::Config *aCo2Config       = NULL,
+               bool                   aIsProccessState = false);
 
   // Accessor functions
   int                    get_id()                const { return mId;             }
@@ -29,6 +30,7 @@ public:
   InputSource            get_input_source()      const { return mInputSource;    }
   RecircDest             get_recirc_dest()       const { return mRecircDest;     } 
   KleanerState*          get_next_state()        const { return mNextState;      }
+  bool                   get_is_process_state()  const { return mIsProcessState; }
 
   const OutputWrapper::Config* get_pump_config() const { return mPumpConfig;     }
   const OutputWrapper::Config* get_co2_config()  const { return mCo2Config;      }
@@ -44,6 +46,7 @@ private:
   RecircDest             mRecircDest;
   OutputWrapper::Config *mPumpConfig;
   OutputWrapper::Config *mCo2Config;
+  bool                   mIsProcessState;
 
   KleanerState *mNextState;
 
