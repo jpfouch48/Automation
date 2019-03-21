@@ -24,72 +24,16 @@ Kleaner::Kleaner() :
 
     // State init
     mSplashState      ("Splash", &mMenuState,       2),
-    mPurgeState       ("Purge", &mPreRinseState,   
-                       20,       
-                       InputSource::None,
-                       RecircDest::Waste,     
-              /*PUMP*/ NULL,
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 5000),
-                       true),
-    // Timeline - 0123456789
-    // PUMP     -           
-    // CO2      - XXXXX
 
-    mPreRinseState    ("Pre Rinse", &mWashState,       
-                       20,       
-                       InputSource::Water,     
-                       RecircDest::Waste,     
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
-                       true),
-    // Timeline - 0123456789
-    // PUMP     -   XXXXX           
-    // CO2      -         XX
-    
-    mWashState        ("Wash", &mPostRinseState,  
-                       30,       
-                       InputSource::Cleaner,
-                       RecircDest::Cleaner,   
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
-                       true),
-    // Timeline - 0123456789
-    // PUMP     -   XXXXX           
-    // CO2      -         XX
+    mPurgeState       ("Purge",      &mPreRinseState,  PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
+    mPreRinseState    ("Pre Rinse",  &mWashState,      PRE_RINSE_DURATION,  PRE_RINSE_INPUT,  PRE_RINSE_RECIRC,  PRE_RINSE_PUMP,  PRE_RINSE_CO2,  true),    
+    mWashState        ("Wash",       &mPostRinseState, WASH_DURATION,       WASH_INPUT,       WASH_RECIRC,       WASH_PUMP,       WASH_CO2,       true),
+    mPostRinseState   ("Post Rinse", &mSanitizeState,  POST_RINSE_DURATION, POST_RINSE_INPUT, POST_RINSE_RECIRC, POST_RINSE_PUMP, POST_RINSE_CO2, true),
+    mSanitizeState    ("Sanitize", &mPressurizeState,  SANI_DURATION,       SANI_INPUT,       SANI_RECIRC,       SANI_PUMP,       SANI_CO2,       true),
+    mPressurizeState  ("Pressurize", &mCompleteState,  PRESS_DURATION,      PRESS_INPUT,      PRESS_RECIRC,      PRESS_PUMP,      PRESS_CO2,      true),
 
-    mPostRinseState   ("Post Rinse", &mSanitizeState,   
-                       20,       
-                       InputSource::Water,
-                       RecircDest::Waste,     
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
-                       true),
-    // Timeline - 0123456789
-    // PUMP     -   XXXXX           
-    // CO2      -         XX
-               
-    mSanitizeState    ("Sanitize", &mPressurizeState, 
-                       30,       
-                       InputSource::Sanitizer, 
-                       RecircDest::Sanitizer, 
-              /*PUMP*/ new OutputWrapper::Config(LOW, HIGH,  10000, 5000, 2000), 
-               /*CO2*/ new OutputWrapper::Config(LOW, LOW,   10000, 8000),
-                       true),
-    // Timeline - 0123456789
-    // PUMP     -   XXXXX           
-    // CO2      -         XX
-
-    mPressurizeState  ("Pressurize", &mCompleteState,   
-                       10,       
-                       InputSource::None,
-                       RecircDest::None,      
-              /*PUMP*/ NULL,                                              
-               /*CO2*/ new OutputWrapper::Config(LOW, HIGH, 10000, 2000),
-                       true),
     mCompleteState    ("Complete  ", NULL),
-    // Timeline - 0123456789
-    // PUMP     -           
-    // CO2      - XX
+
         
     // Menu States
     mMenuState          ("Menu", NULL),
