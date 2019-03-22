@@ -29,9 +29,22 @@ class OutputWrapper
         enum class Type
         {
           Manual, 
-          Pulsing
+          Pulsing,
+          Disabled
         };
 
+        // ********************************************************************
+        // 
+        // ********************************************************************
+        Config() :
+          mIdleState(LOW),
+          mInitialState(LOW),
+          mType(Type::Disabled),
+          mCycleTimeInMs(0),
+          mInitialStateTimeInMs(0),
+          mInitialDelayInMs(0)
+        {
+        }
 
         // ********************************************************************
         // 

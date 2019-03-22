@@ -3,6 +3,8 @@
 
 #include "KleanerConfig.h"
 
+//#define F(s)(s)
+
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
@@ -23,29 +25,29 @@ Kleaner::Kleaner() :
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER, LOW),
 
     // State init
-    mSplashState      ("Splash",     &mMenuState,       2),
+    mSplashState      (F("Splash"),     &mMenuState,       2),
 
-    mDumpState        ("Dump",       &mPreRinseState,   DUMP_DURATION,       DUMP_INPUT,       DUMP_RECIRC,       DUMP_PUMP,       DUMP_CO2,       true),
-    mPreRinseState    ("Pre",        &mPurge1State,     PRE_RINSE_DURATION,  PRE_RINSE_INPUT,  PRE_RINSE_RECIRC,  PRE_RINSE_PUMP,  PRE_RINSE_CO2,  true),    
-    mPurge1State      ("Pre-Purge",  &mWashState,       PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mWashState        ("Wash",       &mPurge2State,     WASH_DURATION,       WASH_INPUT,       WASH_RECIRC,       WASH_PUMP,       WASH_CO2,       true),
-    mPurge2State      ("Wash-Purge", &mPostRinseState,  PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mPostRinseState   ("Post",       &mPurge3State,     POST_RINSE_DURATION, POST_RINSE_INPUT, POST_RINSE_RECIRC, POST_RINSE_PUMP, POST_RINSE_CO2, true),
-    mPurge3State      ("Post-Purge", &mSanitizeState,   PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mSanitizeState    ("Sani",       &mPurge4State,     SANI_DURATION,       SANI_INPUT,       SANI_RECIRC,       SANI_PUMP,       SANI_CO2,       true),
-    mPurge4State      ("Sani-Purge", &mPressurizeState, PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mPressurizeState  ("Press",      &mCompleteState,   PRESS_DURATION,      PRESS_INPUT,      PRESS_RECIRC,      PRESS_PUMP,      PRESS_CO2,      true),
+    mDumpState        (F("Dump"),       &mPreRinseState,   DUMP_DURATION,       DUMP_INPUT,       DUMP_RECIRC,       DUMP_PUMP,       DUMP_CO2,       true),
+    mPreRinseState    (F("Pre"),        &mPurge1State,     PRE_RINSE_DURATION,  PRE_RINSE_INPUT,  PRE_RINSE_RECIRC,  PRE_RINSE_PUMP,  PRE_RINSE_CO2,  true),    
+    mPurge1State      (F("Pre-Purge"),  &mWashState,       PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
+    mWashState        (F("Wash"),       &mPurge2State,     WASH_DURATION,       WASH_INPUT,       WASH_RECIRC,       WASH_PUMP,       WASH_CO2,       true),
+    mPurge2State      (F("Wash-Purge"), &mPostRinseState,  PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
+    mPostRinseState   (F("Post"),       &mPurge3State,     POST_RINSE_DURATION, POST_RINSE_INPUT, POST_RINSE_RECIRC, POST_RINSE_PUMP, POST_RINSE_CO2, true),
+    mPurge3State      (F("Post-Purge"), &mSanitizeState,   PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
+    mSanitizeState    (F("Sani"),       &mPurge4State,     SANI_DURATION,       SANI_INPUT,       SANI_RECIRC,       SANI_PUMP,       SANI_CO2,       true),
+    mPurge4State      (F("Sani-Purge"), &mPressurizeState, PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
+    mPressurizeState  (F("Press"),      &mCompleteState,   PRESS_DURATION,      PRESS_INPUT,      PRESS_RECIRC,      PRESS_PUMP,      PRESS_CO2,      true),
 
-    mCompleteState    ("Complete  ", NULL),
+    mCompleteState    (F("Complete"), NULL),
 
         
     // Menu States
-    mMenuState          ("Menu", NULL),
+    mMenuState          (F("Menu"), NULL),
 #if defined KLEANER_TEST_MENU    
-    mTestMenuState      ("Test Menu", NULL),
+    mTestMenuState      (F("Test Menu"), NULL),
 #endif
 #if defined KLEANER_TEST_STATE_MENU    
-    mTestStateMenuState ("Test State", NULL),
+    mTestStateMenuState (F("Test State"), NULL),
 #endif
 
     mCurrentState(&mSplashState),
@@ -56,39 +58,39 @@ Kleaner::Kleaner() :
 
     // Menu init
 #if defined KLEANER_TEST_MENU  
-    mStartMenuItem         ("Start",           NULL,                 &mTestMenuItem),    
+    mStartMenuItem         (F("Start"),           NULL,                 &mTestMenuItem),    
 #elif defined KLEANER_TEST_STATE_MENU
-    mStartMenuItem         ("Start",           NULL,                 &mTestStateMenuItem),    
+    mStartMenuItem         (F("Start"),           NULL,                 &mTestStateMenuItem),    
 #else
-    mStartMenuItem         ("Start",           NULL,                 NULL),    
+    mStartMenuItem         (F("Start"),           NULL,                 NULL),    
 #endif
 
 #if defined KLEANER_TEST_MENU  
   #if defined KLEANER_TEST_STATE_MENU
-    mTestMenuItem          ("Test Menu",       &mStartMenuItem,      &mTestStateMenuItem),
+    mTestMenuItem          (F("Test Menu"),       &mStartMenuItem,      &mTestStateMenuItem),
   #else
-    mTestMenuItem          ("Test Menu",       &mStartMenuItem,      NULL),
+    mTestMenuItem          (F("Test Menu"),       &mStartMenuItem,      NULL),
   #endif
-    mTestMenuCycleInput    (" Cycle Input",  NULL,                  &mTestMenuCycleRecirc),
-    mTestMenuCycleRecirc   (" Cycle Recirc", &mTestMenuCycleInput,  &mTestMenuTogglePump),
-    mTestMenuTogglePump    (" Toggle Pump",  &mTestMenuCycleRecirc, &mTestMenuToggleCo2),
-    mTestMenuToggleCo2     (" Toggle Co2",   &mTestMenuTogglePump,  &mTestMenuExit),
-    mTestMenuExit          (" <BACK>",       &mTestMenuToggleCo2,   NULL),
+    mTestMenuCycleInput    (F(" Cycle Input"),  NULL,                  &mTestMenuCycleRecirc),
+    mTestMenuCycleRecirc   (F(" Cycle Recirc"), &mTestMenuCycleInput,  &mTestMenuTogglePump),
+    mTestMenuTogglePump    (F(" Toggle Pump"),  &mTestMenuCycleRecirc, &mTestMenuToggleCo2),
+    mTestMenuToggleCo2     (F(" Toggle Co2"),   &mTestMenuTogglePump,  &mTestMenuExit),
+    mTestMenuExit          (F(" <BACK>"),       &mTestMenuToggleCo2,   NULL),
 #endif
 
 #if defined KLEANER_TEST_STATE_MENU
   #if defined KLEANER_TEST_MENU
-    mTestStateMenuItem       ("Test State Menu", &mTestMenuItem,       NULL),
+    mTestStateMenuItem       (F("Test State Menu"), &mTestMenuItem,       NULL),
   #else
-    mTestStateMenuItem       ("Test State Menu", &mStartMenuItem,       NULL),
+    mTestStateMenuItem       (F("Test State Menu"), &mStartMenuItem,       NULL),
   #endif
-    mTestStateMenuDump       (" Dump",   NULL,                      &mTestStateMenuPreRinse),
-    mTestStateMenuPreRinse   (" Pre",    &mTestStateMenuDump,       &mTestStateMenuWash),
-    mTestStateMenuWash       (" Wash",   &mTestStateMenuPreRinse,   &mTestStateMenuPostRinse),
-    mTestStateMenuPostRinse  (" Post",   &mTestStateMenuWash,       &mTestStateMenuSanitize),
-    mTestStateMenuSanitize   (" Sani",   &mTestStateMenuPostRinse,  &mTestStateMenuPressurize),
-    mTestStateMenuPressurize (" Press",  &mTestStateMenuSanitize,   &mTestStateMenuExit),
-    mTestStateMenuExit       (" <BACK>", &mTestStateMenuPressurize, NULL),
+    mTestStateMenuDump       (F(" Dump"),   NULL,                      &mTestStateMenuPreRinse),
+    mTestStateMenuPreRinse   (F(" Pre"),    &mTestStateMenuDump,       &mTestStateMenuWash),
+    mTestStateMenuWash       (F(" Wash"),   &mTestStateMenuPreRinse,   &mTestStateMenuPostRinse),
+    mTestStateMenuPostRinse  (F(" Post"),   &mTestStateMenuWash,       &mTestStateMenuSanitize),
+    mTestStateMenuSanitize   (F(" Sani"),   &mTestStateMenuPostRinse,  &mTestStateMenuPressurize),
+    mTestStateMenuPressurize (F(" Press"),  &mTestStateMenuSanitize,   &mTestStateMenuExit),
+    mTestStateMenuExit       (F(" <BACK>"), &mTestStateMenuPressurize, NULL),
 #endif
     mCurrentMenuItem(&mStartMenuItem)
 {
@@ -189,11 +191,11 @@ void Kleaner::on_en_button(int aState)
 
         switch(mTestInputSource)
         {
-          case InputSource::Cleaner:   mDisplayWrapper.display(1, 15, "C", false); break;
-          case InputSource::Sanitizer: mDisplayWrapper.display(1, 15, "S", false); break;
-          case InputSource::Water:     mDisplayWrapper.display(1, 15, "W", false); break;
-          case InputSource::None:      mDisplayWrapper.display(1, 15, " ", false); break;
-          default:                     mDisplayWrapper.display(1, 15, "?", false); break;
+          case InputSource::Cleaner:   mDisplayWrapper.display(1, 15, F("C"), false); break;
+          case InputSource::Sanitizer: mDisplayWrapper.display(1, 15, F("S"), false); break;
+          case InputSource::Water:     mDisplayWrapper.display(1, 15, F("W"), false); break;
+          case InputSource::None:      mDisplayWrapper.display(1, 15, F(" "), false); break;
+          default:                     mDisplayWrapper.display(1, 15, F("?"), false); break;
         };        
       }
       // Cycle Recirc
@@ -205,11 +207,11 @@ void Kleaner::on_en_button(int aState)
 
         switch(mTestRecircDest)
         {
-          case RecircDest::Cleaner:   mDisplayWrapper.display(1, 15, "C", false); break;
-          case RecircDest::Sanitizer: mDisplayWrapper.display(1, 15, "S", false); break;
-          case RecircDest::Waste:     mDisplayWrapper.display(1, 15, "W", false); break;
-          case RecircDest::None:      mDisplayWrapper.display(1, 15, " ", false); break;
-          default:                    mDisplayWrapper.display(1, 15, "?", false); break;
+          case RecircDest::Cleaner:   mDisplayWrapper.display(1, 15, F("C"), false); break;
+          case RecircDest::Sanitizer: mDisplayWrapper.display(1, 15, F("S"), false); break;
+          case RecircDest::Waste:     mDisplayWrapper.display(1, 15, F("W"), false); break;
+          case RecircDest::None:      mDisplayWrapper.display(1, 15, F(" "), false); break;
+          default:                    mDisplayWrapper.display(1, 15, F("?"), false); break;
         };
       }
       // Toggle Pump

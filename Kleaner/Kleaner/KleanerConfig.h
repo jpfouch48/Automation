@@ -50,8 +50,8 @@
 #define DUMP_DURATION      20
 #define DUMP_INPUT         InputSource::None
 #define DUMP_RECIRC        RecircDest::Waste 
-#define DUMP_PUMP          NULL
-#define DUMP_CO2           new OutputWrapper::Config(LOW, HIGH, 10000, 5000)
+#define DUMP_PUMP          OutputWrapper::Config()
+#define DUMP_CO2           OutputWrapper::Config(LOW, HIGH, 10000, 5000)
 
 // ****************************************************************************
 // Purge Config
@@ -62,8 +62,8 @@
 #define PURGE_DURATION      20
 #define PURGE_INPUT         InputSource::None
 #define PURGE_RECIRC        RecircDest::Waste 
-#define PURGE_PUMP          NULL
-#define PURGE_CO2           new OutputWrapper::Config(LOW, HIGH, 10000, 5000)
+#define PURGE_PUMP          OutputWrapper::Config()
+#define PURGE_CO2           OutputWrapper::Config(LOW, HIGH, 10000, 5000)
 
 // ****************************************************************************
 // Pre Rinse Config
@@ -74,8 +74,8 @@
 #define PRE_RINSE_DURATION     20
 #define PRE_RINSE_INPUT        InputSource::Water
 #define PRE_RINSE_RECIRC       RecircDest::Waste 
-#define PRE_RINSE_PUMP         new OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
-#define PRE_RINSE_CO2          new OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define PRE_RINSE_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
+#define PRE_RINSE_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
 
 // ****************************************************************************
 // Wash Config
@@ -86,8 +86,8 @@
 #define WASH_DURATION     30
 #define WASH_INPUT        InputSource::Cleaner
 #define WASH_RECIRC       RecircDest::Cleaner 
-#define WASH_PUMP         new OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
-#define WASH_CO2          new OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define WASH_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
+#define WASH_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
 
 // ****************************************************************************
 // Post Rinse Config
@@ -98,8 +98,8 @@
 #define POST_RINSE_DURATION     20
 #define POST_RINSE_INPUT        InputSource::Water
 #define POST_RINSE_RECIRC       RecircDest::Waste 
-#define POST_RINSE_PUMP         new OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
-#define POST_RINSE_CO2          new OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define POST_RINSE_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
+#define POST_RINSE_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
 
 // ****************************************************************************
 // Sanitize Config
@@ -110,8 +110,8 @@
 #define SANI_DURATION     30
 #define SANI_INPUT        InputSource::Sanitizer
 #define SANI_RECIRC       RecircDest::Sanitizer 
-#define SANI_PUMP         new OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
-#define SANI_CO2          new OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define SANI_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 5000, 2000)
+#define SANI_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
 
 // ****************************************************************************
 // Pressurize Config
@@ -122,7 +122,7 @@
 #define PRESS_DURATION     10
 #define PRESS_INPUT        InputSource::None
 #define PRESS_RECIRC       RecircDest::None 
-#define PRESS_PUMP         NULL
-#define PRESS_CO2          new OutputWrapper::Config(LOW, HIGH,  10000, 2000)
+#define PRESS_PUMP         OutputWrapper::Config()
+#define PRESS_CO2          OutputWrapper::Config(LOW, HIGH,  10000, 2000)
 
 #endif

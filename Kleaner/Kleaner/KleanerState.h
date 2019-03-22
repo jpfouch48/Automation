@@ -19,8 +19,8 @@ public:
                int                    aStateTimeInSec  = 0, 
                InputSource            aInputSource     = InputSource::None, 
                RecircDest             aRecircDest      = RecircDest::None,
-               OutputWrapper::Config *aPumpConfig      = NULL,
-               OutputWrapper::Config *aCo2Config       = NULL,
+               OutputWrapper::Config  aPumpConfig      = OutputWrapper::Config(),
+               OutputWrapper::Config  aCo2Config       = OutputWrapper::Config(),
                bool                   aIsProccessState = false);
 
   // Accessor functions
@@ -32,8 +32,8 @@ public:
   KleanerState*          get_next_state()        const { return mNextState;      }
   bool                   get_is_process_state()  const { return mIsProcessState; }
 
-  const OutputWrapper::Config* get_pump_config() const { return mPumpConfig;     }
-  const OutputWrapper::Config* get_co2_config()  const { return mCo2Config;      }
+  const OutputWrapper::Config* get_pump_config() const { return &mPumpConfig;     }
+  const OutputWrapper::Config* get_co2_config()  const { return &mCo2Config;      }
 
 protected:
 
@@ -44,8 +44,8 @@ private:
   int                    mStateTimeInSec;
   InputSource            mInputSource;
   RecircDest             mRecircDest;
-  OutputWrapper::Config *mPumpConfig;
-  OutputWrapper::Config *mCo2Config;
+  OutputWrapper::Config  mPumpConfig;
+  OutputWrapper::Config  mCo2Config;
   bool                   mIsProcessState;
 
   KleanerState *mNextState;
