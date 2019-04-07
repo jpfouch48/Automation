@@ -89,7 +89,8 @@ Kleaner::Kleaner() :
     mTestStateMenuWash       (F(" Wash"),   &mTestStateMenuPreRinse,   &mTestStateMenuPostRinse),
     mTestStateMenuPostRinse  (F(" Post"),   &mTestStateMenuWash,       &mTestStateMenuSanitize),
     mTestStateMenuSanitize   (F(" Sani"),   &mTestStateMenuPostRinse,  &mTestStateMenuPressurize),
-    mTestStateMenuPressurize (F(" Press"),  &mTestStateMenuSanitize,   &mTestStateMenuExit),
+    mTestStateMenuPressurize (F(" Press"),  &mTestStateMenuSanitize,   &mTestStateMenuPurge),
+    mTestStateMenuPurge      (F(" Purge"),  &mTestStateMenuPressurize, &mTestStateMenuExit),
     mTestStateMenuExit       (F(" <BACK>"), &mTestStateMenuPressurize, NULL),
 #endif
     mCurrentMenuItem(&mStartMenuItem)
@@ -281,6 +282,11 @@ void Kleaner::on_en_button(int aState)
         mCommandState = &mPressurizeState;
         mReturnToState = &mTestStateMenuState;
       }       
+      else if (mCurrentMenuItem->get_id() == mTestStateMenuPurge.get_id())
+      {
+        mCommandState = &mPurge1State;
+        mReturnToState = &mTestStateMenuState;
+      }       
       else if (mCurrentMenuItem->get_id() == mTestStateMenuExit.get_id())
       {
         mCommandState = &mMenuState;
@@ -464,7 +470,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   }
 
   // Check to see if our processing time has completed 
-  // Note if -1 value timer is disabled
+  // Note if 0 value timer is disabled
   if(aState->get_state_time_in_sec() != 0 &&
      aState->get_state_time_in_sec() < mStateTimer.delta_in_secs())
   {

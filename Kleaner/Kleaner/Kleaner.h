@@ -117,6 +117,7 @@ class Kleaner
     KleanerMenuItem mTestStateMenuItem;
 
     KleanerMenuItem mTestStateMenuDump;    
+    KleanerMenuItem mTestStateMenuPurge;    
     KleanerMenuItem mTestStateMenuPreRinse;
     KleanerMenuItem mTestStateMenuWash;
     KleanerMenuItem mTestStateMenuPostRinse;
