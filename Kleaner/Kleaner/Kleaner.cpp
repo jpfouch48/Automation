@@ -14,9 +14,8 @@ Kleaner::Kleaner() :
 
     // Input wrapper init
     // Note: Timing values will be updated based on state configuration
-    mCo2Wrapper(DO_PIN_RELAY_CO2, LOW, HIGH, 5, 3),
-    mPumpWrapper(DO_PIN_PUMP, LOW, HIGH, 5, 3),
-
+    mCo2Wrapper(DO_PIN_RELAY_CO2, LOW),
+    mPumpWrapper(DO_PIN_PUMP, LOW),
     mInWaterWrapper(DO_PIN_RELAY_INPUT_WATER, LOW),
     mInSaniWrapper(DO_PIN_RELAY_INPUT_SANITIZER, LOW),
     mInCleanerWrapper(DO_PIN_RELAY_INPUT_CLEANER, LOW),
@@ -27,16 +26,16 @@ Kleaner::Kleaner() :
     // State init
     mSplashState      (F("Splash"),     &mMenuState,       2),
 
-    mDumpState        (F("Dump"),       &mPreRinseState,   DUMP_DURATION,       DUMP_INPUT,       DUMP_RECIRC,       DUMP_PUMP,       DUMP_CO2,       true),
-    mPreRinseState    (F("Pre"),        &mPurge1State,     PRE_RINSE_DURATION,  PRE_RINSE_INPUT,  PRE_RINSE_RECIRC,  PRE_RINSE_PUMP,  PRE_RINSE_CO2,  true),    
-    mPurge1State      (F("Pre-Purge"),  &mWashState,       PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mWashState        (F("Wash"),       &mPurge2State,     WASH_DURATION,       WASH_INPUT,       WASH_RECIRC,       WASH_PUMP,       WASH_CO2,       true),
-    mPurge2State      (F("Wash-Purge"), &mPostRinseState,  PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mPostRinseState   (F("Post"),       &mPurge3State,     POST_RINSE_DURATION, POST_RINSE_INPUT, POST_RINSE_RECIRC, POST_RINSE_PUMP, POST_RINSE_CO2, true),
-    mPurge3State      (F("Post-Purge"), &mSanitizeState,   PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mSanitizeState    (F("Sani"),       &mPurge4State,     SANI_DURATION,       SANI_INPUT,       SANI_RECIRC,       SANI_PUMP,       SANI_CO2,       true),
-    mPurge4State      (F("Sani-Purge"), &mPressurizeState, PURGE_DURATION,      PURGE_INPUT,      PURGE_RECIRC,      PURGE_PUMP,      PURGE_CO2,      true),
-    mPressurizeState  (F("Press"),      &mCompleteState,   PRESS_DURATION,      PRESS_INPUT,      PRESS_RECIRC,      PRESS_PUMP,      PRESS_CO2,      true),
+    mDumpState        (F("Dump"),       &mPreRinseState,   DURATION_DUMP,       INPUT_DUMP,       RECIRC_DUMP,       PUMP_CFG_DUMP,       CO2_CFG_DUMP,       INPUT_CFG_DUMP,       true),
+    mPreRinseState    (F("Pre"),        &mPurge1State,     DURATION_PRE_RINSE,  INPUT_PRE_RINSE,  RECIRC_PRE_RINSE,  PUMP_CFG_PRE_RINSE,  CO2_CFG_PRE_RINSE,  INPUT_CFG_PRE_RINSE,  true),    
+    mPurge1State      (F("Pre-Purge"),  &mWashState,       DURATION_PURGE,      INPUT_PURGE,      RECIRC_PURGE,      PUMP_CFG_PURGE,      CO2_CFG_PURGE,      INPUT_CFG_PURGE,      true),
+    mWashState        (F("Wash"),       &mPurge2State,     DURATION_WASH,       INPUT_WASH,       RECIRC_WASH,       PUMP_CFG_WASH,       CO2_CFG_WASH,       INPUT_CFG_WASH,       true),
+    mPurge2State      (F("Wash-Purge"), &mPostRinseState,  DURATION_PURGE,      INPUT_PURGE,      RECIRC_PURGE,      PUMP_CFG_PURGE,      CO2_CFG_PURGE,      INPUT_CFG_PURGE,      true),
+    mPostRinseState   (F("Post"),       &mPurge3State,     DURATION_POST_RINSE, INPUT_POST_RINSE, RECIRC_POST_RINSE, PUMP_CFG_POST_RINSE, CO2_CFG_POST_RINSE, INPUT_CFG_POST_RINSE, true),
+    mPurge3State      (F("Post-Purge"), &mSanitizeState,   DURATION_PURGE,      INPUT_PURGE,      RECIRC_PURGE,      PUMP_CFG_PURGE,      CO2_CFG_PURGE,      INPUT_CFG_PURGE,      true),
+    mSanitizeState    (F("Sani"),       &mPurge4State,     DURATION_SANI,       INPUT_SANI,       RECIRC_SANI,       PUMP_CFG_SANI,       CO2_CFG_SANI,       INPUT_CFG_SANI,       true),
+    mPurge4State      (F("Sani-Purge"), &mPressurizeState, DURATION_PURGE,      INPUT_PURGE,      RECIRC_PURGE,      PUMP_CFG_PURGE,      CO2_CFG_PURGE,      INPUT_CFG_PURGE,      true),
+    mPressurizeState  (F("Press"),      &mCompleteState,   DURATION_PRESS,      INPUT_PRESS,      RECIRC_PRESS,      PUMP_CFG_PRESS,      CO2_CFG_PRESS,      INPUT_CFG_PRESS,      true),
 
     mCompleteState    (F("Complete"), NULL),
 
@@ -400,7 +399,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     mDisplayWrapper.clear();
     mDisplayWrapper.display(0, aState->get_state_name());
 
+    // TODO: NEED TO SETUP INPUT BASED ON INPUT CONFIG
     set_input(aState->get_input_source());
+
     set_recirc(aState->get_recirc_dest());
 
     if(NULL != aState->get_co2_config())

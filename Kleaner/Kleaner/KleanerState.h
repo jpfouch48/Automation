@@ -21,6 +21,7 @@ public:
                RecircDest             aRecircDest      = RecircDest::None,
                OutputWrapper::Config  aPumpConfig      = OutputWrapper::Config(),
                OutputWrapper::Config  aCo2Config       = OutputWrapper::Config(),
+               OutputWrapper::Config  aInputConfig     = OutputWrapper::Config(),
                bool                   aIsProccessState = false);
 
   // Accessor functions
@@ -32,8 +33,9 @@ public:
   KleanerState*          get_next_state()        const { return mNextState;      }
   bool                   get_is_process_state()  const { return mIsProcessState; }
 
-  const OutputWrapper::Config* get_pump_config() const { return &mPumpConfig;     }
-  const OutputWrapper::Config* get_co2_config()  const { return &mCo2Config;      }
+  const OutputWrapper::Config* get_pump_config()  const { return &mPumpConfig;     }
+  const OutputWrapper::Config* get_co2_config()   const { return &mCo2Config;      }
+  const OutputWrapper::Config* get_input_config() const { return &mInputConfig;    }
 
 protected:
 
@@ -46,6 +48,8 @@ private:
   RecircDest             mRecircDest;
   OutputWrapper::Config  mPumpConfig;
   OutputWrapper::Config  mCo2Config;
+  OutputWrapper::Config  mInputConfig;
+
   bool                   mIsProcessState;
 
   KleanerState *mNextState;

@@ -13,6 +13,7 @@ KleanerState::KleanerState(String                 aStateName,
                            RecircDest             aRecircDest,
                            OutputWrapper::Config  aPumpConfig,
                            OutputWrapper::Config  aCo2Config,
+                           OutputWrapper::Config  aInputConfig,
                            bool                   aIsProcessState) :
   mId(gStateCount++),
   mStateName(aStateName),
@@ -22,6 +23,7 @@ KleanerState::KleanerState(String                 aStateName,
   mRecircDest(aRecircDest),
   mPumpConfig(aPumpConfig),
   mCo2Config(aCo2Config),
+  mInputConfig(aInputConfig),
   mIsProcessState(aIsProcessState)
 {
 

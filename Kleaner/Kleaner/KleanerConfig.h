@@ -46,36 +46,42 @@
 //   Timeline - 0123456789
 //   PUMP     -           
 //   CO2      - XXXXXXXXXX
+//   Input    - 
 // ****************************************************************************
-#define DUMP_DURATION      10
-#define DUMP_INPUT         InputSource::None
-#define DUMP_RECIRC        RecircDest::Waste 
-#define DUMP_PUMP          OutputWrapper::Config()
-#define DUMP_CO2           OutputWrapper::Config(LOW, HIGH, 10000, 10000)
+#define DURATION_DUMP      10
+#define INPUT_DUMP         InputSource::None
+#define RECIRC_DUMP        RecircDest::Waste 
+#define PUMP_CFG_DUMP      OutputWrapper::Config(LOW)
+#define CO2_CFG_DUMP       OutputWrapper::Config(LOW, HIGH, 10000, 10000)
+#define INPUT_CFG_DUMP     OutputWrapper::Config(LOW)
 
 // ****************************************************************************
 // Purge Config
 //   Timeline - 0123456789
 //   PUMP     -           
 //   CO2      - XXXXXXXXXX
+//   Input    - 
 // ****************************************************************************
-#define PURGE_DURATION      10
-#define PURGE_INPUT         InputSource::None
-#define PURGE_RECIRC        RecircDest::Waste 
-#define PURGE_PUMP          OutputWrapper::Config()
-#define PURGE_CO2           OutputWrapper::Config(LOW, HIGH, 10000, 10000)
+#define DURATION_PURGE      10
+#define INPUT_PURGE         InputSource::None
+#define RECIRC_PURGE        RecircDest::Waste 
+#define PUMP_CFG_PURGE      OutputWrapper::Config(LOW)
+#define CO2_CFG_PURGE       OutputWrapper::Config(LOW, HIGH, 10000, 10000)
+#define INPUT_CFG_PURGE     OutputWrapper::Config(LOW)
 
 // ****************************************************************************
 // Pre Rinse Config
 //   Timeline - 0123456789
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
+//   Input (W)- XXXXXXXX
 // ****************************************************************************
-#define PRE_RINSE_DURATION     20
-#define PRE_RINSE_INPUT        InputSource::Water
-#define PRE_RINSE_RECIRC       RecircDest::Waste 
-#define PRE_RINSE_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
-#define PRE_RINSE_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define DURATION_PRE_RINSE     20
+#define INPUT_PRE_RINSE        InputSource::Water
+#define RECIRC_PRE_RINSE       RecircDest::Waste 
+#define PUMP_CFG_PRE_RINSE     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
+#define CO2_CFG_PRE_RINSE      OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define INPUT_CFG_PRE_RINSE    OutputWrapper::Config(LOW, HIGH, 10000, 8000)
 
 // ****************************************************************************
 // Wash Config
@@ -83,11 +89,12 @@
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
 // ****************************************************************************
-#define WASH_DURATION     30
-#define WASH_INPUT        InputSource::Cleaner
-#define WASH_RECIRC       RecircDest::Cleaner 
-#define WASH_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
-#define WASH_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define DURATION_WASH     30
+#define INPUT_WASH        InputSource::Cleaner
+#define RECIRC_WASH       RecircDest::Cleaner 
+#define PUMP_CFG_WASH     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
+#define CO2_CFG_WASH      OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define INPUT_CFG_WASH    OutputWrapper::Config(LOW)
 
 // ****************************************************************************
 // Post Rinse Config
@@ -95,11 +102,12 @@
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
 // ****************************************************************************
-#define POST_RINSE_DURATION     20
-#define POST_RINSE_INPUT        InputSource::Water
-#define POST_RINSE_RECIRC       RecircDest::Waste 
-#define POST_RINSE_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
-#define POST_RINSE_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define DURATION_POST_RINSE     20
+#define INPUT_POST_RINSE        InputSource::Water
+#define RECIRC_POST_RINSE       RecircDest::Waste 
+#define PUMP_CFG_POST_RINSE     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
+#define CO2_CFG_POST_RINSE      OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define INPUT_CFG_POST_RINSE    OutputWrapper::Config(LOW, HIGH, 10000, 8000)
 
 // ****************************************************************************
 // Sanitize Config
@@ -107,11 +115,12 @@
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
 // ****************************************************************************
-#define SANI_DURATION     30
-#define SANI_INPUT        InputSource::Sanitizer
-#define SANI_RECIRC       RecircDest::Sanitizer 
-#define SANI_PUMP         OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
-#define SANI_CO2          OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define DURATION_SANI     30
+#define INPUT_SANI        InputSource::Sanitizer
+#define RECIRC_SANI       RecircDest::Sanitizer 
+#define PUMP_CFG_SANI     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
+#define CO2_CFG_SANI      OutputWrapper::Config(LOW, LOW,  10000, 8000)
+#define INPUT_CFG_SANI    OutputWrapper::Config(LOW, HIGH, 10000, 8000)
 
 // ****************************************************************************
 // Pressurize Config
@@ -119,10 +128,11 @@
 //   PUMP     -              
 //   CO2      - XX        
 // ****************************************************************************
-#define PRESS_DURATION     10
-#define PRESS_INPUT        InputSource::None
-#define PRESS_RECIRC       RecircDest::None 
-#define PRESS_PUMP         OutputWrapper::Config()
-#define PRESS_CO2          OutputWrapper::Config(LOW, HIGH,  10000, 10000)
+#define DURATION_PRESS     10
+#define INPUT_PRESS        InputSource::None
+#define RECIRC_PRESS       RecircDest::None 
+#define PUMP_CFG_PRESS     OutputWrapper::Config(LOW)
+#define CO2_CFG_PRESS      OutputWrapper::Config(LOW, HIGH,  10000, 10000)
+#define INPUT_CFG_PRESS    OutputWrapper::Config(LOW)
 
 #endif
