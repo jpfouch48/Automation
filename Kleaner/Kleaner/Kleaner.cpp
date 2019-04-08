@@ -37,7 +37,9 @@ Kleaner::Kleaner() :
     mPurge4State      (F("Sani-Purge"), &mPressurizeState, DURATION_PURGE,      INPUT_PURGE,      RECIRC_PURGE,      PUMP_CFG_PURGE,      CO2_CFG_PURGE,      INPUT_CFG_PURGE,      true),
     mPressurizeState  (F("Press"),      &mCompleteState,   DURATION_PRESS,      INPUT_PRESS,      RECIRC_PRESS,      PUMP_CFG_PRESS,      CO2_CFG_PRESS,      INPUT_CFG_PRESS,      true),
 
-    mCompleteState    (F("Complete"), NULL),
+    mCompleteState    (F("Complete"),   NULL),
+
+    mPrimePumpState   (F("Prime"),      NULL,              DURATION_PRIME,      INPUT_PRIME,      RECIRC_PRIME,      PUMP_CFG_PRIME,      CO2_CFG_PRIME,      INPUT_CFG_PRIME,      false),
 
         
     // Menu States
@@ -56,19 +58,21 @@ Kleaner::Kleaner() :
     mFirstTimeInState(true),
 
     // Menu init
+    mStartMenuItem         (F("Start"),           NULL,                 &mPrimePumpMenuItem),
+    
 #if defined KLEANER_TEST_MENU  
-    mStartMenuItem         (F("Start"),           NULL,                 &mTestMenuItem),    
+    mPrimePumpMenuItem     (F("Prime"),           &mStartMenuItem,      &mTestMenuItem),
 #elif defined KLEANER_TEST_STATE_MENU
-    mStartMenuItem         (F("Start"),           NULL,                 &mTestStateMenuItem),    
+    mPrimePumpMenuItem     (F("Prime"),           &mStartMenuItem,      &mTestStateMenuItem),
 #else
-    mStartMenuItem         (F("Start"),           NULL,                 NULL),    
+    mPrimePumpMenuItem     (F("Prime"),           &mStartMenuItem,      NULL),
 #endif
 
 #if defined KLEANER_TEST_MENU  
   #if defined KLEANER_TEST_STATE_MENU
-    mTestMenuItem          (F("Test Menu"),       &mStartMenuItem,      &mTestStateMenuItem),
+    mTestMenuItem          (F("Test Menu"),       &mPrimePumpMenuItem,      &mTestStateMenuItem),
   #else
-    mTestMenuItem          (F("Test Menu"),       &mStartMenuItem,      NULL),
+    mTestMenuItem          (F("Test Menu"),       &mPrimePumpMenuItem,      NULL),
   #endif
     mTestMenuCycleInput    (F(" Cycle Input"),  NULL,                  &mTestMenuCycleRecirc),
     mTestMenuCycleRecirc   (F(" Cycle Recirc"), &mTestMenuCycleInput,  &mTestMenuTogglePump),
@@ -81,7 +85,7 @@ Kleaner::Kleaner() :
   #if defined KLEANER_TEST_MENU
     mTestStateMenuItem       (F("Test State Menu"), &mTestMenuItem,       NULL),
   #else
-    mTestStateMenuItem       (F("Test State Menu"), &mStartMenuItem,       NULL),
+    mTestStateMenuItem       (F("Test State Menu"), &mPrimePumpMenuItem,       NULL),
   #endif
     mTestStateMenuDump       (F(" Dump"),   NULL,                      &mTestStateMenuPreRinse),
     mTestStateMenuPreRinse   (F(" Pre"),    &mTestStateMenuDump,       &mTestStateMenuWash),
@@ -163,6 +167,11 @@ void Kleaner::on_en_button(int aState)
       if(mCurrentMenuItem->get_id() == mStartMenuItem.get_id())
       {
         mCommandState = &mDumpState;
+      }
+      else if(mCurrentMenuItem->get_id() == mPrimePumpMenuItem.get_id())
+      {
+        mCommandState = &mPrimePumpState;
+        mReturnToState = &mMenuState;
       }
 #if defined KLEANER_TEST_MENU       
       // Goto Test Menu
@@ -398,26 +407,46 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // Generic initialization
     mDisplayWrapper.clear();
     mDisplayWrapper.display(0, aState->get_state_name());
+        
+    // Setup the input tank
+    switch(aState->get_input_source())
+    {
+      case InputSource::Cleaner:
+        mInCleanerWrapper.update_config(*aState->get_input_config());
+        if(aState->get_input_config().get_type() == OutputWrapper::Config::Type::Pulsing)
+          mInCleanerWrapper.start_pulse();
+      break;
 
-    // TODO: NEED TO SETUP INPUT BASED ON INPUT CONFIG
-    set_input(aState->get_input_source());
+      case InputSource::Sanitizer:
+        mInSaniWrapper.update_config(*aState->get_input_config());
+        if(aState->get_input_config().get_type() == OutputWrapper::Config::Type::Pulsing)
+          mInSaniWrapper.start_pulse();
+      break;
 
+      case InputSource::Water:
+        mInWaterWrapper.update_config(*aState->get_input_config());
+        if(aState->get_input_config().get_type() == OutputWrapper::Config::Type::Pulsing)
+          mInWaterWrapper.start_pulse();
+      break;
+
+      case InputSource::None:
+      default:
+        // Nothing to do here
+      break;
+    }
+
+    // Setup recirc dest
     set_recirc(aState->get_recirc_dest());
 
-    if(NULL != aState->get_co2_config())
-    {
-      mCo2Wrapper.update_config(*aState->get_co2_config());
-      if(mCo2Wrapper.get_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
-        mCo2Wrapper.start_pulse();
-    }
+    // Setup Co2 processing
+    mCo2Wrapper.update_config(*aState->get_co2_config());
+    if(mCo2Wrapper.get_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+      mCo2Wrapper.start_pulse();
 
-    if(NULL != aState->get_pump_config())
-    {
-      mPumpWrapper.update_config(*aState->get_pump_config());
-
-      if(mPumpWrapper.get_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
-        mPumpWrapper.start_pulse();
-    }
+    // Setup pump processing
+    mPumpWrapper.update_config(*aState->get_pump_config());
+    if(mPumpWrapper.get_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+      mPumpWrapper.start_pulse();
 
     // State Specific initialization
     if(aState->get_id() == mSplashState.get_id())
@@ -466,7 +495,8 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // TODO : State Specific processing
     if(true == aState->get_is_process_state())
     {
-      mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
+      // TODO: DISPLAY PUMP/CO2/INPUT/RECIRC status here
+      //mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
     }
   }
 
@@ -492,6 +522,12 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 // ****************************************************************************
 void Kleaner::set_input(InputSource aInputSource)
 {
+  // Revert back to manual ouptut wrapper and for all as this function
+  // does not work with pulsing outputs
+  mInCleanerWrapper.update_config(OutputWrapper::Config(LOW));
+  mInSaniWrapper.update_config(OutputWrapper::Config(LOW));
+  mInWaterWrapper.update_config(OutputWrapper::Config(LOW));
+
   switch(aInputSource)
   {
     case InputSource::Water:     set_input_water();     break;
@@ -525,4 +561,14 @@ void Kleaner::set_recirc_waste()     { set_recirc_off(); mReWasteWrapper.set_sta
 void Kleaner::set_recirc_sanitizer() { set_recirc_off(); mReSaniWrapper.set_state(HIGH); }
 void Kleaner::set_recirc_cleaner()   { set_recirc_off(); mReCleanerWrapper.set_state(HIGH); }
 
-void Kleaner::set_all_off()          { mCo2Wrapper.reset_pulse(); mPumpWrapper.reset_pulse(); set_input_off(); set_recirc_off(); }
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::set_all_off()          
+{ 
+  mCo2Wrapper.reset_pulse(); 
+  mPumpWrapper.reset_pulse();
+
+  set_input(InputSource::None);
+  set_recirc(RecircDest::None); 
+}

@@ -11,7 +11,6 @@
 #include "OutputWrapper.h"
 #include "DisplayWrapper.h"
 
-
 class Kleaner
 {
   public:
@@ -79,6 +78,8 @@ class Kleaner
     KleanerState mPressurizeState;
     KleanerState mCompleteState;
 
+    KleanerState mPrimePumpState;
+
 #if defined KLEANER_TEST_MENU  
     KleanerState mTestMenuState;
 #endif
@@ -98,6 +99,7 @@ class Kleaner
     // Main Menu
     // ****************************************************************************
     KleanerMenuItem mStartMenuItem;
+    KleanerMenuItem mPrimePumpMenuItem;
 
 #if defined KLEANER_TEST_MENU
     // Test Menu

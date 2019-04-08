@@ -40,6 +40,19 @@
 #define SPLASH_LINE_1    "Kleaner"
 #define SPLASH_LINE_2    "V 0.3"
 
+// ****************************************************************************
+// Prime Config
+//   Timeline - 0123456789
+//   PUMP     -           
+//   CO2      - 
+//   Input    - XXXXXXXXXX
+// ****************************************************************************
+#define DURATION_PRIME      10
+#define INPUT_PRIME         InputSource::Water
+#define RECIRC_PRIME        RecircDest::Waste 
+#define PUMP_CFG_PRIME      OutputWrapper::Config(LOW)
+#define CO2_CFG_PRIME       OutputWrapper::Config(LOW)
+#define INPUT_CFG_PRIME     OutputWrapper::Config(LOW, HIGH, 10000, 10000)
 
 // ****************************************************************************
 // Dump Config
@@ -88,21 +101,23 @@
 //   Timeline - 0123456789
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
+//   Input (C)- XXXXXXXX
 // ****************************************************************************
 #define DURATION_WASH     30
 #define INPUT_WASH        InputSource::Cleaner
 #define RECIRC_WASH       RecircDest::Cleaner 
 #define PUMP_CFG_WASH     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
 #define CO2_CFG_WASH      OutputWrapper::Config(LOW, LOW,  10000, 8000)
-#define INPUT_CFG_WASH    OutputWrapper::Config(LOW)
+#define INPUT_CFG_WASH    OutputWrapper::Config(LOW, HIGH, 10000, 8000)
 
 // ****************************************************************************
 // Post Rinse Config
 //   Timeline - 0123456789
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
+//   Input (W)- XXXXXXXX
 // ****************************************************************************
-#define DURATION_POST_RINSE     20
+#define DURATION_POST_RINSE     30
 #define INPUT_POST_RINSE        InputSource::Water
 #define RECIRC_POST_RINSE       RecircDest::Waste 
 #define PUMP_CFG_POST_RINSE     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
@@ -114,6 +129,7 @@
 //   Timeline - 0123456789
 //   PUMP     -  XXXXXXX           
 //   CO2      -         XX
+//   Input (S)- XXXXXXXX
 // ****************************************************************************
 #define DURATION_SANI     30
 #define INPUT_SANI        InputSource::Sanitizer
@@ -126,7 +142,8 @@
 // Pressurize Config
 //   Timeline - 0123456789
 //   PUMP     -              
-//   CO2      - XX        
+//   CO2      - XXXXXXXXXX        
+//   Input    -
 // ****************************************************************************
 #define DURATION_PRESS     10
 #define INPUT_PRESS        InputSource::None
