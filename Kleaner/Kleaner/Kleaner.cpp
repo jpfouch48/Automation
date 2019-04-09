@@ -314,9 +314,8 @@ void Kleaner::on_en_button(int aState)
 // ****************************************************************************    
 void Kleaner::setup()
 {
-  // Display Wrapper
+  // Setup Display Wrapper and turn on back light
   mDisplayWrapper.setup();
-
   mDisplayWrapper.backlight_on(true);
 
   // Setup output wrappers
@@ -348,6 +347,7 @@ void Kleaner::loop()
   mReSaniWrapper.loop();
   mReCleanerWrapper.loop();
 
+  // Process the current state
   process_state();
 }
 
@@ -358,15 +358,22 @@ void Kleaner::process_state()
 {
   mStateComplete = false;
 
-  if(true == mFirstTimeInState)
-  {
-    mStateTimer.reset();
-  }
-
   mStateComplete = process_state(mCurrentState, mFirstTimeInState);
 
+  // Reset our first time in state flag after we've porcessed the 
+  // current state once
+  if(true == mFirstTimeInState)
+    mFirstTimeInState = false;  
+
+  // Check to see if current state is completed. If so, setup the next state
+  // and set our first time in state flag.
   if(true == mStateComplete)
   {
+    set_all_off();
+
+    // If return to state pointer is not set, get the next state from the 
+    // current state. Otherwise, set the current state to the return to
+    // state pointer.
     if(mReturnToState == NULL)
     {
       mCurrentState = mCurrentState->get_next_state();
@@ -383,15 +390,10 @@ void Kleaner::process_state()
   else if (mCommandState != NULL)
   {
     set_all_off();
+
     mCurrentState = mCommandState;
     mCommandState = NULL;
     mFirstTimeInState = true;
-  }
-  // Still processing current state
-  else
-  {
-    if(true == mFirstTimeInState)
-      mFirstTimeInState = false;
   }
 }
 
@@ -404,34 +406,41 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
   if(aInitState)
   {
+    mPrevPumpState = -1;
+    mPrevCo2State = -1;
+    mPrevInputState = -1;
+    mPrevRecircState = -1;    
+
+    mStateTimer.reset();
+
     // Generic initialization
     mDisplayWrapper.clear();
     mDisplayWrapper.display(0, aState->get_state_name());
         
-    // Setup the input tank
+    // Set the input source
     switch(aState->get_input_source())
     {
       case InputSource::Cleaner:
         mInCleanerWrapper.update_config(*aState->get_input_config());
-        if(aState->get_input_config().get_type() == OutputWrapper::Config::Type::Pulsing)
+        if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
           mInCleanerWrapper.start_pulse();
       break;
 
       case InputSource::Sanitizer:
         mInSaniWrapper.update_config(*aState->get_input_config());
-        if(aState->get_input_config().get_type() == OutputWrapper::Config::Type::Pulsing)
+        if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
           mInSaniWrapper.start_pulse();
       break;
 
       case InputSource::Water:
         mInWaterWrapper.update_config(*aState->get_input_config());
-        if(aState->get_input_config().get_type() == OutputWrapper::Config::Type::Pulsing)
+        if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
           mInWaterWrapper.start_pulse();
       break;
 
       case InputSource::None:
       default:
-        // Nothing to do here
+        set_input(InputSource::None);
       break;
     }
 
@@ -491,12 +500,143 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   }
   else
   {
+    static int gTempState;
+
     // TODO: Generic processing
     // TODO : State Specific processing
+    
     if(true == aState->get_is_process_state())
     {
-      // TODO: DISPLAY PUMP/CO2/INPUT/RECIRC status here
-      //mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
+      // 0123456789012345
+      // IX RX P C 
+
+      // Update input state display if it has changed
+      switch(aState->get_input_source())
+      {
+        case InputSource::Cleaner:
+          gTempState = mInCleanerWrapper.get_state();
+          if(gTempState != mPrevInputState)
+          {
+            if(gTempState == HIGH)
+              mDisplayWrapper.display(1, 0, F("IC"), false);
+            else
+              mDisplayWrapper.display(1, 0, F("I "), false);
+            mPrevInputState = gTempState;
+          }
+        break;
+
+        case InputSource::Sanitizer:
+          gTempState = mInSaniWrapper.get_state();
+          if(gTempState != mPrevInputState)
+          {
+            if(gTempState == HIGH)
+              mDisplayWrapper.display(1, 0, F("IS"), false);
+            else
+              mDisplayWrapper.display(1, 0, F("I "), false);
+            mPrevInputState = gTempState;
+          }
+        break;
+
+        case InputSource::Water:
+          gTempState = mInWaterWrapper.get_state();
+          if(gTempState != mPrevInputState)
+          {
+            if(gTempState == HIGH)
+              mDisplayWrapper.display(1, 0, F("IW"), false);
+            else
+              mDisplayWrapper.display(1, 0, F("I "), false);
+            mPrevInputState = gTempState;
+          }
+        break;
+
+        case InputSource::None:
+          if(-1 == mPrevInputState)
+            mDisplayWrapper.display(1, 0, F("I "), false);
+          mPrevInputState = 1;
+        break;
+        
+        default:
+          if(-1 == mPrevInputState)
+            mDisplayWrapper.display(1, 0, F("I?"), false);
+          mPrevInputState = 1;
+        break;
+      }
+
+      // Update recirc display if it has changed
+      switch(aState->get_recirc_dest())
+      {
+        case RecircDest::Cleaner:
+          gTempState = mReCleanerWrapper.get_state();
+          if(gTempState != mPrevRecircState)
+          {
+            if(gTempState == HIGH)
+              mDisplayWrapper.display(1, 3, F("RC"), false);
+            else
+              mDisplayWrapper.display(1, 3, F("R "), false);
+            mPrevRecircState = gTempState;
+          }
+        break;
+
+        case RecircDest::Sanitizer:
+          gTempState = mReSaniWrapper.get_state();
+          if(gTempState != mPrevRecircState)
+          {
+            if(gTempState == HIGH)
+              mDisplayWrapper.display(1, 3, F("RS"), false);
+            else
+              mDisplayWrapper.display(1, 3, F("R "), false);
+            mPrevRecircState = gTempState;
+          }        
+        break;
+
+        case RecircDest::Waste:
+          gTempState = mReWasteWrapper.get_state();
+          if(gTempState != mPrevRecircState)
+          {
+            if(gTempState == HIGH)
+              mDisplayWrapper.display(1, 3, F("RW"), false);
+            else
+              mDisplayWrapper.display(1, 3, F("R "), false);
+            mPrevRecircState = gTempState;
+          }            
+        break;
+
+        case RecircDest::None:
+          if(-1 == mPrevRecircState)
+            mDisplayWrapper.display(1, 3, F("R "), false);     
+          mPrevRecircState = 1;  
+        break;
+        
+        default:
+          if(-1 == mPrevRecircState)
+            mDisplayWrapper.display(1, 3, F("R?"), false);         
+          mPrevRecircState = 1;  
+        break;
+      }
+
+      // Update pump state display if it has changed
+      gTempState = mPumpWrapper.get_state();
+      if(gTempState != mPrevPumpState)
+      {
+        if(gTempState == HIGH)
+          mDisplayWrapper.display(1, 6, F("P"), false);
+        else  
+          mDisplayWrapper.display(1, 6, F(" "), false);
+
+        mPrevPumpState = gTempState;
+      }
+
+      // Update C02 state display if it has changed
+      gTempState = mCo2Wrapper.get_state();
+      if(gTempState != mPrevCo2State)
+      {
+        if(gTempState == HIGH)
+          mDisplayWrapper.display(1, 8, F("C"), false);
+        else  
+          mDisplayWrapper.display(1, 8, F(" "), false);
+
+        mPrevCo2State = gTempState;
+      }      
     }
   }
 

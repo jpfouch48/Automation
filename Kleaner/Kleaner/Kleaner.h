@@ -132,6 +132,13 @@ class Kleaner
 
     InputSource mTestInputSource;
     RecircDest  mTestRecircDest;
+
+    // Previous state variables used for
+    // display of the process state
+    int mPrevPumpState;
+    int mPrevCo2State;
+    int mPrevInputState;
+    int mPrevRecircState;    
 };
 
 

@@ -1,6 +1,9 @@
 #ifndef KLEANER_DEFINES_H
 #define KLEANER_DEFINES_H
 
+// ****************************************************************************
+//  
+// ****************************************************************************
 enum class InputSource
 {
   Water     = 0,
@@ -10,6 +13,9 @@ enum class InputSource
   None      = 3
 };
 
+// ****************************************************************************
+//  
+// ****************************************************************************
 static InputSource cycle_input_source(InputSource aInputSource)
 {
   InputSource lInputSource = InputSource::None;
@@ -25,6 +31,9 @@ static InputSource cycle_input_source(InputSource aInputSource)
   return lInputSource;
 }
 
+// ****************************************************************************
+//  
+// ****************************************************************************
 enum class RecircDest
 {
   Waste     = 0,
@@ -34,6 +43,9 @@ enum class RecircDest
   None      = 3
 };
 
+// ****************************************************************************
+//  
+// ****************************************************************************
 static RecircDest cycle_recirc_desk(RecircDest aRecircDest)
 {
   RecircDest lRecircDest = RecircDest::None;
