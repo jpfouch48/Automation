@@ -416,6 +416,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // Generic initialization
     mDisplayWrapper.clear();
     mDisplayWrapper.display(0, aState->get_state_name());
+
+    if(true == aState->get_is_process_state())
+    {
+      mDisplayWrapper.display(1, 0, F("I  R"), false);      
+    }
         
     // Set the input source
     switch(aState->get_input_source())
@@ -518,9 +523,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(gTempState != mPrevInputState)
           {
             if(gTempState == HIGH)
-              mDisplayWrapper.display(1, 0, F("IC"), false);
+              mDisplayWrapper.display(1, 1, F("C"), false);
             else
-              mDisplayWrapper.display(1, 0, F("I "), false);
+              mDisplayWrapper.display(1, 1, F(" "), false);
             mPrevInputState = gTempState;
           }
         break;
@@ -530,9 +535,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(gTempState != mPrevInputState)
           {
             if(gTempState == HIGH)
-              mDisplayWrapper.display(1, 0, F("IS"), false);
+              mDisplayWrapper.display(1, 1, F("S"), false);
             else
-              mDisplayWrapper.display(1, 0, F("I "), false);
+              mDisplayWrapper.display(1, 1, F(" "), false);
             mPrevInputState = gTempState;
           }
         break;
@@ -542,22 +547,22 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(gTempState != mPrevInputState)
           {
             if(gTempState == HIGH)
-              mDisplayWrapper.display(1, 0, F("IW"), false);
+              mDisplayWrapper.display(1, 1, F("W"), false);
             else
-              mDisplayWrapper.display(1, 0, F("I "), false);
+              mDisplayWrapper.display(1, 1, F(" "), false);
             mPrevInputState = gTempState;
           }
         break;
 
         case InputSource::None:
           if(-1 == mPrevInputState)
-            mDisplayWrapper.display(1, 0, F("I "), false);
+            mDisplayWrapper.display(1, 1, F(" "), false);
           mPrevInputState = 1;
         break;
         
         default:
           if(-1 == mPrevInputState)
-            mDisplayWrapper.display(1, 0, F("I?"), false);
+            mDisplayWrapper.display(1, 1, F("?"), false);
           mPrevInputState = 1;
         break;
       }
@@ -570,9 +575,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(gTempState != mPrevRecircState)
           {
             if(gTempState == HIGH)
-              mDisplayWrapper.display(1, 3, F("RC"), false);
+              mDisplayWrapper.display(1, 4, F("C"), false);
             else
-              mDisplayWrapper.display(1, 3, F("R "), false);
+              mDisplayWrapper.display(1, 4, F(" "), false);
             mPrevRecircState = gTempState;
           }
         break;
@@ -582,9 +587,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(gTempState != mPrevRecircState)
           {
             if(gTempState == HIGH)
-              mDisplayWrapper.display(1, 3, F("RS"), false);
+              mDisplayWrapper.display(1, 4, F("S"), false);
             else
-              mDisplayWrapper.display(1, 3, F("R "), false);
+              mDisplayWrapper.display(1, 4, F(" "), false);
             mPrevRecircState = gTempState;
           }        
         break;
@@ -594,22 +599,22 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(gTempState != mPrevRecircState)
           {
             if(gTempState == HIGH)
-              mDisplayWrapper.display(1, 3, F("RW"), false);
+              mDisplayWrapper.display(1, 4, F("W"), false);
             else
-              mDisplayWrapper.display(1, 3, F("R "), false);
+              mDisplayWrapper.display(1, 4, F(" "), false);
             mPrevRecircState = gTempState;
           }            
         break;
 
         case RecircDest::None:
           if(-1 == mPrevRecircState)
-            mDisplayWrapper.display(1, 3, F("R "), false);     
+            mDisplayWrapper.display(1, 4, F(" "), false);     
           mPrevRecircState = 1;  
         break;
         
         default:
           if(-1 == mPrevRecircState)
-            mDisplayWrapper.display(1, 3, F("R?"), false);         
+            mDisplayWrapper.display(1, 4, F("?"), false);         
           mPrevRecircState = 1;  
         break;
       }
