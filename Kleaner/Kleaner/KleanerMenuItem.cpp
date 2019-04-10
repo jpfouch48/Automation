@@ -1,7 +1,7 @@
 #include "KleanerMenuItem.h"
 
 
-int KleanerMenuItem::gMenuItemCount = 0;
+unsigned char KleanerMenuItem::gMenuItemCount = 0;
 
 // ****************************************************************************
 // See header file for details

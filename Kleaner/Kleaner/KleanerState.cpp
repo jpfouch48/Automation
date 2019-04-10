@@ -1,7 +1,7 @@
 #include "KleanerState.h"
 
 
-int KleanerState::gStateCount = 0;
+unsigned char KleanerState::gStateCount = 0;
 
 // ****************************************************************************
 // See header file for details

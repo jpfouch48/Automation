@@ -18,7 +18,7 @@ public:
 
   // Accessor functions
   String           get_title()     const { return mTitle;    }
-  int              get_id()        const { return mId;       }
+  unsigned char    get_id()        const { return mId;       }
   KleanerMenuItem* get_next_item() const { return mNextItem; }
   KleanerMenuItem* get_prev_item() const { return mPrevItem; }
 
@@ -26,11 +26,11 @@ protected:
 
 
 private:
-  String           mTitle;
-  int              mId;
-  KleanerMenuItem *mNextItem;
-  KleanerMenuItem *mPrevItem;
-  static int       gMenuItemCount;
+  String               mTitle;
+  unsigned char        mId;
+  KleanerMenuItem     *mNextItem;
+  KleanerMenuItem     *mPrevItem;
+  static unsigned char gMenuItemCount;
 };
 
 

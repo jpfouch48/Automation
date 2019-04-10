@@ -41,7 +41,7 @@ protected:
 
 
 private:
-  int                    mId;
+  unsigned char          mId;
   String                 mStateName;
   int                    mStateTimeInSec;
   InputSource            mInputSource;
@@ -52,9 +52,9 @@ private:
 
   bool                   mIsProcessState;
 
-  KleanerState *mNextState;
+  KleanerState          *mNextState;
 
-  static int    gStateCount;
+  static unsigned char   gStateCount;
 };
 
 
