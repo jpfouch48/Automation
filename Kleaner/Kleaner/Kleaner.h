@@ -29,6 +29,7 @@ class Kleaner
     void process_state();
     bool process_state(const KleanerState *aState, bool aInitState);
 
+    void set_input(const KleanerState *aState);
     void set_input(InputSource aInputSource);
     void set_input_off();
     void set_input_water();

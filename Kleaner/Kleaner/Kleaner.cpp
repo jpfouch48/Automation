@@ -24,6 +24,7 @@ Kleaner::Kleaner() :
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER, LOW),
 
     // State init
+    // States          Name             Next State         State Duration       Input Src         Recirc Dest        Pump Cfg             Co2 Cfg             Input Cfg             Process State flag
     mSplashState      (F("Splash"),     &mMenuState,       2),
 
     mDumpState        (F("Dump"),       &mPreRinseState,   DURATION_DUMP,       INPUT_DUMP,       RECIRC_DUMP,       PUMP_CFG_DUMP,       CO2_CFG_DUMP,       INPUT_CFG_DUMP,       true),
@@ -39,7 +40,7 @@ Kleaner::Kleaner() :
 
     mCompleteState    (F("Complete"),   NULL),
 
-    mPrimePumpState   (F("Prime"),      NULL,              DURATION_PRIME,      INPUT_PRIME,      RECIRC_PRIME,      PUMP_CFG_PRIME,      CO2_CFG_PRIME,      INPUT_CFG_PRIME,      false),
+    mPrimePumpState   (F("Prime"),      NULL,              DURATION_PRIME,      INPUT_PRIME,      RECIRC_PRIME,      PUMP_CFG_PRIME,      CO2_CFG_PRIME,      INPUT_CFG_PRIME,      true),
 
         
     // Menu States
@@ -160,21 +161,23 @@ void Kleaner::on_en_button(int aState)
 {
   if(aState == LOW)
   {
-    // Process menu option for menu state
+    // Process Main Menu Options
+    // ************************************************************************
     if(mCurrentState->get_id() == mMenuState.get_id())
     {
-      // Start Cleaning
+      // Start cleaning option
       if(mCurrentMenuItem->get_id() == mStartMenuItem.get_id())
       {
         mCommandState = &mDumpState;
       }
+      // Prime pump option
       else if(mCurrentMenuItem->get_id() == mPrimePumpMenuItem.get_id())
       {
         mCommandState = &mPrimePumpState;
         mReturnToState = &mMenuState;
       }
 #if defined KLEANER_TEST_MENU       
-      // Goto Test Menu
+      // Test menu option
       else if (mCurrentMenuItem->get_id() == mTestMenuItem.get_id())
       {
         mCommandState = &mTestMenuState;      
@@ -182,6 +185,7 @@ void Kleaner::on_en_button(int aState)
 #endif
 
 #if defined KLEANER_TEST_STATE_MENU      
+      // Test state menu option
       else if (mCurrentMenuItem->get_id() == mTestStateMenuItem.get_id())
       {
         mCommandState = &mTestStateMenuState;          
@@ -189,9 +193,11 @@ void Kleaner::on_en_button(int aState)
 #endif 
     }
 #if defined KLEANER_TEST_MENU    
+    // Process Test Menu Options
+    // ************************************************************************
     else if(mCurrentState->get_id() == mTestMenuState.get_id())
     {
-      // Cycle Input
+      // Cycle input option
       if(mCurrentMenuItem->get_id() == mTestMenuCycleInput.get_id())
       {
         // Cycle Input
@@ -207,7 +213,7 @@ void Kleaner::on_en_button(int aState)
           default:                     mDisplayWrapper.display(1, 15, F("?"), false); break;
         };        
       }
-      // Cycle Recirc
+      // Cycle recirc option
       else if (mCurrentMenuItem->get_id() == mTestMenuCycleRecirc.get_id())
       {
         // Cycle Recirc   
@@ -223,7 +229,7 @@ void Kleaner::on_en_button(int aState)
           default:                    mDisplayWrapper.display(1, 15, F("?"), false); break;
         };
       }
-      // Toggle Pump
+      // Toggle pump option
       else if (mCurrentMenuItem->get_id() == mTestMenuTogglePump.get_id())
       {
         // Toggle Pump
@@ -236,7 +242,7 @@ void Kleaner::on_en_button(int aState)
           mPumpWrapper.start_pulse();
         }        
       }
-      // Toggle Co2
+      // Toggle Co2 option
       else if (mCurrentMenuItem->get_id() == mTestMenuToggleCo2.get_id())
       {
         // Toggle Pump
@@ -249,7 +255,7 @@ void Kleaner::on_en_button(int aState)
           mCo2Wrapper.start_pulse();
         }
       }
-      // Exit Test Menu
+      // Exit menu option
       else if (mCurrentMenuItem->get_id() == mTestMenuExit.get_id())
       {
         mCommandState = &mMenuState;
@@ -258,49 +264,61 @@ void Kleaner::on_en_button(int aState)
 #endif
 
 #if defined KLEANER_TEST_STATE_MENU
+    // Process Test State Menu Options
+    // ************************************************************************
     else if(mCurrentState->get_id() == mTestStateMenuState.get_id())
     {    
+      // Test dump state option
       if (mCurrentMenuItem->get_id() == mTestStateMenuDump.get_id())
       {
         mCommandState = &mDumpState;
         mReturnToState = &mTestStateMenuState;
-      }      
+      }
+      // Test pre rinse state option      
       else if (mCurrentMenuItem->get_id() == mTestStateMenuPreRinse.get_id())
       {
         mCommandState = &mPreRinseState;
         mReturnToState = &mTestStateMenuState;
-      }      
+      }   
+      // Test wash state option   
       else if (mCurrentMenuItem->get_id() == mTestStateMenuWash.get_id())
       {
         mCommandState = &mWashState;
         mReturnToState = &mTestStateMenuState;
       }      
+      // Test post rinse state option
       else if (mCurrentMenuItem->get_id() == mTestStateMenuPostRinse.get_id())
       {
         mCommandState = &mPostRinseState;
         mReturnToState = &mTestStateMenuState;
       }       
+      // Test sanitize state option
       else if (mCurrentMenuItem->get_id() == mTestStateMenuSanitize.get_id())
       {
         mCommandState = &mSanitizeState;
         mReturnToState = &mTestStateMenuState;
-      }          
+      }     
+      // Test pressurize state option     
       else if (mCurrentMenuItem->get_id() == mTestStateMenuPressurize.get_id())
       {
         mCommandState = &mPressurizeState;
         mReturnToState = &mTestStateMenuState;
       }       
+      // Test purge state option
       else if (mCurrentMenuItem->get_id() == mTestStateMenuPurge.get_id())
       {
         mCommandState = &mPurge1State;
         mReturnToState = &mTestStateMenuState;
-      }       
+      }    
+      // Exit option   
       else if (mCurrentMenuItem->get_id() == mTestStateMenuExit.get_id())
       {
         mCommandState = &mMenuState;
       }      
     }    
 #endif
+    // Process Complete and Splash State Options
+    // ************************************************************************
     else if(mCurrentState->get_id() == mCompleteState.get_id() ||
             mCurrentState->get_id() == mSplashState.get_id())
     {
@@ -365,10 +383,12 @@ void Kleaner::process_state()
   if(true == mFirstTimeInState)
     mFirstTimeInState = false;  
 
-  // Check to see if current state is completed. If so, setup the next state
-  // and set our first time in state flag.
+  // Check to see if current state is completed.
   if(true == mStateComplete)
   {
+    // Current state complete, setup next state
+
+    // All components off
     set_all_off();
 
     // If return to state pointer is not set, get the next state from the 
@@ -384,11 +404,13 @@ void Kleaner::process_state()
       mReturnToState = NULL;
     }
     
+    // Set first time flag so new state can initialize
     mFirstTimeInState = true;
   }
   // A new state has been commanded, transition to it
   else if (mCommandState != NULL)
   {
+    // All components off
     set_all_off();
 
     mCurrentState = mCommandState;
@@ -404,50 +426,31 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 {
   // TODO: ERROR CHECK FOR NULL STATE
 
+  // Check to see if this is our first time in this state
   if(aInitState)
   {
+    // Reset the state timer
+    mStateTimer.reset();
+
+    // Reset component state flags for displaying status
     mPrevPumpState = -1;
     mPrevCo2State = -1;
     mPrevInputState = -1;
     mPrevRecircState = -1;    
 
-    mStateTimer.reset();
-
-    // Generic initialization
+    // Reset the display and update with state name
     mDisplayWrapper.clear();
     mDisplayWrapper.display(0, aState->get_state_name());
 
+    // If this is a processing state, display the template for the
+    // output components
     if(true == aState->get_is_process_state())
     {
       mDisplayWrapper.display(1, 0, F("I  R"), false);      
     }
         
     // Set the input source
-    switch(aState->get_input_source())
-    {
-      case InputSource::Cleaner:
-        mInCleanerWrapper.update_config(*aState->get_input_config());
-        if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
-          mInCleanerWrapper.start_pulse();
-      break;
-
-      case InputSource::Sanitizer:
-        mInSaniWrapper.update_config(*aState->get_input_config());
-        if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
-          mInSaniWrapper.start_pulse();
-      break;
-
-      case InputSource::Water:
-        mInWaterWrapper.update_config(*aState->get_input_config());
-        if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
-          mInWaterWrapper.start_pulse();
-      break;
-
-      case InputSource::None:
-      default:
-        set_input(InputSource::None);
-      break;
-    }
+    set_input(aState);
 
     // Setup recirc dest
     set_recirc(aState->get_recirc_dest());
@@ -465,8 +468,8 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // State Specific initialization
     if(aState->get_id() == mSplashState.get_id())
     {
-      mDisplayWrapper.display(0, String(SPLASH_LINE_1));
-      mDisplayWrapper.display(1, String(SPLASH_LINE_2));
+      mDisplayWrapper.display(0, F(SPLASH_LINE_1));
+      mDisplayWrapper.display(1, F(SPLASH_LINE_2));
     }
     else if(aState->get_id() == mMenuState.get_id())
     {
@@ -661,6 +664,37 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   return false;
 }
 
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::set_input(const KleanerState *aState)
+{
+  switch(aState->get_input_source())
+  {
+    case InputSource::Cleaner:
+      mInCleanerWrapper.update_config(*aState->get_input_config());
+      if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+        mInCleanerWrapper.start_pulse();
+    break;
+
+    case InputSource::Sanitizer:
+      mInSaniWrapper.update_config(*aState->get_input_config());
+      if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+        mInSaniWrapper.start_pulse();
+    break;
+
+    case InputSource::Water:
+      mInWaterWrapper.update_config(*aState->get_input_config());
+      if(aState->get_input_config()->get_type() == OutputWrapper::Config::Type::Pulsing)
+        mInWaterWrapper.start_pulse();
+    break;
+
+    case InputSource::None:
+    default:
+      set_input(InputSource::None);
+    break;
+  }
+}
 
 // ****************************************************************************
 // See header file for details
