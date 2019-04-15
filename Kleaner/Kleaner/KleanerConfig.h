@@ -4,8 +4,8 @@
 // ****************************************************************************
 // Test macros to enable/disable specific test menus
 // ****************************************************************************
-//#define KLEANER_TEST_MENU
-#define KLEANER_TEST_STATE_MENU
+#define KLEANER_TEST_MENU
+//#define KLEANER_TEST_STATE_MENU
 
 // ****************************************************************************
 //  Digital I/O Pin definitions
@@ -40,7 +40,7 @@
 // Splash Display
 // ****************************************************************************
 #define SPLASH_LINE_1    "Kleaner"
-#define SPLASH_LINE_2    "V 0.4"
+#define SPLASH_LINE_2    "V 0.5"
 
 // ****************************************************************************
 // Prime Config
@@ -86,17 +86,17 @@
 
 // ****************************************************************************
 // Pre Rinse Config
-//   Timeline - 0123456789
-//   PUMP     -  XXXXXXX           
-//   CO2      -         XX
-//   Input (W)- XXXXXXXX
+//   Timeline - 01234567890123456789
+//   PUMP     -     XXXXXXXXXX           
+//   CO2      -                XXXXX
+//   Input (W)- XXXXXXXXXXXXXX
 // ****************************************************************************
 #define DURATION_PRE_RINSE     20
 #define INPUT_PRE_RINSE        InputSource::Water
 #define RECIRC_PRE_RINSE       RecircDest::Waste 
-#define PUMP_CFG_PRE_RINSE     OutputWrapper::Config(LOW, HIGH, 10000, 7000, 1000)
-#define CO2_CFG_PRE_RINSE      OutputWrapper::Config(LOW, LOW,  10000, 8000)
-#define INPUT_CFG_PRE_RINSE    OutputWrapper::Config(LOW, HIGH, 10000, 8000)
+#define PUMP_CFG_PRE_RINSE     OutputWrapper::Config(LOW, HIGH, 20000, 10000, 4000)
+#define CO2_CFG_PRE_RINSE      OutputWrapper::Config(LOW, LOW,  20000, 15000)
+#define INPUT_CFG_PRE_RINSE    OutputWrapper::Config(LOW, HIGH, 20000, 14000)
 
 // ****************************************************************************
 // Wash Config

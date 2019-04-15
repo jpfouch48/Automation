@@ -233,27 +233,49 @@ void Kleaner::on_en_button(int aState)
       else if (mCurrentMenuItem->get_id() == mTestMenuTogglePump.get_id())
       {
         // Toggle Pump
-        if(mPumpWrapper.is_pulse_running())
+        if(OutputWrapper::Config::Type::Pulsing == mPumpWrapper.get_config()->get_type())
         {
-          mPumpWrapper.reset_pulse();
+          if(mPumpWrapper.is_pulse_running())
+          {
+            mPumpWrapper.reset_pulse();
+          }
+          else
+          {
+            mPumpWrapper.start_pulse();
+          }        
         }
         else
         {
-          mPumpWrapper.start_pulse();
-        }        
+          if(mPumpWrapper.get_state() == HIGH)
+            mPumpWrapper.set_state(LOW);
+          else
+            mPumpWrapper.set_state(HIGH);          
+        }
+        
       }
       // Toggle Co2 option
       else if (mCurrentMenuItem->get_id() == mTestMenuToggleCo2.get_id())
       {
         // Toggle Pump
-        if(mCo2Wrapper.is_pulse_running())
+        if(OutputWrapper::Config::Type::Pulsing == mCo2Wrapper.get_config()->get_type())
         {
-          mCo2Wrapper.reset_pulse();
+          if(mCo2Wrapper.is_pulse_running())
+          {
+            mCo2Wrapper.reset_pulse();
+          }
+          else
+          {
+            mCo2Wrapper.start_pulse();
+          }
         }
         else
         {
-          mCo2Wrapper.start_pulse();
+          if(mCo2Wrapper.get_state() == HIGH)
+            mCo2Wrapper.set_state(LOW);
+          else
+            mCo2Wrapper.set_state(HIGH);          
         }
+        
       }
       // Exit menu option
       else if (mCurrentMenuItem->get_id() == mTestMenuExit.get_id())
@@ -490,8 +512,8 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       // Timeline - 0123456789
       // PUMP     -    XXXXX           
       // CO2      - XXXXX
-      static OutputWrapper::Config mPumpConfig(LOW, HIGH, 10000, 5000, 3000);
-      static OutputWrapper::Config mCo2Config(LOW,  HIGH, 10000, 5000, 0);
+      static OutputWrapper::Config mPumpConfig(LOW);
+      static OutputWrapper::Config mCo2Config(LOW);
 
       mCo2Wrapper.update_config(mCo2Config);
       mPumpWrapper.update_config(mPumpConfig);
