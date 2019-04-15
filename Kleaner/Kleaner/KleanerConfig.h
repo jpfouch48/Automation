@@ -38,25 +38,4 @@
 #define SPLASH_LINE_1    "Kleaner"
 #define SPLASH_LINE_2    "V 0.1.0"
 
-enum class process_type
-{
-  All_Off,                  /* No Input               */
-  Set_Input_Water,          /* mValue   : HIGH or LOW */
-  Set_Input_Cleaner,        /* mValue   : HIGH or LOW */
-  Set_Input_Sani,           /* mValue   : HIGH or LOW */
-  Set_Recirc_Waste,         /* mValue   : HIGH or LOW */
-  Set_Recirc_Cleaner,       /* mValue   : HIGH or LOW */
-  Set_Recirc_Sani,          /* mValue   : HIGH or LOW */
-  Set_Pump,                 /* mValue   : HIGH or LOW */
-  Set_Co2,                  /* mValue   : HIGH or LOW */
-  Wait_For_Input,           /* No Input               */
-  Delay                     /* mValue   : Seconds     */
-};
-
-struct process_step
-{
-  process_type mProcessType;
-  uint8_t      mValue;
-}; 
-
 #endif
