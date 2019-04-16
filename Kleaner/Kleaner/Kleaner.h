@@ -32,19 +32,9 @@ class Kleaner
     void process_state();
     bool process_state(const KleanerState *aState, bool aInitState);
 
-    void set_input(InputSource aInputSource);
-    void set_input_off();
-    void set_input_water();
-    void set_input_cleaner();
-    void set_input_sanitizer();
-
-    void set_recirc(RecircDest aRecircDest);
-    void set_recirc_off();
-    void set_recirc_waste();
-    void set_recirc_sanitizer();
-    void set_recirc_cleaner();
-
     void set_all_off();
+
+    bool is_process_state(unsigned char aStateId);
 
     // Display Wrappers
     DisplayWrapper mDisplayWrapper;
@@ -69,8 +59,21 @@ class Kleaner
 
     KleanerState mSplashState;
     KleanerState mMenuState;
-    KleanerState mProcessState;
-    KleanerState mCompleteState;
+    
+    KleanerState mProcessInitState;
+    KleanerState mProcessPurgeState;
+    KleanerState mProcessRinseState;
+    KleanerState mProcessSaniState;
+    KleanerState mProcessWashState;
+    KleanerState mProcessPressState;
+    KleanerState mProcessCompleteState;
+
+    LinkedList<KleanerState*> mProcessStates;
+    Iterator<KleanerState*>   mProcessStateIter;
+    MilliTimer                mProcessDelayTimer;
+    bool                      mInProcessDelay;
+    bool                      mInProcessWaitForInput;
+    uint8_t                   mProcessDelayInSec;
 
     MilliTimer mStateTimer;
     bool mStateComplete;
