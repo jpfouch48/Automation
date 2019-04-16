@@ -117,7 +117,6 @@ void DisplayWrapper::loop()
 // ****************************************************************************
 void DisplayWrapper::DebugDump()
 {
-  
   for(int lIndex=0;lIndex < gDebugRowCount; lIndex++)
   {
     Serial.print("[");

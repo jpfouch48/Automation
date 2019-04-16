@@ -57,6 +57,8 @@ Kleaner::Kleaner() :
 // ****************************************************************************    
 void Kleaner::setup()
 {
+  TPRINTLN(F("Kleaner::setup - enter"));
+
   // Setup Display Wrapper and turn on back light
   mDisplayWrapper.setup();
   mDisplayWrapper.backlight_on(true);
@@ -75,7 +77,11 @@ void Kleaner::setup()
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Load Keg"))));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Start"))));
+#if defined DEBUG_NO_INPUT
+  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
+#else
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+#endif
 
   // Purge State
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
@@ -142,7 +148,11 @@ void Kleaner::setup()
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
+#if defined DEBUG_NO_INPUT
+  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
+#else
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+#endif
 
   mProcessStates.push_back(&mProcessInitState);
   mProcessStates.push_back(&mProcessPurgeState);
@@ -157,6 +167,8 @@ void Kleaner::setup()
 
   // Default it to the end until we start the process from the start menu
   mProcessStateIter = mProcessStates.end();  
+
+  TPRINTLN(F("Kleaner::setup - exit"));
 }
 
 // ****************************************************************************
@@ -251,6 +263,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   // Check to see if this is our first time in this state
   if(aInitState)
   {
+    TPRINT(F("Init State: "));
+    TPRINTLN(aState->get_state_name());
+
     // Reset the state timer
     mStateTimer.reset();
 
@@ -313,52 +328,74 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       switch(lCurrentStep->get_type())
       {
         case ProcessStep::ProcessType::All_Off:
+          TPRINTLN(F("All OFF"));
           set_all_off();
         break;
 
         case ProcessStep::ProcessType::Set_Input_Water:
+          TPRINT(F("Input Water: "));
+          TPRINTLN(lCurrentStep->get_value());
           mInWaterWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Input_Cleaner:
+          TPRINT(F("Input Cleaner: "));
+          TPRINTLN(lCurrentStep->get_value());
           mInCleanerWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Input_Sani:
+          TPRINT(F("Input Sani: "));
+          TPRINTLN(lCurrentStep->get_value());
           mInSaniWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Recirc_Waste:
+          TPRINT(F("Recirc Waste: "));
+          TPRINTLN(lCurrentStep->get_value());
           mReWasteWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Recirc_Cleaner:
+          TPRINT(F("Recirc Cleaner: "));
+          TPRINTLN(lCurrentStep->get_value());
           mReCleanerWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Recirc_Sani:
+          TPRINT(F("Recirc Sani: "));
+          TPRINTLN(lCurrentStep->get_value());
           mReSaniWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Pump:
+          TPRINT(F("Pump: "));
+          TPRINTLN(lCurrentStep->get_value());
           mPumpWrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Set_Co2:
+          TPRINT(F("C02: "));
+          TPRINTLN(lCurrentStep->get_value());
           mCo2Wrapper.set_state(lCurrentStep->get_value());
         break;
 
         case ProcessStep::ProcessType::Wait_For_Input:
+          TPRINT(F("Wait for input "));
           mInProcessWaitForInput = true;
         break;
 
         case ProcessStep::ProcessType::Delay:
+          TPRINT(F("Delay: "));
+          TPRINTLN(lCurrentStep->get_value());
           mInProcessDelay = true;
           mProcessDelayInSec = lCurrentStep->get_value();
           mProcessDelayTimer.reset();
         break;
 
         case ProcessStep::ProcessType::Display:
+          TPRINT(F("Display: "));
+          TPRINTLN(*lCurrentStep->get_sz_value());
           mDisplayWrapper.display(lCurrentStep->get_value(), *lCurrentStep->get_sz_value(), true);
         break;
         
@@ -375,7 +412,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       lProcessListComplete = true;
     }
 
-    // TODO : State Specific processing
+    // State Specific processing
     if(true == is_process_state(aState->get_id()))
     {
       // 0123456789012345
@@ -407,7 +444,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // Once splash state is complete, goto menu state
     if(aState->get_id() == mSplashState.get_id())
     {
+#if defined DEBUG_NO_INPUT
+      mProcessStateIter = mProcessStates.begin();        
+#else
       mCommandState = &mMenuState;
+#endif
     }
 
     // TODO: State specific cleanup

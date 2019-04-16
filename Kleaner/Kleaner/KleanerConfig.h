@@ -3,6 +3,11 @@
 
 #include <Arduino.h>
 
+#define DEBUG_DISPLAY_WRAPPER
+#define DEBUG_NO_INPUT
+#define TRACE_OUTPUT
+
+
 // ****************************************************************************
 //  Digital I/O Pin definitions
 // ****************************************************************************
@@ -36,6 +41,17 @@
 // Splash Display
 // ****************************************************************************
 #define SPLASH_LINE_1    "Kleaner"
-#define SPLASH_LINE_2    "V 0.1.0"
+#define SPLASH_LINE_2    "V 0.1.1"
+
+
+
+
+#if defined TRACE_OUTPUT
+  #define TPRINT(...)   Serial.print(__VA_ARGS__)
+  #define TPRINTLN(...) Serial.println(__VA_ARGS__)
+#else
+  #define TPRINT(...)
+  #define TPRINTLN(...)
+#endif
 
 #endif
