@@ -119,9 +119,9 @@ void DisplayWrapper::DebugDump()
 {
   for(int lIndex=0;lIndex < gDebugRowCount; lIndex++)
   {
-    Serial.print("[");
-    Serial.print(mDebugDisplay[lIndex]);
-    Serial.println("[");
+    TPRINT("[");
+    TPRINT(mDebugDisplay[lIndex]);
+    TPRINTLN("]");
   }
 }
 #endif      
