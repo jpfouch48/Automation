@@ -72,12 +72,13 @@ void Kleaner::setup()
   mReCleanerWrapper.setup();
 
   // Init State
+  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Load Keg"))));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Start"))));
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off                ));
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input         ));
+  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   // Purge State
+  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste, HIGH));
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
@@ -87,6 +88,7 @@ void Kleaner::setup()
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off               ));
   
   // Rinse State
+  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste, HIGH));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  HIGH));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            15  ));
@@ -101,6 +103,7 @@ void Kleaner::setup()
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off               ));
 
   // Sani State
+  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   HIGH));
   mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,    HIGH));
   mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             15  ));
@@ -115,6 +118,7 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off                ));
 
   // Wash State
+  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Cleaner,HIGH));
   mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner, HIGH));
   mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             15  ));
@@ -129,15 +133,16 @@ void Kleaner::setup()
   mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off                ));
 
   // Pressurize State
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,           HIGH));
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             15  ));
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,           LOW ));
+  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
+  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
+  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            15  ));
+  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
 
   // Complete State
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Complete"))));
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Restart"))));
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off                ));
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input         ));
+  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
+  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
+  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
+  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   mProcessStates.push_back(&mProcessInitState);
   mProcessStates.push_back(&mProcessPurgeState);
@@ -219,7 +224,7 @@ void Kleaner::process_state()
     {
       // Reached the end of our prcoessing list, proceed back to 
       // menu state
-      mCurrentState = mMenuState;
+      mCurrentState = &mMenuState;
     }
     
     // Set first time flag so new state can initialize

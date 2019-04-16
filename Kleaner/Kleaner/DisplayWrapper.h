@@ -3,6 +3,8 @@
 
 #include <ParallaxLCD.h>
 
+#define DEBUG_DISPLAY_WRAPPER
+
 class DisplayWrapper
 {
   public:
@@ -50,5 +52,12 @@ class DisplayWrapper
     ParallaxLCD mLCD;
     int mRowCount;
     int mColCount;
+
+#if defined DEBUG_DISPLAY_WRAPPER
+    void DebugDump();
+    const static int gDebugRowCount = 2;
+    const static int gDebugColCount = 16;
+    char mDebugDisplay[gDebugRowCount][gDebugColCount];
+#endif
 };
 #endif
