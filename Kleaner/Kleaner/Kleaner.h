@@ -27,7 +27,7 @@ class Kleaner
   protected:
 
   private:
-    void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, String aDisplayVal, int aDisplayCol);
+    void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char aDisplayVal, int aDisplayCol);
 
     void process_state();
     bool process_state(const KleanerState *aState, bool aInitState);

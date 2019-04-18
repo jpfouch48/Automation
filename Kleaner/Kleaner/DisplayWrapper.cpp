@@ -32,8 +32,21 @@ void DisplayWrapper::display(int aRow, int aCol, String aTxt, bool aClear)
   strcpy(&mDebugDisplay[aRow][aCol], aTxt.c_str());
   DebugDump();
 #endif  
-
 }
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void DisplayWrapper::display(int aRow, int aCol, char aChar)
+{
+   mLCD.at(aRow, aCol, aChar); 
+
+#if defined DEBUG_DISPLAY_WRAPPER
+  mDebugDisplay[aRow][aCol] = aChar;
+  DebugDump();
+#endif  
+}
+
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************

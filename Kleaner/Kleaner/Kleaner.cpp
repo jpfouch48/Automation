@@ -294,7 +294,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     }
     else if(true == is_process_state(aState->get_id()))
     {
-      mDisplayWrapper.display(1, 0, F("I    R"), true);    
+      mDisplayWrapper.display(1, 0, F("I    R          "), true);    
     }
     else if(aState->get_id() == mMenuState.get_id())
     {
@@ -417,16 +417,16 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     {
       // 0123456789012345
       // ICSW RCSW P C
-      update_output_display(mInCleanerWrapper, mPrevInCleanerState,   F("C"), 1);
-      update_output_display(mInSaniWrapper,    mPrevInSanitizerState, F("S"), 2);
-      update_output_display(mInWaterWrapper,   mPrevInWaterState,     F("W"), 3);
+      update_output_display(mInCleanerWrapper, mPrevInCleanerState,   'C', 1);
+      update_output_display(mInSaniWrapper,    mPrevInSanitizerState, 'S', 2);
+      update_output_display(mInWaterWrapper,   mPrevInWaterState,     'W', 3);
 
-      update_output_display(mReCleanerWrapper, mPrevReCleanerState,   F("C"), 6);
-      update_output_display(mReSaniWrapper,    mPrevReSanitizerState, F("S"), 7);
-      update_output_display(mReWasteWrapper,   mPrevReWasteState,     F("W"), 8);
+      update_output_display(mReCleanerWrapper, mPrevReCleanerState,   'C', 6);
+      update_output_display(mReSaniWrapper,    mPrevReSanitizerState, 'S', 7);
+      update_output_display(mReWasteWrapper,   mPrevReWasteState,     'W', 8);
 
-      update_output_display(mPumpWrapper,      mPrevPumpState,        F("P"), 10);
-      update_output_display(mCo2Wrapper,       mPrevCo2State,         F("C"), 12);
+      update_output_display(mPumpWrapper,      mPrevPumpState,        'P', 10);
+      update_output_display(mCo2Wrapper,       mPrevCo2State,         'C', 12);
     }
   }
 
@@ -528,16 +528,16 @@ void Kleaner::on_en_button(int aState)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, String aDisplayVal, int aDisplayCol)
+void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char aDisplayVal, int aDisplayCol)
 {
   int lCurrentState = aOutputWrapper.get_state();
 
   if(lCurrentState != aPrevState)
   {
     if(lCurrentState == HIGH)
-      mDisplayWrapper.display(1, aDisplayCol, aDisplayVal, false);
+      mDisplayWrapper.display(1, aDisplayCol, aDisplayVal);
     else
-      mDisplayWrapper.display(1, aDisplayCol, F(" "), false);
+      mDisplayWrapper.display(1, aDisplayCol, ' ');
     aPrevState = lCurrentState;
   }
 }
