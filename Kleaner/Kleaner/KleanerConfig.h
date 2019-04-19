@@ -3,8 +3,6 @@
 
 #include <Arduino.h>
 
-//#define DEBUG_DISPLAY_WRAPPER
-//#define DEBUG_NO_INPUT
 #define TRACE_OUTPUT
 
 // ****************************************************************************

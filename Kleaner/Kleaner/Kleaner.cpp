@@ -25,7 +25,7 @@ Kleaner::Kleaner() :
 
     // State init
     // States             Name            State Duration
-    mSplashState          (F("Splash"),   2),
+    mSplashState          (F("Splash"),   0),
     mProcessInitState     (F("Init"),     0),
     mProcessPurgeState    (F("Purge"),    0),
     mProcessRinseState    (F("Rinse"),    0),
@@ -73,15 +73,16 @@ void Kleaner::setup()
   mReSaniWrapper.setup();
   mReCleanerWrapper.setup();
 
+  // Splash State
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(SPLASH_LINE_1)));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(SPLASH_LINE_2)));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             2  ));
+
   // Init State
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Load Keg"))));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Start"))));
-#if defined DEBUG_NO_INPUT
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-#else
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-#endif
 
   // Purge State
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
@@ -148,11 +149,7 @@ void Kleaner::setup()
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
-#if defined DEBUG_NO_INPUT
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-#else
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-#endif
 
   mProcessStates.push_back(&mProcessInitState);
   mProcessStates.push_back(&mProcessPurgeState);
@@ -287,12 +284,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     mDisplayWrapper.display(0, aState->get_state_name());
 
     // State Specific initialization
-    if(aState->get_id() == mSplashState.get_id())
-    {
-      mDisplayWrapper.display(0, F(SPLASH_LINE_1));
-      mDisplayWrapper.display(1, F(SPLASH_LINE_2));
-    }
-    else if(true == is_process_state(aState->get_id()))
+    if(true == is_process_state(aState->get_id()))
     {
       mDisplayWrapper.display(1, 0, F("I    R          "), true);    
     }
@@ -444,11 +436,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // Once splash state is complete, goto menu state
     if(aState->get_id() == mSplashState.get_id())
     {
-#if defined DEBUG_NO_INPUT
-      mProcessStateIter = mProcessStates.begin();        
-#else
       mCommandState = &mMenuState;
-#endif
     }
 
     // TODO: State specific cleanup

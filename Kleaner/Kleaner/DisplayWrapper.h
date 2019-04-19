@@ -2,7 +2,6 @@
 #define DISPLAY_WRAPPER_H
 
 #include <ParallaxLCD.h>
-#include "KleanerConfig.h"
 
 class DisplayWrapper
 {
@@ -56,12 +55,5 @@ class DisplayWrapper
     ParallaxLCD mLCD;
     int mRowCount;
     int mColCount;
-
-#if defined DEBUG_DISPLAY_WRAPPER
-    void DebugDump();
-    const static int gDebugRowCount = LCD_ROW_COUNT;
-    const static int gDebugColCount = LCD_COL_COUNT;
-    char mDebugDisplay[gDebugRowCount][gDebugColCount];
-#endif
 };
 #endif
