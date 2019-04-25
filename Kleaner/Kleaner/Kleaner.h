@@ -89,6 +89,8 @@ class Kleaner
     // Main Menu
     // ****************************************************************************
     KleanerMenuItem mStartMenuItem;
+    KleanerMenuItem mTestStatesItem;
+
     KleanerMenuItem *mCurrentMenuItem;
 
     // Previous state variables used for

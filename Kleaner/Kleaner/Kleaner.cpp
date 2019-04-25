@@ -46,7 +46,8 @@ Kleaner::Kleaner() :
     mProcessDelayInSec(0),
 
     // Menu init
-    mStartMenuItem(F("Start"), NULL, NULL),
+    mStartMenuItem (F("Start"),       NULL,           &mTestStatesItem),
+    mTestStatesItem(F("Test State"), &mStartMenuItem,  NULL           ),
 
     mCurrentMenuItem(&mStartMenuItem)
 {
@@ -499,6 +500,19 @@ void Kleaner::on_en_button(int aState)
       if(mCurrentMenuItem->get_id() == mStartMenuItem.get_id())
       {
         mProcessStateIter = mProcessStates.begin();
+      }
+      else if(mCurrentMenuItem->get_id() == mTestStatesItem.get_id())
+      {
+//        mCommandState = &mSplashState;    
+//        mCommandState = &mProcessInitState;
+        mCommandState = &mProcessPurgeState;
+//        mCommandState = &mProcessRinseState;
+//        mCommandState = &mProcessSaniState;
+//        mCommandState = &mProcessWashState;
+//        mCommandState = &mProcessPressState;
+//        mCommandState = &mProcessCompleteState;
+
+        mReturnToState = &mMenuState;
       }
     }
     // Process Complete and Splash State Options
