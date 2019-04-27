@@ -8,15 +8,21 @@
 // ****************************************************************************
 //  Digital I/O Pin definitions
 // ****************************************************************************
+
+#define DO_PIN_ON_BOARD_LED            13
 //#define DO_PIN_RELAY_AIR               12
 #define DO_PIN_RELAY_CO2               11
-#define DO_PIN_RELAY_INPUT_WATER       10
+
 #define DO_PIN_RELAY_INPUT_SANITIZER    9
 #define DO_PIN_RELAY_INPUT_CLEANER      8
 #define DO_PIN_RECIRC_SANITIZER         7
 #define DO_PIN_RECIRC_WASTE             6
 #define DO_PIN_RECIRC_CLEANER           5
 #define DO_PIN_PUMP                     4
+
+#define DO_PIN_MOTOR_INPUT_WATER_1      3
+#define DO_PIN_MOTOR_INPUT_WATER_2      2
+
 
 #define DI_PIN_BUTTON_UP               A4
 #define DI_PIN_BUTTON_DN               A2

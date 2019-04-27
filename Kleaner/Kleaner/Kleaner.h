@@ -9,6 +9,8 @@
 
 #include "InputWrapper.h"
 #include "OutputWrapper.h"
+#include "BallValveWrapper.h"
+
 #include "DisplayWrapper.h"
 #include "MilliTimer.h"
 
@@ -31,6 +33,7 @@ class Kleaner
 
   private:
     void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char aDisplayVal, int aDisplayCol);
+    void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char aDisplayVal, int aDisplayCol);
 
     void process_state();
     bool process_state(const KleanerState *aState, bool aInitState);
@@ -46,13 +49,17 @@ class Kleaner
     OutputWrapper mCo2Wrapper;
     OutputWrapper mPumpWrapper;
 
-    OutputWrapper mInWaterWrapper;
+    BallValveWrapper  mInWaterWrapper;
+
+
     OutputWrapper mInSaniWrapper;
     OutputWrapper mInCleanerWrapper;
 
     OutputWrapper mReWasteWrapper;
     OutputWrapper mReSaniWrapper;
-    OutputWrapper mReCleanerWrapper;  
+    OutputWrapper mReCleanerWrapper; 
+
+    OutputWrapper mOnBoardLed; 
 
 
     // States
@@ -97,7 +104,7 @@ class Kleaner
     // display of the process state
     int mPrevPumpState;
     int mPrevCo2State;
-    int mPrevInWaterState;
+    BallValveWrapper::State mPrevInWaterState;
     int mPrevInCleanerState;
     int mPrevInSanitizerState;
     int mPrevReWasteState;

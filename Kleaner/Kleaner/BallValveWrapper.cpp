@@ -1,11 +1,11 @@
 
-#include "MotorWrapper.h"
+#include "BallValveWrapper.h"
 #include <Arduino.h>
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void MotorWrapper::setup()
+void BallValveWrapper::setup()
 {
   pinMode(mPin1, OUTPUT);
   pinMode(mPin2, OUTPUT);
@@ -15,7 +15,7 @@ void MotorWrapper::setup()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void MotorWrapper::loop()
+void BallValveWrapper::loop()
 {
   // Nothing to do here
 }
@@ -23,41 +23,37 @@ void MotorWrapper::loop()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void MotorWrapper::set_state_pin1(int aState)
+void BallValveWrapper::set_open()
 {
-  digitalWrite(mPin1, aState);
+  digitalWrite(mPin1, HIGH);
+  digitalWrite(mPin2, LOW);
+  mState = State::Open;
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void MotorWrapper::set_state_pin2(int aState)
+void BallValveWrapper::set_close()
 {
-  digitalWrite(mPin2, aState);
-}
-
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-int MotorWrapper::get_state_pin1()
-{
-  return digitalRead(mPin1); 
+  digitalWrite(mPin1, LOW);
+  digitalWrite(mPin2, HIGH);
+  mState = State::Close;
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-int MotorWrapper::get_state_pin2()
+void BallValveWrapper::set_idle()
 {
-  return digitalRead(mPin2); 
+  digitalWrite(mPin1, LOW);
+  digitalWrite(mPin2, LOW);
+  mState = State::Idle;
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void MotorWrapper::reset()
+void BallValveWrapper::reset()
 {
-  digitalWrite(mPin1, mIdleStatePin1);
-  digitalWrite(mPin2, mIdleStatePin2);
+  set_idle();
 }

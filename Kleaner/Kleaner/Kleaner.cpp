@@ -16,12 +16,19 @@ Kleaner::Kleaner() :
     // Note: Timing values will be updated based on state configuration
     mCo2Wrapper      (DO_PIN_RELAY_CO2,             LOW),
     mPumpWrapper     (DO_PIN_PUMP,                  LOW),
-    mInWaterWrapper  (DO_PIN_RELAY_INPUT_WATER,     LOW),
+    
     mInSaniWrapper   (DO_PIN_RELAY_INPUT_SANITIZER, LOW),
     mInCleanerWrapper(DO_PIN_RELAY_INPUT_CLEANER,   LOW),
+
+    mInWaterWrapper  (DO_PIN_MOTOR_INPUT_WATER_1, 
+                      DO_PIN_MOTOR_INPUT_WATER_2),
+
+
     mReWasteWrapper  (DO_PIN_RECIRC_WASTE,          LOW),
     mReSaniWrapper   (DO_PIN_RECIRC_SANITIZER,      LOW),
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER,        LOW),
+
+    mOnBoardLed      (DO_PIN_ON_BOARD_LED,          LOW),
 
     // State init
     // States             Name            State Duration
@@ -73,10 +80,14 @@ void Kleaner::setup()
   mReWasteWrapper.setup();
   mReSaniWrapper.setup();
   mReCleanerWrapper.setup();
+  mOnBoardLed.setup();
 
   // Splash State
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(SPLASH_LINE_1)));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(SPLASH_LINE_2)));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Close));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Idle));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             2  ));
 
   // Init State
@@ -98,12 +109,14 @@ void Kleaner::setup()
   // Rinse State
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste, HIGH));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  HIGH));
+  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Open));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            15  ));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,         HIGH));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,         LOW ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  LOW ));
+  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Close));
+  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
+  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Idle));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
   mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
@@ -186,6 +199,8 @@ void Kleaner::loop()
   mReWasteWrapper.loop();
   mReSaniWrapper.loop();
   mReCleanerWrapper.loop();
+  mOnBoardLed.loop();
+
 
   // Process the current state
   process_state();
@@ -206,6 +221,9 @@ void Kleaner::process_state()
   // Check to see if current state is completed.
   if(true == mStateComplete)
   {
+    TPRINT(F("Complete State: "));
+    TPRINTLN(mCurrentState->get_state_name());
+
     // Current state complete, setup next state
 
     // Check if return to state is set - if so, set 
@@ -243,6 +261,9 @@ void Kleaner::process_state()
   // A new state has been commanded, transition to it
   else if (mCommandState != NULL)
   {
+    TPRINT(F("Commanding State: "));
+    TPRINTLN(mCommandState->get_state_name());
+
     mCurrentState = mCommandState;
     mCommandState = NULL;
     mFirstTimeInState = true;
@@ -270,7 +291,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // Reset component state flags for displaying status
     mPrevPumpState = -1;
     mPrevCo2State = -1;
-    mPrevInWaterState = -1;
+    mPrevInWaterState = BallValveWrapper::State::Unknown;
     mPrevInCleanerState = -1;
     mPrevInSanitizerState = -1;
     mPrevReWasteState = -1;
@@ -294,13 +315,23 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       // Set the menu to the first option
       mCurrentMenuItem = &mStartMenuItem;
       mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
+
+      TPRINT("Current Menu Item: ");
+      TPRINTLN(mCurrentMenuItem->get_title());
     }
   }
   else
   {
     // TODO: Generic processing
 
-    if(true == mInProcessDelay)
+    // If we are in a menu state do nothing, Options
+    // are processed based on button inputs and menu
+    // system
+    if(aState->get_id() == mMenuState.get_id())
+    {
+      // Do nothing
+    }
+    else if(true == mInProcessDelay)
     {
       // Check to see if our delay has elapsed
       if(mProcessDelayTimer.delta_in_secs() > mProcessDelayInSec)
@@ -327,8 +358,33 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::ProcessType::Set_Input_Water:
           TPRINT(F("Input Water: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mInWaterWrapper.set_state(lCurrentStep->get_value());
+
+          switch((BallValveWrapper::State)lCurrentStep->get_value())
+          {
+            case BallValveWrapper::State::Open:
+              TPRINTLN(F("OPEN"));
+              mInWaterWrapper.set_open();
+
+              mOnBoardLed.set_state(HIGH);
+            break;
+
+            case BallValveWrapper::State::Close:
+              TPRINTLN(F("CLOSE"));
+              mInWaterWrapper.set_close();
+              mOnBoardLed.set_state(HIGH);
+            break;
+
+            case BallValveWrapper::State::Idle:
+              TPRINTLN(F("IDLE"));
+              mInWaterWrapper.set_idle();
+              mOnBoardLed.set_state(LOW);
+            break;
+
+            default:
+              TPRINTLN(F("???"));
+              mInWaterWrapper.set_idle();
+            break;
+          }
         break;
 
         case ProcessStep::ProcessType::Set_Input_Cleaner:
@@ -452,6 +508,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 // ****************************************************************************   
 void Kleaner::on_up_button(int aState)
 {
+  // TODO: REMOVE ONCE UI IS HOOKED UP
+  return;
+
   if(aState == LOW)
   {
     // Process menu menu option for menu and test menu state
@@ -471,6 +530,9 @@ void Kleaner::on_up_button(int aState)
 // ****************************************************************************   
 void Kleaner::on_dn_button(int aState)
 {
+  // TODO: REMOVE ONCE UI IS HOOKED UP
+  return;
+
   if(aState == LOW)
   {
     // Process menu menu option for menu and test menu state
@@ -490,6 +552,9 @@ void Kleaner::on_dn_button(int aState)
 // ****************************************************************************   
 void Kleaner::on_en_button(int aState)
 {
+  // TODO: REMOVE ONCE UI IS HOOKED UP
+  return;
+
   if(aState == LOW)
   {
     // Process Main Menu Options
@@ -543,6 +608,28 @@ void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aP
     aPrevState = lCurrentState;
   }
 }
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char aDisplayVal, int aDisplayCol)
+{
+  BallValveWrapper::State lCurrentState = (BallValveWrapper::State)aOutputWrapper.get_state();
+
+  // Ignore the idle state so the current opened/closed state is displayed
+  if(lCurrentState == BallValveWrapper::State::Idle)
+    return;
+
+  if(lCurrentState != aPrevState)
+  {
+    if(lCurrentState == BallValveWrapper::State::Open)
+      mDisplayWrapper.display(1, aDisplayCol, aDisplayVal);
+    else
+      mDisplayWrapper.display(1, aDisplayCol, ' ');
+    aPrevState = lCurrentState;
+  }
+}
+
 
 // ****************************************************************************
 // See header file for details

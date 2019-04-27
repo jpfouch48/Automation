@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "KleanerDefines.h"
 #include "OutputWrapper.h"
+#include "BallValveWrapper.h"
 #include "LinkedList.h"
 
 class ProcessStep
@@ -33,9 +34,12 @@ public:
   {
   }
 
+  ProcessStep(ProcessType aType, BallValveWrapper::State aState) : ProcessStep(aType, (int)aState)
+  {  
+  } 
+
   ProcessStep(ProcessType aType, int aValue, String *aSzValue) : mType(aType), mValue(aValue), mSzValue(aSzValue) 
   {
-
   }
 
   ProcessType get_type() { return mType; }

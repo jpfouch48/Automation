@@ -1,12 +1,21 @@
-#ifndef MOTOR_WRAPPER_H
-#define MOTOR_WRAPPER_H
+#ifndef BALL_VALVE_WRAPPER_H
+#define BALL_VALVE_WRAPPER_H
 
-class MotorWrapper
+#include <Arduino.h>
+
+class BallValveWrapper
 {
   public:
+    enum class State
+    {
+      Idle,
+      Open,
+      Close,
+      Unknown,
+    };
 
     // ************************************************************************
-    // MotorWrapper - Constructor 
+    // BallValveWrapper - Constructor 
     // ************************************************************************
     // Description:
     //
@@ -14,14 +23,10 @@ class MotorWrapper
     // Parameters:
     //
     // ************************************************************************
-    MotorWrapper(int aPin1,
-                 int aPin2, 
-                 int aIdleStatePin1,
-                 int aIdleStatePin2) :
+    BallValveWrapper(int aPin1, int aPin2) :
       mPin1(aPin1),
       mPin2(aPin2),
-      mIdleStatePin1(aIdleStatePin1),
-      mIdleStatePin2(aIdleStatePin2)
+      mState(State::Unknown)
     {
     }
 
@@ -38,12 +43,17 @@ class MotorWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    void set_state_pin1(int aState);
+    void set_open();
 
     // ************************************************************************
     //
     // ************************************************************************
-    void set_state_pin2(int aState);
+    void set_close();
+
+    // ************************************************************************
+    //
+    // ************************************************************************
+    void set_idle();
 
     // ************************************************************************
     //
@@ -53,19 +63,16 @@ class MotorWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    int get_state_pin1();
-
-    // ************************************************************************
-    //
-    // ************************************************************************
-    int get_state_pin2();
+    State get_state()
+    {
+      return mState;
+    }
 
   protected:
 
   private:
     int     mPin1;
     int     mPin2;
-    int     mIdleStatePin1;
-    int     mIdleStatePin2;
+    State   mState;
 };
 #endif
