@@ -59,9 +59,6 @@ class Kleaner
     OutputWrapper mReSaniWrapper;
     OutputWrapper mReCleanerWrapper; 
 
-    OutputWrapper mOnBoardLed; 
-
-
     // States
     KleanerState *mCurrentState;
     KleanerState *mCommandState;

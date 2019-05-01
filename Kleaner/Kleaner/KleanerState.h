@@ -64,15 +64,13 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(String                 aStateName, 
-               int                    aStateTimeInSec  = 0);
+  KleanerState(String aStateName);
 
   // **************************************************************************
   // Accessor functions
   //***************************************************************************
   int                    get_id()                const { return mId;             }
   String                 get_state_name()        const { return mStateName;      }
-  int                    get_state_time_in_sec() const { return mStateTimeInSec; }
 
   // **************************************************************************
   //
@@ -113,7 +111,6 @@ protected:
 private:
   unsigned char            mId;
   String                   mStateName;
-  int                      mStateTimeInSec;
   LinkedList<ProcessStep*> mProcessSteps;
   Iterator<ProcessStep*>   mProcessStepIter;
   static unsigned char     gStateCount;

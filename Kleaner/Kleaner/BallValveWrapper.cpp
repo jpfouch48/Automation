@@ -7,8 +7,8 @@
 // ****************************************************************************
 void BallValveWrapper::setup()
 {
-  pinMode(mPin1, OUTPUT);
-  pinMode(mPin2, OUTPUT);
+  pinMode(mInPin1, OUTPUT);
+  pinMode(mInPin2, OUTPUT);
   reset();
 }
 
@@ -25,8 +25,8 @@ void BallValveWrapper::loop()
 // ****************************************************************************
 void BallValveWrapper::set_open()
 {
-  digitalWrite(mPin1, HIGH);
-  digitalWrite(mPin2, LOW);
+  digitalWrite(mInPin1, HIGH);
+  digitalWrite(mInPin2, LOW);
   mState = State::Open;
 }
 
@@ -35,25 +35,25 @@ void BallValveWrapper::set_open()
 // ****************************************************************************
 void BallValveWrapper::set_close()
 {
-  digitalWrite(mPin1, LOW);
-  digitalWrite(mPin2, HIGH);
+  digitalWrite(mInPin1, LOW);
+  digitalWrite(mInPin2, HIGH);
   mState = State::Close;
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void BallValveWrapper::set_idle()
-{
-  digitalWrite(mPin1, LOW);
-  digitalWrite(mPin2, LOW);
-  mState = State::Idle;
-}
+//void BallValveWrapper::set_idle()
+//{
+//  digitalWrite(mInPin1, LOW);
+//  digitalWrite(mInPin2, LOW);
+//  mState = State::Idle;
+//}
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
 void BallValveWrapper::reset()
 {
-  set_idle();
+  set_close();
 }
