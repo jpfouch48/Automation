@@ -2,6 +2,11 @@
 	"folders": [
 		{
 			"path": "Kleaner"
-		}
+			"name": "Source Code"
+		},
+		{
+			"path": "HMI"
+			"name": "HMI"
+		},
 	]
 }
