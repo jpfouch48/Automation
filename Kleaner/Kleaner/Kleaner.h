@@ -75,6 +75,8 @@ class Kleaner
     KleanerState mProcessPressState;
     KleanerState mProcessCompleteState;
 
+    KleanerState mTestState;
+
     LinkedList<KleanerState*> mProcessStates;
     Iterator<KleanerState*>   mProcessStateIter;
     MilliTimer                mProcessDelayTimer;

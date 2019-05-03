@@ -40,6 +40,8 @@ Kleaner::Kleaner() :
     mProcessCompleteState (F("Complete")),
     mMenuState            (F("Menu")),
 
+    mTestState            (F("Test")),
+
     // State Pointers - We are starting with the splash screen
     // once the splash is done, the menu state is initiated
     mCurrentState(&mSplashState),
@@ -160,6 +162,52 @@ void Kleaner::setup()
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Co2"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
+
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Pump"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,   HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,   LOW ));
+
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Cleaner"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner,HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner,LOW ));
+
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Sani"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,   HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,   LOW ));
+
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Water"))));
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Open));
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Close));
+
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Re Waste"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste,   HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste,   LOW ));
+
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Re Cleaner"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Cleaner,   HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Cleaner,   LOW ));
+
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Re Sani"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   HIGH));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   LOW ));
+
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
+  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+
 
   // Setup the process state list
   mProcessStates.push_back(&mProcessInitState);
@@ -529,15 +577,7 @@ void Kleaner::on_en_button(int aState)
       }
       else if(mCurrentMenuItem->get_id() == mTestStatesItem.get_id())
       {
-//        mCommandState = &mSplashState;    
-//        mCommandState = &mProcessInitState;
-        mCommandState = &mProcessPurgeState;
-//        mCommandState = &mProcessRinseState;
-//        mCommandState = &mProcessSaniState;
-//        mCommandState = &mProcessWashState;
-//        mCommandState = &mProcessPressState;
-//        mCommandState = &mProcessCompleteState;
-
+        mCommandState = &mTestState;
         mReturnToState = &mMenuState;
       }
     }
@@ -614,7 +654,8 @@ bool Kleaner::is_process_state(unsigned char aStateId)
      aStateId == mProcessRinseState.get_id() ||
      aStateId == mProcessSaniState.get_id()  ||
      aStateId == mProcessWashState.get_id()  ||
-     aStateId == mProcessPressState.get_id())
+     aStateId == mProcessPressState.get_id() ||
+     aStateId == mTestState.get_id())
   {
     return true;
   }
