@@ -24,6 +24,7 @@ public:
     Wait_For_Input,           /* No Input               */
     Delay,                    /* mValue   : Seconds     */
     Display,                  /* mSzValue : String      */
+    Display_Page,             /* mValue   : Page Num    */
   };
 
   ProcessStep(ProcessType aType) : mType(aType), mValue(0), mSzValue(NULL)

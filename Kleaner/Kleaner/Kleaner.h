@@ -3,15 +3,12 @@
 
 #include "KleanerConfig.h"
 #include "KleanerDefines.h"
-
 #include "KleanerState.h"
-#include "KleanerMenuItem.h"
-
 #include "InputWrapper.h"
 #include "OutputWrapper.h"
 #include "BallValveWrapper.h"
-
 #include "DisplayWrapper.h"
+
 #include "MilliTimer.h"
 
 // ****************************************************************************
@@ -22,19 +19,12 @@ class Kleaner
   public:
     Kleaner();
 
-    void on_up_button(int aState);
-    void on_dn_button(int aState);
-    void on_en_button(int aState);
-
     void setup();
     void loop();
 
   protected:
 
   private:
-    void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char aDisplayVal, int aDisplayCol);
-    void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char aDisplayVal, int aDisplayCol);
-
     void process_state();
     bool process_state(const KleanerState *aState, bool aInitState);
 
@@ -42,7 +32,7 @@ class Kleaner
 
     bool is_process_state(unsigned char aStateId);
 
-    // Display Wrappers
+    // Display Manager
     DisplayWrapper mDisplayWrapper;
 
     // Output Wrappers
@@ -66,6 +56,7 @@ class Kleaner
 
     KleanerState mSplashState;
     KleanerState mMenuState;
+    KleanerState mTestState;
     
     KleanerState mProcessInitState;
     KleanerState mProcessPurgeState;
@@ -75,7 +66,6 @@ class Kleaner
     KleanerState mProcessPressState;
     KleanerState mProcessCompleteState;
 
-    KleanerState mTestState;
 
     LinkedList<KleanerState*> mProcessStates;
     Iterator<KleanerState*>   mProcessStateIter;
@@ -87,28 +77,6 @@ class Kleaner
     MilliTimer mStateTimer;
     bool mStateComplete;
     bool mFirstTimeInState;
-
-    // ****************************************************************************
-    // Menu System
-    // ****************************************************************************
-
-    // Main Menu
-    // ****************************************************************************
-    KleanerMenuItem mStartMenuItem;
-    KleanerMenuItem mTestStatesItem;
-
-    KleanerMenuItem *mCurrentMenuItem;
-
-    // Previous state variables used for
-    // display of the process state
-    int mPrevPumpState;
-    int mPrevCo2State;
-    BallValveWrapper::State mPrevInWaterState;
-    int mPrevInCleanerState;
-    int mPrevInSanitizerState;
-    int mPrevReWasteState;
-    int mPrevReCleanerState;
-    int mPrevReSanitizerState;    
 };
 
 

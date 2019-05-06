@@ -15,14 +15,14 @@ Kleaner gKleaner;
 // Forward declared functions
 // ****************************************************************************
 // Button declarations
-void on_button_up(int aCurrentState);
-void on_button_dn(int aCurrentState);
-void on_button_en(int aCurrentState);
+//void on_button_up(int aCurrentState);
+//void on_button_dn(int aCurrentState);
+//void on_button_en(int aCurrentState);
 
 // Button Wrappers
-InputWrapper gUpButton(DI_PIN_BUTTON_UP, INPUT_PULLUP, 50, on_button_up);
-InputWrapper gDnButton(DI_PIN_BUTTON_DN, INPUT_PULLUP, 50, on_button_dn);
-InputWrapper gEnButton(DI_PIN_BUTTON_EN, INPUT_PULLUP, 50, on_button_en);
+//InputWrapper gUpButton(DI_PIN_BUTTON_UP, INPUT_PULLUP, 50, on_button_up);
+//InputWrapper gDnButton(DI_PIN_BUTTON_DN, INPUT_PULLUP, 50, on_button_dn);
+//InputWrapper gEnButton(DI_PIN_BUTTON_EN, INPUT_PULLUP, 50, on_button_en);
 
 // Loop Timer
 MilliTimer gLoopTimer;
@@ -30,26 +30,26 @@ MilliTimer gLoopTimer;
 // ****************************************************************************
 //
 // ****************************************************************************
-void on_button_up(int aCurrentState)
-{
-  gKleaner.on_up_button(aCurrentState);
-}
+//void on_button_up(int aCurrentState)
+//{
+//  gKleaner.on_up_button(aCurrentState);
+//}
 
 // ****************************************************************************
 //
 // ****************************************************************************
-void on_button_dn(int aCurrentState)
-{
-  gKleaner.on_dn_button(aCurrentState);
-}
+//void on_button_dn(int aCurrentState)
+//{
+//  gKleaner.on_dn_button(aCurrentState);
+//}
 
 // ****************************************************************************
 //
 // ****************************************************************************
-void on_button_en(int aCurrentState)
-{
-  gKleaner.on_en_button(aCurrentState);
-}
+//void on_button_en(int aCurrentState)
+//{
+//  gKleaner.on_en_button(aCurrentState);
+//}
 
 // ****************************************************************************
 //
@@ -62,9 +62,9 @@ void setup()
   gKleaner.setup();
 
   // Setup input wrappers
-  gUpButton.setup();
-  gDnButton.setup();
-  gEnButton.setup();
+//  gUpButton.setup();
+//  gDnButton.setup();
+//  gEnButton.setup();
 }
  
 // ****************************************************************************
@@ -75,9 +75,9 @@ void loop()
   gLoopTimer.reset();
 
   // Input wrapper processing
-  gUpButton.loop();
-  gDnButton.loop();
-  gEnButton.loop();  
+//  gUpButton.loop();
+//  gDnButton.loop();
+//  gEnButton.loop();  
 
   gKleaner.loop();
 
