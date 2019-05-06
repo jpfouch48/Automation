@@ -1,5 +1,6 @@
 
 #include "DisplayWrapper.h"
+#include "KleanerConfig.h"
 #include <Arduino.h>
 
 
@@ -7,7 +8,8 @@
 // See header file for details
 // ****************************************************************************
 DisplayWrapper::DisplayWrapper(int aStartupPageId) : 
-  mStartupPageId(aStartupPageId)
+  mStartupPageId(aStartupPageId),
+  mSerial(NEXT_SOFT_SERIAL_RX_PIN, NEXT_SOFT_SERIAL_TX_PIN)
 {
 }
 
@@ -16,6 +18,7 @@ DisplayWrapper::DisplayWrapper(int aStartupPageId) :
 // ****************************************************************************
 void DisplayWrapper::setup()
 {
+  mSerial.begin(9600);  
   set_page(mStartupPageId);
 }
 
@@ -25,6 +28,7 @@ void DisplayWrapper::setup()
 // ****************************************************************************
 void DisplayWrapper::loop()
 {
+  check_for_input();
 }
 
 // ****************************************************************************
@@ -41,9 +45,21 @@ void DisplayWrapper::set_page(int aPageId)
 // ****************************************************************************
 void DisplayWrapper::send_command(const char* aCmd)
 {
-  Serial.print(aCmd);
-  Serial.write(0xFF);
-  Serial.write(0xFF);
-  Serial.write(0xFF);
+  mSerial.print(aCmd);
+  mSerial.write(0xFF);
+  mSerial.write(0xFF);
+  mSerial.write(0xFF);
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void DisplayWrapper::check_for_input()
+{
+  if (mSerial.available()) 
+  {
+    int incomingByte = mSerial.read();
+    Serial.println(incomingByte, HEX);
+  }  
 }
 

@@ -23,6 +23,8 @@
 #define DO_PIN_MOTOR_INPUT_WATER_1      3
 #define DO_PIN_MOTOR_INPUT_WATER_2      2
 
+#define NEXT_SOFT_SERIAL_TX_PIN        10
+#define NEXT_SOFT_SERIAL_RX_PIN        12
 
 // ****************************************************************************
 // Loop timing

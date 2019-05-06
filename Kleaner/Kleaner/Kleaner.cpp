@@ -76,13 +76,14 @@ void Kleaner::setup()
   mReCleanerWrapper.setup();
 
   // Splash State
-  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           1));
+//  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           1));
 //  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,                1,  new String(SPLASH_LINE_2)));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,                  10));
 
   // Menu State
-  mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,             2));
+  mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,             1));
+  mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   // Init State
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
@@ -332,14 +333,14 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     {
 //      mDisplayWrapper.display(1, 0, F("I    R          "), true);    
     }
-    else if(aState->get_id() == mMenuState.get_id())
-    {
-      // Set the menu to the first option
+//    else if(aState->get_id() == mMenuState.get_id())
+//    {
+//      // Set the menu to the first option
 //      mCurrentMenuItem = &mStartMenuItem;
 //      mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
 //      TPRINT("Current Menu Item: ");
 //      TPRINTLN(mCurrentMenuItem->get_title());
-    }
+//    }
   }
   else
   {
@@ -348,11 +349,12 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // If we are in a menu state do nothing, Options
     // are processed based on button inputs and menu
     // system
-    if(aState->get_id() == mMenuState.get_id())
-    {
-      // Do nothing
-    }
-    else if(true == mInProcessDelay)
+//    if(aState->get_id() == mMenuState.get_id())
+//    {
+//      // Do nothing
+//    }
+//    else 
+    if(true == mInProcessDelay)
     {
       // Check to see if our delay has elapsed
       if(mProcessDelayTimer.delta_in_secs() > mProcessDelayInSec)

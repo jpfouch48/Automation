@@ -1,6 +1,7 @@
 #ifndef DISPLAY_WRAPPER_H
 #define DISPLAY_WRAPPER_H
 
+#include <SoftwareSerial.h>
 
 class DisplayWrapper
 {
@@ -34,7 +35,12 @@ class DisplayWrapper
     // ************************************************************************
     void send_command(const char* aCmd);
 
-    int mStartupPageId;
+    // ************************************************************************
+    //
+    // ************************************************************************
+    void check_for_input();
 
+    int mStartupPageId;
+    SoftwareSerial mSerial;
 };
 #endif
