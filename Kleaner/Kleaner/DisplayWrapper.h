@@ -40,6 +40,11 @@ class DisplayWrapper
     void display(int aRow, int aCol, String aTxt, bool aCLear=true);
 
     // ************************************************************************
+    //
+    // ************************************************************************
+    void display(int aRow, int aCol, char aChar);
+
+    // ************************************************************************
     //  ** Display Cenetered
     // ************************************************************************
     void display(int aRow, String aTxt, bool aClear=true);

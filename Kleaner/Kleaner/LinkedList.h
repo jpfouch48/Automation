@@ -1,16 +1,99 @@
-#ifndef LINKED_LIST_H
-#define LINKED_LIST_H
-
-#include <stddef.h>
+#ifndef LINKED_LIST_HEADER
+#define LINKED_LIST_HEADER
 
 // ****************************************************************************
 //
 // ****************************************************************************
 template<class T>
-struct LinkedListNode
+class Node
 {
-  T data;
-  LinkedListNode<T> *next;
+public:
+  T        data;
+  Node<T> *next;  
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+template<class T>
+class Iterator
+{
+public:
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  Iterator() : mCurrent(NULL)
+  { 
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  Iterator(Node<T> *aNode) : mCurrent(aNode)
+  { 
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  Iterator& operator=(Node<T> *aNode)
+  {
+    mCurrent = aNode;
+    return *this;
+  }
+
+  // **************************************************************************
+  //
+  //  Prefix ++ overload
+  // **************************************************************************
+  Iterator& operator++()
+  {
+    if(mCurrent)
+      mCurrent = mCurrent->next;
+ 
+    return *this;
+  }
+
+  // **************************************************************************
+  //
+  //  Postfix ++ overload
+  // **************************************************************************
+  Iterator operator++(int)
+  {
+    Iterator lIter = *this;
+    ++*this;
+    return lIter;
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  int operator*()
+  {
+    return mCurrent->data;
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  bool operator==(const Iterator& aIterator)
+  {
+    return mCurrent == aIterator.mCurrent;
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  bool operator!=(const Iterator& aIterator)
+  {
+    return mCurrent != aIterator.mCurrent;
+  }
+
+protected:
+
+private:
+  Node<T> *mCurrent;
 };
 
 // ****************************************************************************
@@ -20,131 +103,70 @@ template<class T>
 class LinkedList
 {
 public:
-  LinkedList();
-  ~LinkedList();
+  // **************************************************************************
+  //
+  // **************************************************************************
+  LinkedList<T>() : 
+    mHead(NULL), 
+    mTail(NULL), 
+    mSize(0)
+  {
+  }
 
-  int                      size();
-  bool                     add(T);
-  void                     reset();
-  T                        pop();
-  const *LinkedListNode<T> get_head();
+  // **************************************************************************
+  //
+  // **************************************************************************
+  Iterator<T> begin() 
+  { 
+    return Iterator<T>(mHead); 
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  Iterator<T> end()
+  {
+    return Iterator<T>(NULL);
+  } 
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  int size() 
+  {
+    return mSize;
+  }
+
+  // **************************************************************************
+  //
+  // **************************************************************************
+  void push_back(T aData)
+  {
+    // Create the new node
+    Node<T> *lTemp = new Node<T>();
+    lTemp->data = aData;
+    lTemp->next = NULL;  
+
+    if(mHead)
+    {
+      mTail->next = lTemp;
+      mTail = lTemp;
+    }
+    else
+    {
+      mHead = mTail = lTemp;
+    }
+  
+    // Increment the size
+    mSize++;
+  }
 
 protected:
 
 private:
-  int mSize;
-  LinkedListNode<T> *mHead;
-  LinkedListNode<T> *mTail;
+  Node<T> *mHead;
+  Node<T> *mTail;
+  size_t   mSize;
 };
-
-// ****************************************************************************
-//
-// ****************************************************************************
-template<class T>
-LinkedList<T>::LinkedList()
-{
-  mHead = mTail = NULL;
-  mSize = 0;
-}
-
-// ****************************************************************************
-//
-// ****************************************************************************
-template<class T>
-LinkedList<T>::~LinkedList()
-{
-  LinkedListNode<T> *lTemp = NULL;
-
-  while(mHead != NULL)
-  {
-    lTemp = mHead;
-    mHead = mHead->next;
-    delete lTemp;
-  }
-
-  mSize = 0;
-}
-
-// ****************************************************************************
-//
-// ****************************************************************************
-template<class T>
-int LinkedList<T>::size()
-{
-  return mSize;
-}
-
-// ****************************************************************************
-//
-// ****************************************************************************
-template<class T>
-bool LinkedList<T>::add(T aItem)
-{
-  LinkedListNode<T> *lTemp = new LinkedListNode<T>();
-  lTemp->data = aItem;
-  lTemp->next = NULL;
-
-  if(NULL == mHead)
-  {
-    mHead = mTail = lTemp;
-  }
-  else
-  {
-    mTail->next = lTemp;
-    mTail = lTemp;
-  }
-
-  mSize++;
-  
-  return true;
-}
-
-
-// ****************************************************************************
-//
-// ****************************************************************************
-template<tyclasspename T>
-void LinkedList<T>::reset()
-{
-  LinkedListNode<T> *lTemp = NULL;
-
-  while(mHead != NULL)
-  {
-    lTemp = mHead;
-    mHead = mHead->next;
-    delete lTemp;
-  }
-
-  mHead = mTail = NULL;
-  mSize = 0;
-}
-
-// ****************************************************************************
-//
-// ****************************************************************************
-template<typename T>
-T LinkedList<T>::pop()
-{
-  if(mSize <= 0)
-    return T();
-
-  LinkedListNode<T> *lTemp = mHead;
-  T lRet = lTemp->data;
-
-  if(NULL != mHead->next)
-    mHead = mHead->next;
-
-  delete(lTemp);
-
-  mSize--;
-
-  return lRet;
-}
-
-template<typename T>
-const *LinkedListNode<T> LinkedList<T>::get_head()
-{
-  return mHead;
-}
 
 #endif

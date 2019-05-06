@@ -24,6 +24,15 @@ void DisplayWrapper::display(int aRow, int aCol, String aTxt, bool aClear)
 
   mLCD.at(aRow, aCol, aTxt);
 }
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void DisplayWrapper::display(int aRow, int aCol, char aChar)
+{
+   mLCD.at(aRow, aCol, aChar); 
+}
+
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
@@ -45,11 +54,13 @@ void DisplayWrapper::display(int aRow, String aTxt, bool aClear)
 void DisplayWrapper::clear(int aRow) 
 {
   if(aRow == -1)
+  {
     mLCD.empty();
+  }
   else
   {
     // TODO: Find better way to clear a single line
-    mLCD.at(aRow, 0, "                ");
+    mLCD.at(aRow, 0, "                ");    
   }
 }
 
@@ -81,4 +92,3 @@ void DisplayWrapper::setup()
 void DisplayWrapper::loop()
 {
 }
-

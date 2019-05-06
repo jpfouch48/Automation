@@ -1,5 +1,6 @@
 {
-    "board": "arduino:avr:uno",
+    "board": "arduino:avr:mega",
     "sketch": "Kleaner.ino",
-    "port": "/dev/cu.usbmodem14101"
+    "port": "/dev/cu.usbmodem14101",
+    "configuration": "cpu=atmega2560"
 }

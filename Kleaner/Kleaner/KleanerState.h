@@ -4,6 +4,56 @@
 #include <Arduino.h>
 #include "KleanerDefines.h"
 #include "OutputWrapper.h"
+#include "BallValveWrapper.h"
+#include "LinkedList.h"
+
+class ProcessStep
+{
+public:
+  enum class ProcessType
+  {
+    All_Off,                  /* No Input               */
+    Set_Input_Water,          /* mValue   : HIGH or LOW */
+    Set_Input_Cleaner,        /* mValue   : HIGH or LOW */
+    Set_Input_Sani,           /* mValue   : HIGH or LOW */
+    Set_Recirc_Waste,         /* mValue   : HIGH or LOW */
+    Set_Recirc_Cleaner,       /* mValue   : HIGH or LOW */
+    Set_Recirc_Sani,          /* mValue   : HIGH or LOW */
+    Set_Pump,                 /* mValue   : HIGH or LOW */
+    Set_Co2,                  /* mValue   : HIGH or LOW */
+    Wait_For_Input,           /* No Input               */
+    Delay,                    /* mValue   : Seconds     */
+    Display,                  /* mSzValue : String      */
+  };
+
+  ProcessStep(ProcessType aType) : mType(aType), mValue(0), mSzValue(NULL)
+  {
+  }
+
+  ProcessStep(ProcessType aType, int aValue) : mType(aType), mValue(aValue), mSzValue(NULL)
+  {
+  }
+
+  ProcessStep(ProcessType aType, BallValveWrapper::State aState) : ProcessStep(aType, (int)aState)
+  {  
+  } 
+
+  ProcessStep(ProcessType aType, int aValue, String *aSzValue) : mType(aType), mValue(aValue), mSzValue(aSzValue) 
+  {
+  }
+
+  ProcessType get_type() { return mType; }
+  int get_value() { return mValue; }
+  String *get_sz_value() { return mSzValue; }
+
+protected:
+
+private:
+  ProcessType  mType;
+  uint8_t      mValue;
+  String      *mSzValue;
+};
+
 
 // ****************************************************************************
 //
@@ -14,47 +64,56 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(String                 aStateName, 
-               KleanerState          *aNextState, 
-               int                    aStateTimeInSec  = 0, 
-               InputSource            aInputSource     = InputSource::None, 
-               RecircDest             aRecircDest      = RecircDest::None,
-               OutputWrapper::Config  aPumpConfig      = OutputWrapper::Config(),
-               OutputWrapper::Config  aCo2Config       = OutputWrapper::Config(),
-               OutputWrapper::Config  aInputConfig     = OutputWrapper::Config(),
-               bool                   aIsProccessState = false);
+  KleanerState(String aStateName);
 
+  // **************************************************************************
   // Accessor functions
+  //***************************************************************************
   int                    get_id()                const { return mId;             }
   String                 get_state_name()        const { return mStateName;      }
-  int                    get_state_time_in_sec() const { return mStateTimeInSec; }
-  InputSource            get_input_source()      const { return mInputSource;    }
-  RecircDest             get_recirc_dest()       const { return mRecircDest;     } 
-  KleanerState*          get_next_state()        const { return mNextState;      }
-  bool                   get_is_process_state()  const { return mIsProcessState; }
 
-  const OutputWrapper::Config* get_pump_config()  const { return &mPumpConfig;     }
-  const OutputWrapper::Config* get_co2_config()   const { return &mCo2Config;      }
-  const OutputWrapper::Config* get_input_config() const { return &mInputConfig;    }
+  // **************************************************************************
+  //
+  //***************************************************************************
+  void add_process_step(ProcessStep *aStep)
+  {
+    mProcessSteps.push_back(aStep);
+  }
+
+  // **************************************************************************
+  //
+  //***************************************************************************
+  void init_state()
+  {
+    mProcessStepIter = mProcessSteps.begin();
+  }
+
+  // **************************************************************************
+  //
+  //***************************************************************************
+  Iterator<ProcessStep*>& process_list_iter()
+  {
+    return mProcessStepIter;
+  }
+
+  // **************************************************************************
+  //
+  //***************************************************************************
+  LinkedList<ProcessStep*>& process_list()
+  {
+    return mProcessSteps;
+  }
+
 
 protected:
 
 
 private:
-  unsigned char          mId;
-  String                 mStateName;
-  int                    mStateTimeInSec;
-  InputSource            mInputSource;
-  RecircDest             mRecircDest;
-  OutputWrapper::Config  mPumpConfig;
-  OutputWrapper::Config  mCo2Config;
-  OutputWrapper::Config  mInputConfig;
-
-  bool                   mIsProcessState;
-
-  KleanerState          *mNextState;
-
-  static unsigned char   gStateCount;
+  unsigned char            mId;
+  String                   mStateName;
+  LinkedList<ProcessStep*> mProcessSteps;
+  Iterator<ProcessStep*>   mProcessStepIter;
+  static unsigned char     gStateCount;
 };
 
 

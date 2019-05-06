@@ -14,6 +14,16 @@
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/bin/Hostx64/x64/cl.exe",
             "cStandard": "c11",
             "cppStandard": "c++17"
+        },
+        {
+            "name": "Mac",
+            "includePath": [
+                "/Applications/Arduino.app/Contents/Java/tools/**",
+                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/**"
+            ],
+            "forcedInclude": [
+                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ]
         }
     ],
     "version": 4

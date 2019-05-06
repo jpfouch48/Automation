@@ -1,20 +1,21 @@
 
-#include "OutputWrapper.h"
+#include "BallValveWrapper.h"
 #include <Arduino.h>
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void OutputWrapper::setup()
+void BallValveWrapper::setup()
 {
-  pinMode(mPin, OUTPUT);
-  digitalWrite(mPin, mIdleState);     
+  pinMode(mInPin1, OUTPUT);
+  pinMode(mInPin2, OUTPUT);
+  reset();
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void OutputWrapper::loop()
+void BallValveWrapper::loop()
 {
   // Nothing to do here
 }
@@ -22,25 +23,37 @@ void OutputWrapper::loop()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-bool OutputWrapper::set_state(int aState)
+void BallValveWrapper::set_open()
 {
-  digitalWrite(mPin, aState);
-  return true;
-}
-
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-int OutputWrapper::get_state()
-{
-  return digitalRead(mPin); 
+  digitalWrite(mInPin1, HIGH);
+  digitalWrite(mInPin2, LOW);
+  mState = State::Open;
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void OutputWrapper::reset()
+void BallValveWrapper::set_close()
 {
-  digitalWrite(mPin, mIdleState);
+  digitalWrite(mInPin1, LOW);
+  digitalWrite(mInPin2, HIGH);
+  mState = State::Close;
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+//void BallValveWrapper::set_idle()
+//{
+//  digitalWrite(mInPin1, LOW);
+//  digitalWrite(mInPin2, LOW);
+//  mState = State::Idle;
+//}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void BallValveWrapper::reset()
+{
+  set_close();
 }

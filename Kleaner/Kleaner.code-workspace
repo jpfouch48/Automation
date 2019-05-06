@@ -2,6 +2,15 @@
 	"folders": [
 		{
 			"path": "Kleaner"
-		}
+			"name": "Source Code"
+		},
+		{
+			"path": "HMI"
+			"name": "HMI"
+		},
+		{
+			"path": "3DPrints"
+			"name": "3D Prints"
+		},
 	]
 }

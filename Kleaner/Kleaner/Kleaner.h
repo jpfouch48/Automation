@@ -9,8 +9,14 @@
 
 #include "InputWrapper.h"
 #include "OutputWrapper.h"
-#include "DisplayWrapper.h"
+#include "BallValveWrapper.h"
 
+#include "DisplayWrapper.h"
+#include "MilliTimer.h"
+
+// ****************************************************************************
+//
+// ****************************************************************************
 class Kleaner
 {
   public:
@@ -26,23 +32,15 @@ class Kleaner
   protected:
 
   private:
+    void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char aDisplayVal, int aDisplayCol);
+    void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char aDisplayVal, int aDisplayCol);
+
     void process_state();
     bool process_state(const KleanerState *aState, bool aInitState);
 
-    void set_input(const KleanerState *aState);
-    void set_input(InputSource aInputSource);
-    void set_input_off();
-    void set_input_water();
-    void set_input_cleaner();
-    void set_input_sanitizer();
-
-    void set_recirc(RecircDest aRecircDest);
-    void set_recirc_off();
-    void set_recirc_waste();
-    void set_recirc_sanitizer();
-    void set_recirc_cleaner();
-
     void set_all_off();
+
+    bool is_process_state(unsigned char aStateId);
 
     // Display Wrappers
     DisplayWrapper mDisplayWrapper;
@@ -51,14 +49,15 @@ class Kleaner
     OutputWrapper mCo2Wrapper;
     OutputWrapper mPumpWrapper;
 
-    OutputWrapper mInWaterWrapper;
+    BallValveWrapper  mInWaterWrapper;
+
+
     OutputWrapper mInSaniWrapper;
     OutputWrapper mInCleanerWrapper;
 
     OutputWrapper mReWasteWrapper;
     OutputWrapper mReSaniWrapper;
-    OutputWrapper mReCleanerWrapper;  
-
+    OutputWrapper mReCleanerWrapper; 
 
     // States
     KleanerState *mCurrentState;
@@ -67,27 +66,23 @@ class Kleaner
 
     KleanerState mSplashState;
     KleanerState mMenuState;
-    KleanerState mDumpState;
-    KleanerState mPreRinseState;
-    KleanerState mPurge1State;
-    KleanerState mWashState;
-    KleanerState mPurge2State;
-    KleanerState mPostRinseState;
-    KleanerState mPurge3State;
-    KleanerState mSanitizeState;
-    KleanerState mPurge4State;
-    KleanerState mPressurizeState;
-    KleanerState mCompleteState;
+    
+    KleanerState mProcessInitState;
+    KleanerState mProcessPurgeState;
+    KleanerState mProcessRinseState;
+    KleanerState mProcessSaniState;
+    KleanerState mProcessWashState;
+    KleanerState mProcessPressState;
+    KleanerState mProcessCompleteState;
 
-    KleanerState mPrimePumpState;
+    KleanerState mTestState;
 
-#if defined KLEANER_TEST_MENU  
-    KleanerState mTestMenuState;
-#endif
-
-#if defined KLEANER_TEST_STATE_MENU
-    KleanerState mTestStateMenuState;
-#endif
+    LinkedList<KleanerState*> mProcessStates;
+    Iterator<KleanerState*>   mProcessStateIter;
+    MilliTimer                mProcessDelayTimer;
+    bool                      mInProcessDelay;
+    bool                      mInProcessWaitForInput;
+    uint8_t                   mProcessDelayInSec;
 
     MilliTimer mStateTimer;
     bool mStateComplete;
@@ -100,46 +95,20 @@ class Kleaner
     // Main Menu
     // ****************************************************************************
     KleanerMenuItem mStartMenuItem;
-    KleanerMenuItem mPrimePumpMenuItem;
-
-#if defined KLEANER_TEST_MENU
-    // Test Menu
-    // ****************************************************************************
-    KleanerMenuItem mTestMenuItem;
-
-    KleanerMenuItem mTestMenuCycleInput;    
-    KleanerMenuItem mTestMenuCycleRecirc;
-    KleanerMenuItem mTestMenuTogglePump;
-    KleanerMenuItem mTestMenuToggleCo2;
-    KleanerMenuItem mTestMenuExit;
-#endif
-
-#if defined KLEANER_TEST_STATE_MENU
-    // Test State Menu
-    // ****************************************************************************
-    KleanerMenuItem mTestStateMenuItem;
-
-    KleanerMenuItem mTestStateMenuDump;    
-    KleanerMenuItem mTestStateMenuPurge;    
-    KleanerMenuItem mTestStateMenuPreRinse;
-    KleanerMenuItem mTestStateMenuWash;
-    KleanerMenuItem mTestStateMenuPostRinse;
-    KleanerMenuItem mTestStateMenuSanitize;
-    KleanerMenuItem mTestStateMenuPressurize;
-    KleanerMenuItem mTestStateMenuExit;
-#endif
+    KleanerMenuItem mTestStatesItem;
 
     KleanerMenuItem *mCurrentMenuItem;
-
-    InputSource mTestInputSource;
-    RecircDest  mTestRecircDest;
 
     // Previous state variables used for
     // display of the process state
     int mPrevPumpState;
     int mPrevCo2State;
-    int mPrevInputState;
-    int mPrevRecircState;    
+    BallValveWrapper::State mPrevInWaterState;
+    int mPrevInCleanerState;
+    int mPrevInSanitizerState;
+    int mPrevReWasteState;
+    int mPrevReCleanerState;
+    int mPrevReSanitizerState;    
 };
 
 
