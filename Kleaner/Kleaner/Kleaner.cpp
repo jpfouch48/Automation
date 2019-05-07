@@ -26,19 +26,20 @@ Kleaner::Kleaner() :
     mReSaniWrapper   (DO_PIN_RECIRC_SANITIZER,      LOW),
     mReCleanerWrapper(DO_PIN_RECIRC_CLEANER,        LOW),
 
-    // State init
-    // States             Name            State Duration
-    mSplashState          (F("Splash")),
-    mProcessInitState     (F("Init")),
-    mProcessPurgeState    (F("Purge")),
-    mProcessRinseState    (F("Rinse")),
-    mProcessSaniState     (F("Sani")),
-    mProcessWashState     (F("Wash")),
-    mProcessPressState    (F("Pressure")),
-    mCompleteState        (F("Complete")),
-    mMenuState            (F("Menu")),
-    mTestState            (F("Test")),
-    mConfirmState         (F("Confirm")),
+    // States
+    mSplashState          ("Splash"),
+    mMenuState            ("Menu"),
+    mTestState            ("Test"),
+    mConfirmState         ("Confirm"),
+    
+    
+    mProcessInitState     ("Init"),
+    mProcessPurgeState    ("Purge"),
+    mProcessRinseState    ("Rinse"),
+    mProcessSaniState     ("Sani"),
+    mProcessWashState     ("Wash"),
+    mProcessPressState    ("Pressure"),
+    mCompleteState        ("Complete"),
 
     // State Pointers - We are starting with the splash screen
     // once the splash is done, the menu state is initiated
@@ -50,7 +51,6 @@ Kleaner::Kleaner() :
     mInProcessDelay(false),
     mInProcessWaitForInput(false),
     mProcessDelayInSec(0),
-
     mNextionWrapper(0)
 {
 }
@@ -263,8 +263,20 @@ void Kleaner::process_state()
     mFirstTimeInState = false;
   }  
 
+  // A new state has been commanded, transition to it
+  if (mCommandState != NULL)
+  {
+    TPRINT(F("Commanding State: "));
+    TPRINTLN(mCommandState->get_state_name());
+
+    mCurrentState = mCommandState;
+    mCommandState = NULL;
+    mFirstTimeInState = true;
+    mInProcessWaitForInput = false;
+    mProcessStateIter = mProcessStates.end();      
+  }
   // Check to see if current state is completed.
-  if(true == mStateComplete)
+  else if(true == mStateComplete)
   {
     TPRINT(F("Complete State: "));
     TPRINTLN(mCurrentState->get_state_name());
@@ -294,16 +306,6 @@ void Kleaner::process_state()
     }
     
     // Set first time flag so new state can initialize
-    mFirstTimeInState = true;
-  }
-  // A new state has been commanded, transition to it
-  else if (mCommandState != NULL)
-  {
-    TPRINT(F("Commanding State: "));
-    TPRINTLN(mCommandState->get_state_name());
-
-    mCurrentState = mCommandState;
-    mCommandState = NULL;
     mFirstTimeInState = true;
   }
 }
@@ -565,10 +567,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     // Stop Button
     if(aPageId == 3 && aCompId == 3 && aEventType == 0)
     {
-      mStateComplete = true;
-      mInProcessWaitForInput = false;
       mCommandState = &mCompleteState;
-      mProcessStateIter = mProcessStates.end();      
     }
   }
   else if(mCurrentState->get_id() == mCompleteState.get_id())

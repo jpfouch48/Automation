@@ -6,7 +6,7 @@ unsigned char KleanerState::gStateCount = 0;
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-KleanerState::KleanerState(String aStateName) :
+KleanerState::KleanerState(char *aStateName) :
   mId(gStateCount++),
   mStateName(aStateName)
 {

@@ -73,13 +73,13 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(String aStateName);
+  KleanerState(char *aStateName);
 
   // **************************************************************************
   // Accessor functions
   //***************************************************************************
   int                    get_id()                const { return mId;             }
-  String                 get_state_name()        const { return mStateName;      }
+  const char *           get_state_name()        const { return mStateName;      }
 
   // **************************************************************************
   //
@@ -118,11 +118,11 @@ protected:
 
 
 private:
-  unsigned char            mId;
-  String                   mStateName;
-  LinkedList<ProcessStep*> mProcessSteps;
-  Iterator<ProcessStep*>   mProcessStepIter;
-  static unsigned char     gStateCount;
+  unsigned char             mId;
+  char                     *mStateName;
+  LinkedList<ProcessStep*>  mProcessSteps;
+  Iterator<ProcessStep*>    mProcessStepIter;
+  static unsigned char      gStateCount;
 };
 
 
