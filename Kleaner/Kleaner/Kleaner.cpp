@@ -159,8 +159,8 @@ void Kleaner::setup()
   mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
 
   // Complete State
-  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,      4));
+  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
