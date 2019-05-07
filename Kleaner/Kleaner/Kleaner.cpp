@@ -63,8 +63,9 @@ void Kleaner::setup()
   TPRINTLN(F("Kleaner::setup - enter"));
 
   // Init Nextion
-  mNextionWrapper.setup();
-  mNextionWrapper.register_data_handler(this);
+  mNextionWrapper.setup(this);  
+
+
 
   // Setup output wrappers
   mCo2Wrapper.setup();
@@ -77,8 +78,8 @@ void Kleaner::setup()
   mReCleanerWrapper.setup();
 
   // Splash State
-//  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           1));
-//  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,                1,  new String(SPLASH_LINE_2)));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           0));
+  //mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Text,           new String("t0"),  new String(SPLASH_LINE_2)));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,                  10));
 
@@ -88,8 +89,8 @@ void Kleaner::setup()
 
   // Init State
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Load Keg"))));
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Start"))));
+  //mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Load Keg"))));
+  //mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Start"))));
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   // Purge State
@@ -157,8 +158,8 @@ void Kleaner::setup()
 
   // Complete State
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
+  //mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
+  //mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
   mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
@@ -182,7 +183,7 @@ void Kleaner::setup()
 //  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 //  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,   LOW ));
 
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Water"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Water"))));
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Open));
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Close));
@@ -202,8 +203,8 @@ void Kleaner::setup()
 //  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 //  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   LOW ));
 
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
+//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
 
@@ -257,7 +258,9 @@ void Kleaner::process_state()
   // Reset our first time in state flag after we've porcessed the 
   // current state once
   if(true == mFirstTimeInState)
-    mFirstTimeInState = false;  
+  {
+    mFirstTimeInState = false;
+  }  
 
   // Check to see if current state is completed.
   if(true == mStateComplete)
@@ -331,9 +334,15 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     if(true == mInProcessDelay)
     {
+//      TPRINT(aState->get_state_name());
+//      TPRINTLN(F(" - In process delay"));
+
       // Check to see if our delay has elapsed
       if(mProcessDelayTimer.delta_in_secs() > mProcessDelayInSec)
       {
+        TPRINT(aState->get_state_name());
+        TPRINTLN(F(" - Delay Complete"));
+
         mInProcessDelay = false;
         mProcessDelayInSec = 0;
       }
@@ -369,10 +378,10 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
               mInWaterWrapper.set_close();
             break;
 
-//            case BallValveWrapper::State::Idle:
-//              TPRINTLN(F("IDLE"));
-//              mInWaterWrapper.set_idle();
-//            break;
+            case BallValveWrapper::State::Idle:
+              TPRINTLN(F("IDLE"));
+              mInWaterWrapper.set_idle();
+            break;
 
             default:
               TPRINTLN(F("???"));
@@ -423,7 +432,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         break;
 
         case ProcessStep::ProcessType::Wait_For_Input:
-          TPRINT(F("Wait for input "));
+          TPRINTLN(F("Wait for input "));
           mInProcessWaitForInput = true;
         break;
 
@@ -436,8 +445,8 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         break;
 
         case ProcessStep::ProcessType::Display:
-          TPRINT(F("Display: "));
-          TPRINTLN(*lCurrentStep->get_sz_value());
+          TPRINTLN(F("Display: TODO"));
+//          TPRINTLN(*lCurrentStep->get_sz_value());
 //          mDisplayWrapper.display(lCurrentStep->get_value(), *lCurrentStep->get_sz_value(), true);
         break;
 
@@ -446,6 +455,15 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           TPRINTLN(lCurrentStep->get_value());
           mNextionWrapper.set_page(lCurrentStep->get_value());
         break;
+
+        case ProcessStep::ProcessType::Display_Text:
+          TPRINTLN(F("Display Text: TODO"));
+          //TPRINT(lCurrentStep->get_value());
+          //TPRINT(F(" - "));
+          //TPRINT(lCurrentStep->get_value());
+          //mNextionWrapper.set_text(lCurrentStep->get_sz_value()->c_str(), lCurrentStep->get_sz_value1()->c_str());
+        break;
+
         
         default:
           // TODO: Should not get here but lets flag an error
@@ -514,12 +532,21 @@ bool Kleaner::is_process_state(unsigned char aStateId)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void Kleaner::IncomingData(byte* mData, int mDataSize)
+void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 {
-  for(int lIndex = 0; lIndex <  mDataSize; lIndex++)
-  {
-    Serial.print(mData[lIndex], HEX);
-  }
-  Serial.println();
+  TPRINT(F("nextion_touch_event: Page "));
+  TPRINT(aPageId);
+  TPRINT(" Comp ");
+  TPRINT(aCompId);
+  TPRINT(" Event ");
+  TPRINTLN(aEventType);
 }
 
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::nextion_page_event(byte aPageId)
+{
+  TPRINT(F("nextion_page_event: Page "));
+  TPRINTLN(aPageId);
+}

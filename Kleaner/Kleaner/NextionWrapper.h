@@ -8,10 +8,8 @@
 class NextionDataHandler
 {
   public:
-    virtual void IncomingData(byte* mData, int mDataSize)
-    {
-        // Override this funtion in implementing class
-    };
+    virtual void nextion_touch_event(byte aPageId, byte aCompId, byte aEventType) {};
+    virtual void nextion_page_event(byte aPageId) {};
 };
 
 class NextionWrapper
@@ -25,7 +23,7 @@ class NextionWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    void setup();
+    void setup(NextionDataHandler *aDataHandler=NULL);
 
     // ************************************************************************
     //
@@ -35,26 +33,28 @@ class NextionWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    void set_page(int aPageId);   
+    void set_text(char *aComp, char *aValue);
 
     // ************************************************************************
     //
     // ************************************************************************
-    void register_data_handler(NextionDataHandler *aDataHandler)
-    {
-      mDataHandler = aDataHandler;
-    }
+    void set_page(int aPageId);   
 
   protected:
 
   private:
     // TODO: REVIST THIS SIZE
-    static const int MAX_BUFFER_SIZE = 254;
+    static const int MAX_BUFFER_SIZE = 52;
+
+
+    // Interface defines
+    static const byte MSG_TOUCH_EVENT  = 0x65;
+    static const byte MSG_CURRENT_PAGE = 0x66;
 
     // ************************************************************************
     //
     // ************************************************************************
-    void send_command(const char* aCmd);
+    void end_command();
 
     // ************************************************************************
     //
@@ -66,7 +66,6 @@ class NextionWrapper
     int mEndCount;
     int mBufferCount;
     byte mBuffer[MAX_BUFFER_SIZE];
-
     NextionDataHandler *mDataHandler;
 };
 #endif

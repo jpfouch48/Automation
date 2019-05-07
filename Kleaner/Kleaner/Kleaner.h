@@ -21,8 +21,9 @@ class Kleaner : NextionDataHandler
     void setup();
     void loop();
 
-    virtual void IncomingData(byte* mData, int mDataSize);
-
+    virtual void nextion_touch_event(byte aPageId, byte aCompId, byte aEventType);
+    virtual void nextion_page_event(byte aPageId);
+    
   protected:
 
   private:

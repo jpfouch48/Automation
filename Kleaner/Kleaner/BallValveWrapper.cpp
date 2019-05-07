@@ -43,12 +43,12 @@ void BallValveWrapper::set_close()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-//void BallValveWrapper::set_idle()
-//{
-//  digitalWrite(mInPin1, LOW);
-//  digitalWrite(mInPin2, LOW);
-//  mState = State::Idle;
-//}
+void BallValveWrapper::set_idle()
+{
+  digitalWrite(mInPin1, LOW);
+  digitalWrite(mInPin2, LOW);
+  mState = State::Idle;
+}
 
 // ****************************************************************************
 // See header file for details

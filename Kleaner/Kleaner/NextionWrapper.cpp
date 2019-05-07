@@ -18,9 +18,11 @@ NextionWrapper::NextionWrapper(int aStartupPageId) :
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::setup()
-{
-  mSerial.begin(9600);  
+void NextionWrapper::setup(NextionDataHandler *aDataHandler)
+{      
+  mDataHandler = aDataHandler;
+  mSerial.begin(9600);
+  delay(1000);
   set_page(mStartupPageId);
 }
 
@@ -36,18 +38,31 @@ void NextionWrapper::loop()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::set_page(int aPageId)
+void NextionWrapper::set_text(char *aComp, char *aValue)
 {
-  String lPage = "page " + String(aPageId); //Page
-  send_command(lPage.c_str());   
+  mSerial.print(aComp);
+  mSerial.print(".val=");
+  mSerial.print("\"");
+  mSerial.print(aValue);
+  mSerial.print("\"");
+  end_command();   
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::send_command(const char* aCmd)
+void NextionWrapper::set_page(int aPageId)
 {
-  mSerial.print(aCmd);
+  mSerial.print("page ");
+  mSerial.print(aPageId);
+  end_command();   
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void NextionWrapper::end_command()
+{
   mSerial.write(0xFF);
   mSerial.write(0xFF);
   mSerial.write(0xFF);
@@ -58,7 +73,7 @@ void NextionWrapper::send_command(const char* aCmd)
 // ****************************************************************************
 void NextionWrapper::check_for_input()
 {
-  if (mSerial.available()) 
+  while (mSerial.available()) 
   {
     bool foundEnd = false;
     byte inData = mSerial.read();
@@ -75,13 +90,21 @@ void NextionWrapper::check_for_input()
     mBuffer[mBufferCount] = inData;
     mBufferCount++;
 
+    //TPRINTLN(inData, HEX);
 
     if(true == foundEnd)
     {
       // Process the command
       if(NULL != mDataHandler)
       {
-        mDataHandler->IncomingData(mBuffer, mBufferCount);
+        if(mBuffer[0] == MSG_TOUCH_EVENT)
+        {
+          mDataHandler->nextion_touch_event(mBuffer[1], mBuffer[2], mBuffer[3]);
+        }
+        else if(mBuffer[0] == MSG_CURRENT_PAGE)
+        {
+          mDataHandler->nextion_page_event(mBuffer[1]);
+        }
       }
 
       mEndCount = 0;
