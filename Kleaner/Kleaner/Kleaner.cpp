@@ -566,6 +566,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     if(aPageId == 3 && aCompId == 3 && aEventType == 0)
     {
       mStateComplete = true;
+      mInProcessWaitForInput = false;
       mCommandState = &mCompleteState;
       mProcessStateIter = mProcessStates.end();      
     }
