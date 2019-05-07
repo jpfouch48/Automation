@@ -32,10 +32,9 @@
 #define LOOP_TIME_IN_MS                100
 
 // ****************************************************************************
-// Splash Display
+// Version Define
 // ****************************************************************************
-#define SPLASH_LINE_1    "Kleaner"
-#define SPLASH_LINE_2    "V 0.1.1"
+#define KLEANER_VERSION    "0.1"
 
 
 

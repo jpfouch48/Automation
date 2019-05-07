@@ -23,43 +23,44 @@ public:
     Set_Co2,                  /* mValue   : HIGH or LOW */
     Wait_For_Input,           /* No Input               */
     Delay,                    /* mValue   : Seconds     */
-    Display,                  /* mSzValue : String      */
     Display_Page,             /* mValue   : Page Num    */
     Display_Text              /*                        */
   };
 
-  ProcessStep(ProcessType aType) : mType(aType), mValue(0)/*, mSzValue(NULL), mSzValue1(NULL)*/
+  ProcessStep(ProcessType aType, int aValue) : mType(aType), mValue(aValue), mSzValue1(NULL), mSzValue2(NULL)
   {
   }
 
-  ProcessStep(ProcessType aType, int aValue) : mType(aType), mValue(aValue)/*, mSzValue(NULL), mSzValue1(NULL)*/
+  ProcessStep(ProcessType aType, char *aSzValue1, char *aSzValue2) : mType(aType), mValue(0), mSzValue1(aSzValue1), mSzValue2(aSzValue2)
   {
   }
 
+  ProcessStep(ProcessType aType, char *aSzValue1) : mType(aType), mValue(0), mSzValue1(aSzValue1), mSzValue2(NULL)
+  {
+  }
+
+  ProcessStep(ProcessType aType) : mType(aType), mValue(0), mSzValue1(NULL), mSzValue2(NULL)
+  {
+  }
+
+  
   ProcessStep(ProcessType aType, BallValveWrapper::State aState) : ProcessStep(aType, (int)aState)
   {  
   } 
 
-  //ProcessStep(ProcessType aType, int aValue, String *aSzValue) : mType(aType), mValue(aValue), mSzValue(aSzValue), mSzValue1(NULL)
-  //{
-  //}
-
-  //ProcessStep(ProcessType aType, String *aSzValue, String *aSzValue1) : mType(aType), mValue(0), mSzValue(aSzValue), mSzValue1(aSzValue1)
-  //{
-  //}
-
   ProcessType get_type() { return mType; }
   int get_value() { return mValue; }
-  //String *get_sz_value() { return mSzValue; }  
-  //String *get_sz_value1() { return mSzValue1; }
+
+  const char *get_sz_value_1() { return mSzValue1; }
+  const char *get_sz_value_2() { return mSzValue2; }
 
 protected:
 
 private:
   ProcessType  mType;
   uint8_t      mValue;
-  //String      *mSzValue;
-  //String      *mSzValue1;
+  char        *mSzValue1;
+  char        *mSzValue2;
 };
 
 

@@ -35,10 +35,10 @@ Kleaner::Kleaner() :
     mProcessSaniState     (F("Sani")),
     mProcessWashState     (F("Wash")),
     mProcessPressState    (F("Pressure")),
-    mProcessCompleteState (F("Complete")),
+    mCompleteState        (F("Complete")),
     mMenuState            (F("Menu")),
-
     mTestState            (F("Test")),
+    mConfirmState         (F("Confirm")),
 
     // State Pointers - We are starting with the splash screen
     // once the splash is done, the menu state is initiated
@@ -79,19 +79,21 @@ void Kleaner::setup()
 
   // Splash State
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           0));
-  //mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Text,           new String("t0"),  new String(SPLASH_LINE_2)));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Text,           "t0",  KLEANER_VERSION));
   mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,                  10));
+  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,                  5));
 
   // Menu State
   mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,             1));
   mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
+  // Confirm State
+  mConfirmState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           2));
+  mConfirmState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+
   // Init State
   mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  //mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           0,  new String(F("Load Keg"))));
-  //mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,           1,  new String(F("Enter To Start"))));
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,      3));
 
   // Purge State
   mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
@@ -157,10 +159,9 @@ void Kleaner::setup()
   mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
 
   // Complete State
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  //mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
-  //mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
-  mProcessCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
+  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,      4));
+  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
 
   mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
 //  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Co2"))));
@@ -218,7 +219,7 @@ void Kleaner::setup()
   mProcessStates.push_back(&mProcessSaniState);
   mProcessStates.push_back(&mProcessPurgeState);
   mProcessStates.push_back(&mProcessPressState);
-  mProcessStates.push_back(&mProcessCompleteState);
+  mProcessStates.push_back(&mCompleteState);
 
   // Default it to the end until we start the process from the start menu
   mProcessStateIter = mProcessStates.end();  
@@ -444,12 +445,6 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           mProcessDelayTimer.reset();
         break;
 
-        case ProcessStep::ProcessType::Display:
-          TPRINTLN(F("Display: TODO"));
-//          TPRINTLN(*lCurrentStep->get_sz_value());
-//          mDisplayWrapper.display(lCurrentStep->get_value(), *lCurrentStep->get_sz_value(), true);
-        break;
-
         case ProcessStep::ProcessType::Display_Page:
           TPRINT(F("Display Page: "));
           TPRINTLN(lCurrentStep->get_value());
@@ -457,11 +452,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         break;
 
         case ProcessStep::ProcessType::Display_Text:
-          TPRINTLN(F("Display Text: TODO"));
-          //TPRINT(lCurrentStep->get_value());
-          //TPRINT(F(" - "));
-          //TPRINT(lCurrentStep->get_value());
-          //mNextionWrapper.set_text(lCurrentStep->get_sz_value()->c_str(), lCurrentStep->get_sz_value1()->c_str());
+          TPRINTLN(F("Display Text: "));
+          TPRINT(lCurrentStep->get_sz_value_1());
+          TPRINT(F(" - "));
+          TPRINTLN(lCurrentStep->get_sz_value_2());
+          mNextionWrapper.set_text(lCurrentStep->get_sz_value_1(), lCurrentStep->get_sz_value_2());
         break;
 
         
@@ -520,8 +515,7 @@ bool Kleaner::is_process_state(unsigned char aStateId)
      aStateId == mProcessRinseState.get_id() ||
      aStateId == mProcessSaniState.get_id()  ||
      aStateId == mProcessWashState.get_id()  ||
-     aStateId == mProcessPressState.get_id() ||
-     aStateId == mTestState.get_id())
+     aStateId == mProcessPressState.get_id())
   {
     return true;
   }
@@ -540,6 +534,50 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
   TPRINT(aCompId);
   TPRINT(" Event ");
   TPRINTLN(aEventType);
+
+  if(mCurrentState->get_id() == mMenuState.get_id())
+  {
+    // Clean Button
+    if(aPageId == 1 && aCompId == 1 && aEventType == 0)
+    {
+      mCommandState = &mConfirmState;
+      mInProcessWaitForInput = false;
+    }
+    // TODO: SETTINGS BUTTON
+  }
+  else if(mCurrentState->get_id() == mConfirmState.get_id())
+  {
+    // YES Button
+    if(aPageId == 2 && aCompId == 3 && aEventType == 0)
+    {
+      mProcessStateIter = mProcessStates.begin();      
+      mInProcessWaitForInput = false;
+    }
+    // No Button
+    else if(aPageId == 2 && aCompId == 4 && aEventType == 0)
+    {      
+      mProcessStateIter = mProcessStates.end();
+      mInProcessWaitForInput = false;  
+    }
+  }
+  else if(is_process_state(mCurrentState->get_id()))
+  {
+    // Stop Button
+    if(aPageId == 3 && aCompId == 3 && aEventType == 0)
+    {
+      mStateComplete = true;
+      mCommandState = &mCompleteState;
+      mProcessStateIter = mProcessStates.end();      
+    }
+  }
+  else if(mCurrentState->get_id() == mCompleteState.get_id())
+  {
+    // Start over button
+    if(aPageId == 3 && aCompId == 3 && aEventType == 0)
+    {
+      mInProcessWaitForInput = false;  
+    }    
+  }
 }
 
 // ****************************************************************************

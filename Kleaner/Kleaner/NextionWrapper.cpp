@@ -41,7 +41,7 @@ void NextionWrapper::loop()
 void NextionWrapper::set_text(char *aComp, char *aValue)
 {
   mSerial.print(aComp);
-  mSerial.print(".val=");
+  mSerial.print(".txt=");
   mSerial.print("\"");
   mSerial.print(aValue);
   mSerial.print("\"");

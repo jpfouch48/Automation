@@ -59,6 +59,8 @@ class Kleaner : NextionDataHandler
     KleanerState mSplashState;
     KleanerState mMenuState;
     KleanerState mTestState;
+    KleanerState mConfirmState;
+    KleanerState mCompleteState;
     
     KleanerState mProcessInitState;
     KleanerState mProcessPurgeState;
@@ -66,7 +68,6 @@ class Kleaner : NextionDataHandler
     KleanerState mProcessSaniState;
     KleanerState mProcessWashState;
     KleanerState mProcessPressState;
-    KleanerState mProcessCompleteState;
 
 
     LinkedList<KleanerState*> mProcessStates;
