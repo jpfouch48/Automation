@@ -1,16 +1,26 @@
-#ifndef DISPLAY_WRAPPER_H
-#define DISPLAY_WRAPPER_H
+#ifndef NEXTION_WRAPPER_H
+#define NEXTION_WRAPPER_H
 
 #include <SoftwareSerial.h>
+#include <Arduino.h>
 
-class DisplayWrapper
+
+class NextionDataHandler
 {
   public:
+    virtual void IncomingData(byte* mData, int mDataSize)
+    {
+        // Override this funtion in implementing class
+    };
+};
 
+class NextionWrapper
+{
+  public:
     // ************************************************************************
     //
     // ************************************************************************
-    DisplayWrapper(int aStartupPageId);
+    NextionWrapper(int aStartupPageId);
 
     // ************************************************************************
     //
@@ -30,6 +40,9 @@ class DisplayWrapper
   protected:
 
   private:
+    // TODO: REVIST THIS SIZE
+    static const int MAX_BUFFER_SIZE = 254;
+
     // ************************************************************************
     //
     // ************************************************************************
@@ -42,5 +55,10 @@ class DisplayWrapper
 
     int mStartupPageId;
     SoftwareSerial mSerial;
+    int mEndCount;
+    int mBufferCount;
+    byte mBuffer[MAX_BUFFER_SIZE];
+
+    NextionDataHandler *mDataHandler;
 };
 #endif

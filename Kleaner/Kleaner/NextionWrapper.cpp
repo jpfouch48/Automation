@@ -1,22 +1,24 @@
 
-#include "DisplayWrapper.h"
+#include "NextionWrapper.h"
 #include "KleanerConfig.h"
-#include <Arduino.h>
 
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-DisplayWrapper::DisplayWrapper(int aStartupPageId) : 
+NextionWrapper::NextionWrapper(int aStartupPageId) : 
   mStartupPageId(aStartupPageId),
-  mSerial(NEXT_SOFT_SERIAL_RX_PIN, NEXT_SOFT_SERIAL_TX_PIN)
+  mSerial(NEXT_SOFT_SERIAL_RX_PIN, NEXT_SOFT_SERIAL_TX_PIN),
+  mEndCount(0),
+  mBufferCount(0),
+  mDataHandler(NULL)
 {
 }
 
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::setup()
+void NextionWrapper::setup()
 {
   mSerial.begin(9600);  
   set_page(mStartupPageId);
@@ -26,7 +28,7 @@ void DisplayWrapper::setup()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::loop()
+void NextionWrapper::loop()
 {
   check_for_input();
 }
@@ -34,7 +36,7 @@ void DisplayWrapper::loop()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::set_page(int aPageId)
+void NextionWrapper::set_page(int aPageId)
 {
   String lPage = "page " + String(aPageId); //Page
   send_command(lPage.c_str());   
@@ -43,7 +45,7 @@ void DisplayWrapper::set_page(int aPageId)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::send_command(const char* aCmd)
+void NextionWrapper::send_command(const char* aCmd)
 {
   mSerial.print(aCmd);
   mSerial.write(0xFF);
@@ -54,12 +56,38 @@ void DisplayWrapper::send_command(const char* aCmd)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void DisplayWrapper::check_for_input()
+void NextionWrapper::check_for_input()
 {
   if (mSerial.available()) 
   {
-    int incomingByte = mSerial.read();
-    Serial.println(incomingByte, HEX);
+    bool foundEnd = false;
+    byte inData = mSerial.read();
+
+    if(inData == 0xff)
+    {
+      mEndCount++;
+      if(mEndCount == 3)
+        foundEnd = true;
+    }
+    else
+      mEndCount = 0;
+
+    mBuffer[mBufferCount] = inData;
+    mBufferCount++;
+
+
+    if(true == foundEnd)
+    {
+      // Process the command
+      if(NULL != mDataHandler)
+      {
+        mDataHandler->IncomingData(mBuffer, mBufferCount);
+      }
+
+      mEndCount = 0;
+      mBufferCount = 0;
+      memset(mBuffer, 0, sizeof(byte) * MAX_BUFFER_SIZE);
+    }
   }  
 }
 

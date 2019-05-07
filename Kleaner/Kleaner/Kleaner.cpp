@@ -51,7 +51,7 @@ Kleaner::Kleaner() :
     mInProcessWaitForInput(false),
     mProcessDelayInSec(0),
 
-    mDisplayWrapper(0)
+    mNextionWrapper(0)
 {
 }
 
@@ -63,7 +63,7 @@ void Kleaner::setup()
   TPRINTLN(F("Kleaner::setup - enter"));
 
   // Init Nextion
-  mDisplayWrapper.setup();
+  mNextionWrapper.setup();
 
   // Setup output wrappers
   mCo2Wrapper.setup();
@@ -229,7 +229,7 @@ void Kleaner::setup()
 // ****************************************************************************
 void Kleaner::loop()
 {
-  mDisplayWrapper.loop();
+  mNextionWrapper.loop();
 
   // Output wrapper processing
   mCo2Wrapper.loop();
@@ -323,37 +323,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     // Initialize the state
     aState->init_state();
-
-//    // Reset the display and update with state name
-//    mDisplayWrapper.clear();
-//    mDisplayWrapper.display(0, aState->get_state_name());
-
-    // State Specific initialization
-    if(true == is_process_state(aState->get_id()))
-    {
-//      mDisplayWrapper.display(1, 0, F("I    R          "), true);    
-    }
-//    else if(aState->get_id() == mMenuState.get_id())
-//    {
-//      // Set the menu to the first option
-//      mCurrentMenuItem = &mStartMenuItem;
-//      mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
-//      TPRINT("Current Menu Item: ");
-//      TPRINTLN(mCurrentMenuItem->get_title());
-//    }
   }
   else
   {
     // TODO: Generic processing
 
-    // If we are in a menu state do nothing, Options
-    // are processed based on button inputs and menu
-    // system
-//    if(aState->get_id() == mMenuState.get_id())
-//    {
-//      // Do nothing
-//    }
-//    else 
     if(true == mInProcessDelay)
     {
       // Check to see if our delay has elapsed
@@ -469,7 +443,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         case ProcessStep::ProcessType::Display_Page:
           TPRINT(F("Display Page: "));
           TPRINTLN(lCurrentStep->get_value());
-          mDisplayWrapper.set_page(lCurrentStep->get_value());
+          mNextionWrapper.set_page(lCurrentStep->get_value());
         break;
         
         default:
@@ -488,18 +462,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // State Specific processing
     if(true == is_process_state(aState->get_id()))
     {
-      // 0123456789012345
-      // ICSW RCSW P C
-//      update_output_display(mInCleanerWrapper, mPrevInCleanerState,   'C', 1);
-//      update_output_display(mInSaniWrapper,    mPrevInSanitizerState, 'S', 2);
-//      update_output_display(mInWaterWrapper,   mPrevInWaterState,     'W', 3);
-
-//      update_output_display(mReCleanerWrapper, mPrevReCleanerState,   'C', 6);
-//      update_output_display(mReSaniWrapper,    mPrevReSanitizerState, 'S', 7);
-//      update_output_display(mReWasteWrapper,   mPrevReWasteState,     'W', 8);
-
-//      update_output_display(mPumpWrapper,      mPrevPumpState,        'P', 10);
-//      update_output_display(mCo2Wrapper,       mPrevCo2State,         'C', 12);
+      // TODO: Display current state of outputs
     }
   }
 
@@ -512,114 +475,6 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
   return false;
 }
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************   
-//void Kleaner::on_up_button(int aState)
-//{
-//  if(aState == LOW)
-//  {
-//    // Process menu menu option for menu and test menu state
-//    if(mCurrentState->get_id() == mMenuState.get_id())
-//    {
-//      if(mCurrentMenuItem->get_prev_item() != NULL)
-//      {
-//        mCurrentMenuItem = mCurrentMenuItem->get_prev_item();
-//        mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
-//      }
-//    } 
-//  }
-//}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************   
-//void Kleaner::on_dn_button(int aState)
-//{
-//  if(aState == LOW)
-//  {
-//    // Process menu menu option for menu and test menu state
-//    if(mCurrentState->get_id() == mMenuState.get_id())
-//    {
-//      if(mCurrentMenuItem->get_next_item() != NULL)
-//      {
-//        mCurrentMenuItem = mCurrentMenuItem->get_next_item();
-//        mDisplayWrapper.display(1, 0, mCurrentMenuItem->get_title());
-//      }
-//    } 
-//  }
-//}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************   
-//void Kleaner::on_en_button(int aState)
-//{
-//  if(aState == LOW)
-//  {
-//    // Process Main Menu Options
-//    // ************************************************************************
-//    if(mCurrentState->get_id() == mMenuState.get_id())
-//    {
-//      // Start cleaning option
-//      if(mCurrentMenuItem->get_id() == mStartMenuItem.get_id())
-//      {
-//        mProcessStateIter = mProcessStates.begin();
-//      }
-//      else if(mCurrentMenuItem->get_id() == mTestStatesItem.get_id())
-//      {
-//        mCommandState = &mTestState;
-//        mReturnToState = &mMenuState;
-//      }
-//    }
-
-//    if(true == mInProcessWaitForInput)
-//      mInProcessWaitForInput = false;
-//  }
-//}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-//void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char aDisplayVal, int aDisplayCol)
-//{
-//  int lCurrentState = aOutputWrapper.get_state();
-//
-//  if(lCurrentState != aPrevState)
-//  {
-//    if(lCurrentState == HIGH)
-//      mDisplayWrapper.display(1, aDisplayCol, aDisplayVal);
-//    else
-//      mDisplayWrapper.display(1, aDisplayCol, ' ');
-//    aPrevState = lCurrentState;
-//  }
-//}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-//void Kleaner::update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char aDisplayVal, int aDisplayCol)
-//{
-//  BallValveWrapper::State lCurrentState = (BallValveWrapper::State)aOutputWrapper.get_state();
-
-//  // Ignore the idle state so the current opened/closed state is displayed
-//  if(lCurrentState == BallValveWrapper::State::Idle)
-//    return;
-
-//  if(lCurrentState != aPrevState)
-//  {
-//    if(lCurrentState == BallValveWrapper::State::Open)
-//      mDisplayWrapper.display(1, aDisplayCol, aDisplayVal);
-//    else if(lCurrentState == BallValveWrapper::State::Close)
-//      mDisplayWrapper.display(1, aDisplayCol, ' ');
-//    else
-//      mDisplayWrapper.display(1, aDisplayCol, '?');
-
-//    aPrevState = lCurrentState;
-//  }
-//}
-
 
 // ****************************************************************************
 // See header file for details
@@ -654,3 +509,16 @@ bool Kleaner::is_process_state(unsigned char aStateId)
 
   return false;
 }
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::IncomingData(byte* mData, int mDataSize)
+{
+  for(int lIndex = 0; lIndex <  mDataSize; lIndex++)
+  {
+    Serial.print(mData[lIndex], HEX);
+  }
+  Serial.println();
+}
+

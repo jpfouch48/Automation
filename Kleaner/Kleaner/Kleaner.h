@@ -4,23 +4,24 @@
 #include "KleanerConfig.h"
 #include "KleanerDefines.h"
 #include "KleanerState.h"
-#include "InputWrapper.h"
 #include "OutputWrapper.h"
 #include "BallValveWrapper.h"
-#include "DisplayWrapper.h"
+#include "NextionWrapper.h"
 
 #include "MilliTimer.h"
 
 // ****************************************************************************
 //
 // ****************************************************************************
-class Kleaner
+class Kleaner : NextionDataHandler
 {
   public:
     Kleaner();
 
     void setup();
     void loop();
+
+    virtual void IncomingData(byte* mData, int mDataSize);
 
   protected:
 
@@ -33,7 +34,7 @@ class Kleaner
     bool is_process_state(unsigned char aStateId);
 
     // Display Manager
-    DisplayWrapper mDisplayWrapper;
+    NextionWrapper mNextionWrapper;
 
     // Output Wrappers
     OutputWrapper mCo2Wrapper;
