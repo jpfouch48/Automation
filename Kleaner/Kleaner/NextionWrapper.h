@@ -37,6 +37,14 @@ class NextionWrapper
     // ************************************************************************
     void set_page(int aPageId);   
 
+    // ************************************************************************
+    //
+    // ************************************************************************
+    void register_data_handler(NextionDataHandler *aDataHandler)
+    {
+      mDataHandler = aDataHandler;
+    }
+
   protected:
 
   private:

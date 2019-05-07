@@ -64,6 +64,7 @@ void Kleaner::setup()
 
   // Init Nextion
   mNextionWrapper.setup();
+  mNextionWrapper.register_data_handler(this);
 
   // Setup output wrappers
   mCo2Wrapper.setup();
