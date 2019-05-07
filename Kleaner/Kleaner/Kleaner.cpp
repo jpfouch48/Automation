@@ -573,7 +573,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
   else if(mCurrentState->get_id() == mCompleteState.get_id())
   {
     // Start over button
-    if(aPageId == 3 && aCompId == 3 && aEventType == 0)
+    if(aPageId == 4 && aCompId == 2 && aEventType == 0)
     {
       mInProcessWaitForInput = false;  
     }    
