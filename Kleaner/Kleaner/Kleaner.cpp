@@ -50,10 +50,19 @@ Kleaner::Kleaner() :
     mInProcessDelay(false),
     mInProcessWaitForInput(false),
     mProcessDelayInSec(0),
-    mNextionWrapper(0),
-    mCurrentProcessStepIndex(0),
-    mCurrentStateCount(0)
+    mNextionWrapper(PAGE_ID_HOME)
 {
+    // Reset component state flags for displaying status
+    mPrevPumpState = -1;
+    mPrevCo2State = -1;
+    mPrevInWaterState = BallValveWrapper::State::Unknown;
+    mPrevInCleanerState = -1;
+    mPrevInSanitizerState = -1;
+    mPrevReWasteState = -1;
+    mPrevReCleanerState = -1;
+    mPrevReSanitizerState = -1;  
+    mPrevStatePercentComplete = -1;     
+    mPrevProcessPercentComplete = -1;  
 }
 
 // ****************************************************************************
@@ -77,21 +86,21 @@ void Kleaner::setup()
   mReCleanerWrapper.setup();
 
   // Splash State
-  mSplashState.add_process_step(new ProcessStepDisplayPage(0));
+  mSplashState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_HOME));
   mSplashState.add_process_step(new ProcessStepDisplayText("t0",  KLEANER_VERSION));
   mSplashState.add_process_step(new ProcessStepResetOutputs());
   mSplashState.add_process_step(new ProcessStepDelay(5));
 
   // Menu State
-  mMenuState.add_process_step(new ProcessStepDisplayPage(1));
+  mMenuState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_MAIN));
   mMenuState.add_process_step(new ProcessStepWaitForInput());
 
   // Confirm State
-  mConfirmState.add_process_step(new ProcessStepDisplayPage(2));
+  mConfirmState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_CONFIRM));
   mConfirmState.add_process_step(new ProcessStepWaitForInput());
 
   // Init State
-  mProcessInitState.add_process_step(new ProcessStepDisplayPage(3));
+  mProcessInitState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_PROCESS));
   mProcessInitState.add_process_step(new ProcessStepDisplayValue("j0", 0));
   mProcessInitState.add_process_step(new ProcessStepDisplayValue("j1", 0));
   mProcessInitState.add_process_step(new ProcessStepDisplayText("t0",  "Init"));
@@ -164,7 +173,7 @@ void Kleaner::setup()
   mCompleteState.add_process_step(new ProcessStepDisplayText("t0",  "Complete"));
   mCompleteState.add_process_step(new ProcessStepResetOutputs());
   mCompleteState.add_process_step(new ProcessStepDelay(5));
-  mCompleteState.add_process_step(new ProcessStepDisplayPage(4));
+  mCompleteState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_COMPLETE));
   mCompleteState.add_process_step(new ProcessStepWaitForInput());
 
 
@@ -265,13 +274,6 @@ void Kleaner::process_state()
     {
       mCurrentState = *mProcessStateIter;
       mProcessStateIter++;
-      mCurrentStateCount++;
-
-      if(is_process_state(mCurrentState->get_id()))
-      {
-        int lPercentComplete = ((float)mCurrentStateCount / mProcessStates.size()) * 100;
-        mNextionWrapper.set_value("j1", lPercentComplete);
-      }      
     } 
     else
     {
@@ -298,6 +300,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   if(aInitState)
   {
     TPRINT(F("Init State: "));
+    TPRINT(F(" ID: "));
+    TPRINT(aState->get_id());
+    TPRINT(F(" Duration: "));
+    TPRINT(aState->get_total_process_time_in_sec());
+    TPRINT(F(" Name: "));
     TPRINTLN(aState->get_state_name());
 
     // Reset the state timer
@@ -306,7 +313,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // Initialize the state
     aState->init_state();
 
-    mCurrentProcessStepIndex = 0;
+    mCurrentStateTimer.reset();
   }
   else
   {
@@ -348,6 +355,9 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         case ProcessStep::Type::Delay:
         {
           const ProcessStepDelay *lStep = (ProcessStepDelay *)lCurrentStep;
+          TPRINT(F("Delay "));
+          TPRINTLN(lStep->get_delay());
+
           mInProcessDelay = true;
           mProcessDelayInSec = lStep->get_delay();
           mProcessDelayTimer.reset();
@@ -390,13 +400,6 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
       // Move to next step;
       aState->process_list_iter()++;
-      mCurrentProcessStepIndex++;
-      
-      if(is_process_state(aState->get_id()))
-      {
-        int lPercentComplete = ((float)mCurrentProcessStepIndex / aState->process_list().size()) * 100;
-        mNextionWrapper.set_value("j0", lPercentComplete);
-      }
     }
     else
     {
@@ -406,7 +409,39 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     // State Specific processing
     if(true == is_process_state(aState->get_id()))
     {
+      if(0 != aState->get_total_process_time_in_sec())
+      {
+        int lPercentComplete = ((float)mCurrentStateTimer.delta_in_secs()/aState->get_total_process_time_in_sec())*100;
+
+        if(lPercentComplete != mPrevStatePercentComplete)
+        {
+          mNextionWrapper.set_value("j0", lPercentComplete);
+          mPrevStatePercentComplete = lPercentComplete;
+        }
+      }
+
+      if(0 != mTotalProcessingTime)
+      {
+        int lPercentComplete = ((float)mProcessTimer.delta_in_secs()/mTotalProcessingTime)*100;
+
+        if(lPercentComplete != mPrevProcessPercentComplete)
+        {
+          mNextionWrapper.set_value("j1", lPercentComplete);
+          mPrevProcessPercentComplete = lPercentComplete;
+        }
+      }
+
       // TODO: Display current state of outputs
+      update_output_display(mInWaterWrapper,   mPrevInWaterState,     "t1");
+      update_output_display(mInCleanerWrapper, mPrevInCleanerState,   "t2");
+      update_output_display(mInSaniWrapper,    mPrevInSanitizerState, "t3");
+
+      update_output_display(mReWasteWrapper,   mPrevReWasteState,     "t4");
+      update_output_display(mReCleanerWrapper, mPrevReCleanerState,   "t5");
+      update_output_display(mReSaniWrapper,    mPrevReSanitizerState, "t6");
+
+      update_output_display(mPumpWrapper,      mPrevPumpState,        "t7");
+      update_output_display(mCo2Wrapper,       mPrevCo2State,         "t8");
     }
   }
 
@@ -445,7 +480,8 @@ bool Kleaner::is_process_state(unsigned char aStateId)
      aStateId == mProcessRinseState.get_id() ||
      aStateId == mProcessSaniState.get_id()  ||
      aStateId == mProcessWashState.get_id()  ||
-     aStateId == mProcessPressState.get_id())
+     aStateId == mProcessPressState.get_id() ||
+     aStateId == mCompleteState.get_id())
   {
     return true;
   }
@@ -480,23 +516,27 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     // YES Button
     if(aPageId == 2 && aCompId == 3 && aEventType == 0)
     {
-      mProcessStateIter = mProcessStates.begin();      
+      // Compute total processing time
+      mProcessStateIter = mProcessStates.begin(); 
+      mTotalProcessingTime = 0;
+      
+      while(mProcessStateIter != mProcessStates.end())
+      {
+        KleanerState *lCurrentState = *mProcessStateIter;
+        mTotalProcessingTime += lCurrentState->get_total_process_time_in_sec();
+        mProcessStateIter++;
+      }
+
+      // Setup list for processing
+      mProcessStateIter = mProcessStates.begin(); 
       mInProcessWaitForInput = false;
-      mCurrentStateCount = 0;
+      mProcessTimer.reset();
     }
     // No Button
     else if(aPageId == 2 && aCompId == 4 && aEventType == 0)
     {      
       mProcessStateIter = mProcessStates.end();
       mInProcessWaitForInput = false;  
-    }
-  }
-  else if(is_process_state(mCurrentState->get_id()))
-  {
-    // Stop Button
-    if(aPageId == 3 && aCompId == 3 && aEventType == 0)
-    {
-      mCommandState = &mCompleteState;
     }
   }
   else if(mCurrentState->get_id() == mCompleteState.get_id())
@@ -506,7 +546,16 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     {
       mInProcessWaitForInput = false;  
     }    
+  }  
+  else if(is_process_state(mCurrentState->get_id()))
+  {
+    // Stop Button
+    if(aPageId == 3 && aCompId == 3 && aEventType == 0)
+    {
+      mCommandState = &mCompleteState;
+    }
   }
+
 }
 
 // ****************************************************************************
@@ -516,4 +565,42 @@ void Kleaner::nextion_page_event(byte aPageId)
 {
   TPRINT(F("nextion_page_event: Page "));
   TPRINTLN(aPageId);
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char *aCompId)
+{
+  int lCurrentState = aOutputWrapper.get_state();
+
+  if(lCurrentState != aPrevState)
+  {
+    if(lCurrentState == HIGH)
+      mNextionWrapper.set_background_color(aCompId, 40487);
+    else
+      mNextionWrapper.set_background_color(aCompId, 10860);
+
+    aPrevState = lCurrentState;
+  }
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId)
+{
+  BallValveWrapper::State lCurrentState = (BallValveWrapper::State)aOutputWrapper.get_state();
+
+  if(lCurrentState != aPrevState)
+  {
+    if(lCurrentState == BallValveWrapper::State::Open)
+      mNextionWrapper.set_background_color(aCompId, 40487);
+    else if(lCurrentState == BallValveWrapper::State::Close)
+      mNextionWrapper.set_background_color(aCompId, 10860);
+    else
+      mNextionWrapper.set_background_color(aCompId, 63488);
+
+    aPrevState = lCurrentState;
+  }
 }

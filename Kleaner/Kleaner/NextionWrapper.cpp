@@ -72,6 +72,17 @@ void NextionWrapper::set_page(int aPageId)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
+void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
+{
+  mSerial.print(aComp);
+  mSerial.print(".bco=");
+  mSerial.print(aValue);
+  end_command();     
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
 void NextionWrapper::end_command()
 {
   mSerial.write(0xFF);

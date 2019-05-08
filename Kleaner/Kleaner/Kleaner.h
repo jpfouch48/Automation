@@ -33,6 +33,8 @@ class Kleaner : NextionDataHandler
     void set_all_off();
 
     bool is_process_state(unsigned char aStateId);
+    void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char *aCompId);
+    void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId);
 
     // Display Manager
     NextionWrapper mNextionWrapper;
@@ -79,8 +81,23 @@ class Kleaner : NextionDataHandler
     bool mStateComplete;
     bool mFirstTimeInState;
 
-    uint8_t                   mCurrentProcessStepIndex;
-    uint8_t                   mCurrentStateCount;
+    // Progress Bar params
+    MilliTimer                mCurrentStateTimer;
+    MilliTimer                mProcessTimer;
+    int                       mTotalProcessingTime;
+
+    // Previous state variables used for
+    // display of the process state
+    int mPrevPumpState;
+    int mPrevCo2State;
+    BallValveWrapper::State mPrevInWaterState;
+    int mPrevInCleanerState;
+    int mPrevInSanitizerState;
+    int mPrevReWasteState;
+    int mPrevReCleanerState;
+    int mPrevReSanitizerState;        
+    int mPrevStatePercentComplete;
+    int mPrevProcessPercentComplete;
 };
 
 

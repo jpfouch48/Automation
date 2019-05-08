@@ -20,25 +20,15 @@ public:
     Control_Output_Wrapper,
   };
 
-  ProcessStep(Type aType, int aValue) : mType(aType), mValue(aValue)
+  ProcessStep(Type aType) : mType(aType)
   {
   }
-
-  ProcessStep(Type aType) : mType(aType), mValue(0)
-  {
-  }
-
-  ProcessStep(Type aType, BallValveWrapper::State aState) : ProcessStep(aType, (int)aState)
-  {  
-  } 
 
   Type get_type() { return mType; }
-  int get_value() { return mValue; }
 
 protected:
 private:
   Type  mType;
-  uint8_t      mValue;
 };
 
 // ****************************************************************************

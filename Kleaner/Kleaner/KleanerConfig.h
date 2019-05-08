@@ -37,7 +37,15 @@
 #define KLEANER_VERSION    "0.2.5"
 
 
-
+// ****************************************************************************
+// HMI Defines
+// ****************************************************************************
+#define PAGE_ID_HOME      0
+#define PAGE_ID_MAIN      1
+#define PAGE_ID_CONFIRM   2
+#define PAGE_ID_PROCESS   3
+#define PAGE_ID_COMPLETE  4
+#define PAGE_ID_MAINT     5
 
 #if defined TRACE_OUTPUT
   #define TPRINT(...)   Serial.print(__VA_ARGS__)

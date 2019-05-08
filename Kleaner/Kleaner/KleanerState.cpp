@@ -8,7 +8,8 @@ unsigned char KleanerState::gStateCount = 0;
 // ****************************************************************************
 KleanerState::KleanerState(char *aStateName) :
   mId(gStateCount++),
-  mStateName(aStateName)
+  mStateName(aStateName),
+  mTotalProcessTimeInSec(0)
 {
 
 }

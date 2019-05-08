@@ -26,6 +26,11 @@ public:
   //***************************************************************************
   void add_process_step(ProcessStep *aStep)
   {
+    if(aStep->get_type() == ProcessStep::Type::Delay)
+    {
+      ProcessStepDelay *lDelayStep = (ProcessStepDelay*)aStep;
+      mTotalProcessTimeInSec += lDelayStep->get_delay();
+    } 
     mProcessSteps.push_back(aStep);
   }
 
@@ -53,11 +58,18 @@ public:
     return mProcessSteps;
   }
 
+  // **************************************************************************
+  //
+  //***************************************************************************
+  uint16_t get_total_process_time_in_sec()
+  {
+    return mTotalProcessTimeInSec;
+  }
 
 protected:
 
-
 private:
+  uint16_t                  mTotalProcessTimeInSec;
   unsigned char             mId;
   char                     *mStateName;
   LinkedList<ProcessStep*>  mProcessSteps;
