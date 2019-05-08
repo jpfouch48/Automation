@@ -18,8 +18,7 @@ Kleaner::Kleaner() :
     mInSaniWrapper   (DO_PIN_RELAY_INPUT_SANITIZER, LOW),
     mInCleanerWrapper(DO_PIN_RELAY_INPUT_CLEANER,   LOW),
 
-    mInWaterWrapper  (DO_PIN_MOTOR_INPUT_WATER_1, 
-                      DO_PIN_MOTOR_INPUT_WATER_2),
+    mInWaterWrapper  (DO_PIN_MOTOR_INPUT_WATER_1, DO_PIN_MOTOR_INPUT_WATER_2),
 
 
     mReWasteWrapper  (DO_PIN_RECIRC_WASTE,          LOW),
@@ -51,7 +50,9 @@ Kleaner::Kleaner() :
     mInProcessDelay(false),
     mInProcessWaitForInput(false),
     mProcessDelayInSec(0),
-    mNextionWrapper(0)
+    mNextionWrapper(0),
+    mCurrentProcessStepIndex(0),
+    mCurrentStateCount(0)
 {
 }
 
@@ -65,8 +66,6 @@ void Kleaner::setup()
   // Init Nextion
   mNextionWrapper.setup(this);  
 
-
-
   // Setup output wrappers
   mCo2Wrapper.setup();
   mPumpWrapper.setup();
@@ -78,135 +77,103 @@ void Kleaner::setup()
   mReCleanerWrapper.setup();
 
   // Splash State
-  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           0));
-  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Text,           "t0",  KLEANER_VERSION));
-  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mSplashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,                  5));
+  mSplashState.add_process_step(new ProcessStepDisplayPage(0));
+  mSplashState.add_process_step(new ProcessStepDisplayText("t0",  KLEANER_VERSION));
+  mSplashState.add_process_step(new ProcessStepResetOutputs());
+  mSplashState.add_process_step(new ProcessStepDelay(5));
 
   // Menu State
-  mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,             1));
-  mMenuState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  mMenuState.add_process_step(new ProcessStepDisplayPage(1));
+  mMenuState.add_process_step(new ProcessStepWaitForInput());
 
   // Confirm State
-  mConfirmState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,           2));
-  mConfirmState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  mConfirmState.add_process_step(new ProcessStepDisplayPage(2));
+  mConfirmState.add_process_step(new ProcessStepWaitForInput());
 
   // Init State
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessInitState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,      3));
+  mProcessInitState.add_process_step(new ProcessStepDisplayPage(3));
+  mProcessInitState.add_process_step(new ProcessStepDisplayValue("j0", 0));
+  mProcessInitState.add_process_step(new ProcessStepDisplayValue("j1", 0));
+  mProcessInitState.add_process_step(new ProcessStepDisplayText("t0",  "Init"));
+  mProcessInitState.add_process_step(new ProcessStepResetOutputs());
+  mProcessInitState.add_process_step(new ProcessStepDelay(5));
 
   // Purge State
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste, HIGH));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessPurgeState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off               ));
+  mProcessPurgeState.add_process_step(new ProcessStepDisplayText("t0",  "Purge"));
+  mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, HIGH));
+  mProcessPurgeState.add_process_step(new ProcessStepDelay(10));
+  mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
+  mProcessPurgeState.add_process_step(new ProcessStepDelay(10));
+  mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW));
+  mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, LOW));
+  mProcessPurgeState.add_process_step(new ProcessStepDelay(5));
   
   // Rinse State
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste, HIGH));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Open));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            15  ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,         HIGH));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,         LOW ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Close));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            10  ));
-  mProcessRinseState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off               ));
+  mProcessRinseState.add_process_step(new ProcessStepDisplayText("t0",  "Rinse"));
+  mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, HIGH));
+  mProcessRinseState.add_process_step(new ProcessStepControlBallValveWrapper(&mInWaterWrapper, BallValveWrapper::State::Open));
+  mProcessRinseState.add_process_step(new ProcessStepDelay(15));
+  mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, HIGH));
+  mProcessRinseState.add_process_step(new ProcessStepDelay(10));
+  mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, LOW));
+  mProcessRinseState.add_process_step(new ProcessStepControlBallValveWrapper(&mInWaterWrapper, BallValveWrapper::State::Close));
+  mProcessRinseState.add_process_step(new ProcessStepDelay(5));
+  mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
+  mProcessRinseState.add_process_step(new ProcessStepDelay(10));
+  mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW ));
+  mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, LOW));
 
   // Sani State
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   HIGH));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,    HIGH));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             15  ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,          HIGH));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,          LOW ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,    LOW ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,           HIGH));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,           LOW ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-  mProcessSaniState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off                ));
+  mProcessSaniState.add_process_step(new ProcessStepDisplayText("t0",  "Sanitize"));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mReSaniWrapper, HIGH));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mInSaniWrapper, HIGH));
+  mProcessSaniState.add_process_step(new ProcessStepDelay(15));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, HIGH));
+  mProcessSaniState.add_process_step(new ProcessStepDelay(10));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, LOW ));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mInSaniWrapper, LOW ));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
+  mProcessSaniState.add_process_step(new ProcessStepDelay(10));
+  mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW ));
+  mProcessSaniState.add_process_step(new ProcessStepDelay(10));
+  mProcessSaniState.add_process_step(new ProcessStepResetOutputs());
+  mProcessSaniState.add_process_step(new ProcessStepDelay(10));
 
   // Wash State
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Cleaner,HIGH));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner, HIGH));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             15  ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,          HIGH));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,          LOW ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner, LOW ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,           HIGH));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,           LOW ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,             10  ));
-  mProcessWashState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off                ));
-
+  mProcessWashState.add_process_step(new ProcessStepDisplayText("t0",  "Wash"));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mReCleanerWrapper, HIGH));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mInCleanerWrapper, HIGH));
+  mProcessWashState.add_process_step(new ProcessStepDelay(15));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, HIGH));
+  mProcessWashState.add_process_step(new ProcessStepDelay(10));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, LOW));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mInCleanerWrapper, LOW));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
+  mProcessWashState.add_process_step(new ProcessStepDelay(10));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW ));
+  mProcessWashState.add_process_step(new ProcessStepDelay(10));
+  
   // Pressurize State
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Delay,            15  ));
-  mProcessPressState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
+  mProcessPressState.add_process_step(new ProcessStepDisplayText("t0",  "Pressurize"));
+  mProcessPressState.add_process_step(new ProcessStepResetOutputs());
+  mProcessPressState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
+  mProcessPressState.add_process_step(new ProcessStepDelay(15));
+  mProcessPressState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW));
 
   // Complete State
-  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display_Page,      4));
-  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-  mCompleteState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  mCompleteState.add_process_step(new ProcessStepDisplayText("t0",  "Complete"));
+  mCompleteState.add_process_step(new ProcessStepResetOutputs());
+  mCompleteState.add_process_step(new ProcessStepDelay(5));
+  mCompleteState.add_process_step(new ProcessStepDisplayPage(4));
+  mCompleteState.add_process_step(new ProcessStepWaitForInput());
 
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::All_Off));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Co2"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Co2,          LOW ));
 
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Pump"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,   HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Pump,   LOW ));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Cleaner"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner,HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Cleaner,LOW ));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Sani"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,   HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Sani,   LOW ));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - In Water"))));
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Open));
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Input_Water,  BallValveWrapper::State::Close));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Re Waste"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste,   HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Waste,   LOW ));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Re Cleaner"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Cleaner,   HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Cleaner,   LOW ));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Test - Re Sani"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   HIGH));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Set_Recirc_Sani,   LOW ));
-
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       0,  new String(F("Complete"))));
-//  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Display,       1,  new String(F("Enter To Restart"))));
-  mTestState.add_process_step(new ProcessStep(ProcessStep::ProcessType::Wait_For_Input));
+  // Test state - will be removed once HMI is working
+  mTestState.add_process_step(new ProcessStepResetOutputs());
+  mTestState.add_process_step(new ProcessStepControlBallValveWrapper(&mInWaterWrapper, BallValveWrapper::State::Open));
+  mTestState.add_process_step(new ProcessStepWaitForInput());
+  mTestState.add_process_step(new ProcessStepControlBallValveWrapper(&mInWaterWrapper, BallValveWrapper::State::Close));
+  mTestState.add_process_step(new ProcessStepWaitForInput());
 
 
   // Setup the process state list
@@ -273,6 +240,7 @@ void Kleaner::process_state()
     mCommandState = NULL;
     mFirstTimeInState = true;
     mInProcessWaitForInput = false;
+    mInProcessDelay = false;
     mProcessStateIter = mProcessStates.end();      
   }
   // Check to see if current state is completed.
@@ -297,6 +265,13 @@ void Kleaner::process_state()
     {
       mCurrentState = *mProcessStateIter;
       mProcessStateIter++;
+      mCurrentStateCount++;
+
+      if(is_process_state(mCurrentState->get_id()))
+      {
+        int lPercentComplete = ((float)mCurrentStateCount / mProcessStates.size()) * 100;
+        mNextionWrapper.set_value("j1", lPercentComplete);
+      }      
     } 
     else
     {
@@ -330,6 +305,8 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     // Initialize the state
     aState->init_state();
+
+    mCurrentProcessStepIndex = 0;
   }
   else
   {
@@ -337,10 +314,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     if(true == mInProcessDelay)
     {
-//      TPRINT(aState->get_state_name());
-//      TPRINTLN(F(" - In process delay"));
-
-      // Check to see if our delay has elapsed
+      // Check to see if our delay has
       if(mProcessDelayTimer.delta_in_secs() > mProcessDelayInSec)
       {
         TPRINT(aState->get_state_name());
@@ -361,106 +335,53 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
       switch(lCurrentStep->get_type())
       {
-        case ProcessStep::ProcessType::All_Off:
+        case ProcessStep::Type::Reset_Outputs:
           TPRINTLN(F("All OFF"));
           set_all_off();
         break;
 
-        case ProcessStep::ProcessType::Set_Input_Water:
-          TPRINT(F("Input Water: "));
-
-          switch((BallValveWrapper::State)lCurrentStep->get_value())
-          {
-            case BallValveWrapper::State::Open:
-              TPRINTLN(F("OPEN"));
-              mInWaterWrapper.set_open();
-            break;
-
-            case BallValveWrapper::State::Close:
-              TPRINTLN(F("CLOSE"));
-              mInWaterWrapper.set_close();
-            break;
-
-            case BallValveWrapper::State::Idle:
-              TPRINTLN(F("IDLE"));
-              mInWaterWrapper.set_idle();
-            break;
-
-            default:
-              TPRINTLN(F("???"));
-            break;
-          }
-        break;
-
-        case ProcessStep::ProcessType::Set_Input_Cleaner:
-          TPRINT(F("Input Cleaner: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mInCleanerWrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Set_Input_Sani:
-          TPRINT(F("Input Sani: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mInSaniWrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Set_Recirc_Waste:
-          TPRINT(F("Recirc Waste: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mReWasteWrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Set_Recirc_Cleaner:
-          TPRINT(F("Recirc Cleaner: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mReCleanerWrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Set_Recirc_Sani:
-          TPRINT(F("Recirc Sani: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mReSaniWrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Set_Pump:
-          TPRINT(F("Pump: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mPumpWrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Set_Co2:
-          TPRINT(F("C02: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mCo2Wrapper.set_state(lCurrentStep->get_value());
-        break;
-
-        case ProcessStep::ProcessType::Wait_For_Input:
+        case ProcessStep::Type::Wait_For_Input:
           TPRINTLN(F("Wait for input "));
           mInProcessWaitForInput = true;
         break;
 
-        case ProcessStep::ProcessType::Delay:
-          TPRINT(F("Delay: "));
-          TPRINTLN(lCurrentStep->get_value());
+        case ProcessStep::Type::Delay:
+        {
+          const ProcessStepDelay *lStep = (ProcessStepDelay *)lCurrentStep;
           mInProcessDelay = true;
-          mProcessDelayInSec = lCurrentStep->get_value();
+          mProcessDelayInSec = lStep->get_delay();
           mProcessDelayTimer.reset();
-        break;
+        } break;
 
-        case ProcessStep::ProcessType::Display_Page:
-          TPRINT(F("Display Page: "));
-          TPRINTLN(lCurrentStep->get_value());
-          mNextionWrapper.set_page(lCurrentStep->get_value());
-        break;
+        case ProcessStep::Type::Display_Page:
+        {
+          const ProcessStepDisplayPage *lStep = (ProcessStepDisplayPage *)lCurrentStep;
+          mNextionWrapper.set_page(lStep->get_page_id());
+        } break;
 
-        case ProcessStep::ProcessType::Display_Text:
-          TPRINTLN(F("Display Text: "));
-          TPRINT(lCurrentStep->get_sz_value_1());
-          TPRINT(F(" - "));
-          TPRINTLN(lCurrentStep->get_sz_value_2());
-          mNextionWrapper.set_text(lCurrentStep->get_sz_value_1(), lCurrentStep->get_sz_value_2());
-        break;
+        case ProcessStep::Type::Display_Text:
+        {
+          const ProcessStepDisplayText *lStep = (ProcessStepDisplayText *)lCurrentStep;
+          mNextionWrapper.set_text(lStep->get_comp(), lStep->get_value());
+        } break;
 
+        case ProcessStep::Type::Display_Value:
+        {
+          const ProcessStepDisplayValue *lStep = (ProcessStepDisplayValue *)lCurrentStep;
+          mNextionWrapper.set_value(lStep->get_comp(), lStep->get_value());
+        } break;
+
+        case ProcessStep::Type::Control_Output_Wrapper:
+        {
+          const ProcessStepControlOutputWrapper *lStep = (ProcessStepControlOutputWrapper *)lCurrentStep;
+          lStep->get_wrapper()->set_state(lStep->get_state());
+        } break;
+
+        case ProcessStep::Type::Control_Ball_Valve_Wrapper:
+        {
+          const ProcessStepControlBallValveWrapper *lStep = (ProcessStepControlBallValveWrapper *)lCurrentStep;
+          lStep->get_wrapper()->set_state(lStep->get_state());
+        } break;
         
         default:
           // TODO: Should not get here but lets flag an error
@@ -469,6 +390,13 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
       // Move to next step;
       aState->process_list_iter()++;
+      mCurrentProcessStepIndex++;
+      
+      if(is_process_state(aState->get_id()))
+      {
+        int lPercentComplete = ((float)mCurrentProcessStepIndex / aState->process_list().size()) * 100;
+        mNextionWrapper.set_value("j0", lPercentComplete);
+      }
     }
     else
     {
@@ -554,6 +482,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     {
       mProcessStateIter = mProcessStates.begin();      
       mInProcessWaitForInput = false;
+      mCurrentStateCount = 0;
     }
     // No Button
     else if(aPageId == 2 && aCompId == 4 && aEventType == 0)

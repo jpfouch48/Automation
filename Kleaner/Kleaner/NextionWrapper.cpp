@@ -51,6 +51,17 @@ void NextionWrapper::set_text(char *aComp, char *aValue)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
+void NextionWrapper::set_value(char *aComp, int aValue)
+{
+  mSerial.print(aComp);
+  mSerial.print(".val=");
+  mSerial.print(aValue);
+  end_command();     
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
 void NextionWrapper::set_page(int aPageId)
 {
   mSerial.print("page ");
@@ -87,10 +98,9 @@ void NextionWrapper::check_for_input()
     else
       mEndCount = 0;
 
+    // TODO: Need to handle overflow of buffer
     mBuffer[mBufferCount] = inData;
     mBufferCount++;
-
-    //TPRINTLN(inData, HEX);
 
     if(true == foundEnd)
     {

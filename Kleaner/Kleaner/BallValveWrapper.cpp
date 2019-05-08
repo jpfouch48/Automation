@@ -53,6 +53,28 @@ void BallValveWrapper::set_idle()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
+void BallValveWrapper::set_state(State aState)
+{
+  switch(aState)
+  {
+    case State::Open:
+      set_open();
+    break;
+
+    case State::Close:
+      set_close();
+    break;
+
+    case State::Idle:
+      set_idle();
+    break;
+  }
+}
+
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
 void BallValveWrapper::reset()
 {
   set_close();

@@ -41,9 +41,7 @@ class Kleaner : NextionDataHandler
     OutputWrapper mCo2Wrapper;
     OutputWrapper mPumpWrapper;
 
-    BallValveWrapper  mInWaterWrapper;
-
-
+    BallValveWrapper mInWaterWrapper;
     OutputWrapper mInSaniWrapper;
     OutputWrapper mInCleanerWrapper;
 
@@ -80,6 +78,9 @@ class Kleaner : NextionDataHandler
     MilliTimer mStateTimer;
     bool mStateComplete;
     bool mFirstTimeInState;
+
+    uint8_t                   mCurrentProcessStepIndex;
+    uint8_t                   mCurrentStateCount;
 };
 
 
