@@ -11,6 +11,10 @@
 		{
 			"path": "3DPrints"
 			"name": "3D Prints"
+		},		
+		{
+			"path": "Docs"
+			"name": "Docs"
 		},
 	]
 }
