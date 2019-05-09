@@ -40,13 +40,35 @@
 // ****************************************************************************
 // HMI Defines
 // ****************************************************************************
-#define PAGE_ID_HOME      0
-#define PAGE_ID_MAIN      1
-#define PAGE_ID_CONFIRM   2
-#define PAGE_ID_PROCESS   3
-#define PAGE_ID_COMPLETE  4
-#define PAGE_ID_MAINT     5
+#define PAGE_ID_HOME                      0
+#define PAGE_ID_MAIN                      1
+#define PAGE_ID_CONFIRM                   2
+#define PAGE_ID_PROCESS                   3
+#define PAGE_ID_COMPLETE                  4
+#define PAGE_ID_MAINT                     5
 
+#define HOME_COMP_ID_VERSION              "t0"
+
+
+#define PROCESS_COMP_ID_TITLE             "t0"
+#define PROCESS_COMP_ID_PROGRESS_STATE    "j0"
+#define PROCESS_COMP_ID_PROGRESS_PROCESS  "j1"
+
+#define PROCESS_COMP_ID_IN_WATER          "t1"
+#define PROCESS_COMP_ID_IN_CLEANER        "t2"
+#define PROCESS_COMP_ID_IN_SANITIZER      "t3"
+#define PROCESS_COMP_ID_RE_WASTE          "t4"
+#define PROCESS_COMP_ID_RE_CLEANER        "t5"
+#define PROCESS_COMP_ID_RE_SANITIZER      "t6"
+#define PROCESS_COMP_ID_PUMP              "t7"
+#define PROCESS_COMP_ID_C02               "t8"
+
+#define COMPLETE_COMP_ID_DURATION         "t1"
+
+
+// ****************************************************************************
+// Debug output defines
+// ****************************************************************************
 #if defined TRACE_OUTPUT
   #define TPRINT(...)   Serial.print(__VA_ARGS__)
   #define TPRINTLN(...) Serial.println(__VA_ARGS__)

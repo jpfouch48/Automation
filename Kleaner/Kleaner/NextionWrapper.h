@@ -54,7 +54,7 @@ class NextionWrapper
 
   private:
     // TODO: REVIST THIS SIZE
-    static const int MAX_BUFFER_SIZE = 52;
+    static const int MAX_BUFFER_SIZE = 32;
 
 
     // Interface defines

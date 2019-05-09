@@ -29,8 +29,9 @@ public:
     if(aStep->get_type() == ProcessStep::Type::Delay)
     {
       ProcessStepDelay *lDelayStep = (ProcessStepDelay*)aStep;
-      mTotalProcessTimeInSec += lDelayStep->get_delay();
+      mTotalProcessTimeInSec += lDelayStep->get_delay() + 1;
     } 
+    
     mProcessSteps.push_back(aStep);
   }
 

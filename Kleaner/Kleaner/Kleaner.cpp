@@ -30,6 +30,7 @@ Kleaner::Kleaner() :
     mMenuState            ("Menu"),
     mTestState            ("Test"),
     mConfirmState         ("Confirm"),
+    mCompleteState        ("Complete"),
     
     
     mProcessInitState     ("Init"),
@@ -38,7 +39,7 @@ Kleaner::Kleaner() :
     mProcessSaniState     ("Sani"),
     mProcessWashState     ("Wash"),
     mProcessPressState    ("Pressure"),
-    mCompleteState        ("Complete"),
+    mProcessShutdownState ("Shutdown"),
 
     // State Pointers - We are starting with the splash screen
     // once the splash is done, the menu state is initiated
@@ -50,19 +51,20 @@ Kleaner::Kleaner() :
     mInProcessDelay(false),
     mInProcessWaitForInput(false),
     mProcessDelayInSec(0),
-    mNextionWrapper(PAGE_ID_HOME)
-{
+    mNextionWrapper(PAGE_ID_HOME),
+
     // Reset component state flags for displaying status
-    mPrevPumpState = -1;
-    mPrevCo2State = -1;
-    mPrevInWaterState = BallValveWrapper::State::Unknown;
-    mPrevInCleanerState = -1;
-    mPrevInSanitizerState = -1;
-    mPrevReWasteState = -1;
-    mPrevReCleanerState = -1;
-    mPrevReSanitizerState = -1;  
-    mPrevStatePercentComplete = -1;     
-    mPrevProcessPercentComplete = -1;  
+    mPrevPumpState(-1),
+    mPrevCo2State(-1),
+    mPrevInWaterState(BallValveWrapper::State::Unknown),
+    mPrevInCleanerState(-1),
+    mPrevInSanitizerState(-1),
+    mPrevReWasteState(-1),
+    mPrevReCleanerState(-1),
+    mPrevReSanitizerState(-1),  
+    mPrevStatePercentComplete(-1),     
+    mPrevProcessPercentComplete(-1)      
+{
 }
 
 // ****************************************************************************
@@ -87,7 +89,7 @@ void Kleaner::setup()
 
   // Splash State
   mSplashState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_HOME));
-  mSplashState.add_process_step(new ProcessStepDisplayText("t0",  KLEANER_VERSION));
+  mSplashState.add_process_step(new ProcessStepDisplayText(HOME_COMP_ID_VERSION,  KLEANER_VERSION));
   mSplashState.add_process_step(new ProcessStepResetOutputs());
   mSplashState.add_process_step(new ProcessStepDelay(5));
 
@@ -101,24 +103,23 @@ void Kleaner::setup()
 
   // Init State
   mProcessInitState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_PROCESS));
-  mProcessInitState.add_process_step(new ProcessStepDisplayValue("j0", 0));
-  mProcessInitState.add_process_step(new ProcessStepDisplayValue("j1", 0));
-  mProcessInitState.add_process_step(new ProcessStepDisplayText("t0",  "Init"));
+  mProcessInitState.add_process_step(new ProcessStepDisplayValue(PROCESS_COMP_ID_PROGRESS_STATE, 0));
+  mProcessInitState.add_process_step(new ProcessStepDisplayValue(PROCESS_COMP_ID_PROGRESS_PROCESS, 0));
+  mProcessInitState.add_process_step(new ProcessStepDisplayText(PROCESS_COMP_ID_TITLE,  "Init"));
   mProcessInitState.add_process_step(new ProcessStepResetOutputs());
   mProcessInitState.add_process_step(new ProcessStepDelay(5));
 
   // Purge State
-  mProcessPurgeState.add_process_step(new ProcessStepDisplayText("t0",  "Purge"));
   mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, HIGH));
   mProcessPurgeState.add_process_step(new ProcessStepDelay(10));
   mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
   mProcessPurgeState.add_process_step(new ProcessStepDelay(10));
   mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW));
+  mProcessPurgeState.add_process_step(new ProcessStepDelay(5));
   mProcessPurgeState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, LOW));
   mProcessPurgeState.add_process_step(new ProcessStepDelay(5));
   
   // Rinse State
-  mProcessRinseState.add_process_step(new ProcessStepDisplayText("t0",  "Rinse"));
   mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, HIGH));
   mProcessRinseState.add_process_step(new ProcessStepControlBallValveWrapper(&mInWaterWrapper, BallValveWrapper::State::Open));
   mProcessRinseState.add_process_step(new ProcessStepDelay(15));
@@ -133,7 +134,6 @@ void Kleaner::setup()
   mProcessRinseState.add_process_step(new ProcessStepControlOutputWrapper(&mReWasteWrapper, LOW));
 
   // Sani State
-  mProcessSaniState.add_process_step(new ProcessStepDisplayText("t0",  "Sanitize"));
   mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mReSaniWrapper, HIGH));
   mProcessSaniState.add_process_step(new ProcessStepControlOutputWrapper(&mInSaniWrapper, HIGH));
   mProcessSaniState.add_process_step(new ProcessStepDelay(15));
@@ -149,13 +149,13 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStepDelay(10));
 
   // Wash State
-  mProcessWashState.add_process_step(new ProcessStepDisplayText("t0",  "Wash"));
   mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mReCleanerWrapper, HIGH));
   mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mInCleanerWrapper, HIGH));
   mProcessWashState.add_process_step(new ProcessStepDelay(15));
   mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, HIGH));
   mProcessWashState.add_process_step(new ProcessStepDelay(10));
   mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mPumpWrapper, LOW));
+  mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mReCleanerWrapper, LOW));
   mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mInCleanerWrapper, LOW));
   mProcessWashState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
   mProcessWashState.add_process_step(new ProcessStepDelay(10));
@@ -163,19 +163,18 @@ void Kleaner::setup()
   mProcessWashState.add_process_step(new ProcessStepDelay(10));
   
   // Pressurize State
-  mProcessPressState.add_process_step(new ProcessStepDisplayText("t0",  "Pressurize"));
   mProcessPressState.add_process_step(new ProcessStepResetOutputs());
   mProcessPressState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, HIGH));
   mProcessPressState.add_process_step(new ProcessStepDelay(15));
   mProcessPressState.add_process_step(new ProcessStepControlOutputWrapper(&mCo2Wrapper, LOW));
 
+  // Shutdown
+  mProcessShutdownState.add_process_step(new ProcessStepResetOutputs());
+  mProcessShutdownState.add_process_step(new ProcessStepDelay(5));
+
   // Complete State
-  mCompleteState.add_process_step(new ProcessStepDisplayText("t0",  "Complete"));
-  mCompleteState.add_process_step(new ProcessStepResetOutputs());
-  mCompleteState.add_process_step(new ProcessStepDelay(5));
   mCompleteState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_COMPLETE));
   mCompleteState.add_process_step(new ProcessStepWaitForInput());
-
 
   // Test state - will be removed once HMI is working
   mTestState.add_process_step(new ProcessStepResetOutputs());
@@ -195,6 +194,7 @@ void Kleaner::setup()
   mProcessStates.push_back(&mProcessSaniState);
   mProcessStates.push_back(&mProcessPurgeState);
   mProcessStates.push_back(&mProcessPressState);
+  mProcessStates.push_back(&mProcessShutdownState);
   mProcessStates.push_back(&mCompleteState);
 
   // Default it to the end until we start the process from the start menu
@@ -314,6 +314,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     aState->init_state();
 
     mCurrentStateTimer.reset();
+
+    if(true == is_process_state(aState->get_id()))
+    {
+      mNextionWrapper.set_text(PROCESS_COMP_ID_TITLE, aState->get_state_name());
+    }
   }
   else
   {
@@ -367,6 +372,19 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         {
           const ProcessStepDisplayPage *lStep = (ProcessStepDisplayPage *)lCurrentStep;
           mNextionWrapper.set_page(lStep->get_page_id());
+
+          if(PAGE_ID_COMPLETE == lStep->get_page_id())
+          {
+            int lDelta = mProcessTimer.delta_in_secs();
+            int lMin = lDelta / 60;
+            int lSec = lDelta - lMin * 60;
+
+            char *lBuffer = malloc(12);
+            sprintf(lBuffer, "%02d.%02d", lMin, lSec);
+            mNextionWrapper.set_text(COMPLETE_COMP_ID_DURATION, lBuffer);
+            free(lBuffer);
+          }
+
         } break;
 
         case ProcessStep::Type::Display_Text:
@@ -415,7 +433,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         if(lPercentComplete != mPrevStatePercentComplete)
         {
-          mNextionWrapper.set_value("j0", lPercentComplete);
+          mNextionWrapper.set_value(PROCESS_COMP_ID_PROGRESS_STATE, lPercentComplete);
           mPrevStatePercentComplete = lPercentComplete;
         }
       }
@@ -426,22 +444,22 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         if(lPercentComplete != mPrevProcessPercentComplete)
         {
-          mNextionWrapper.set_value("j1", lPercentComplete);
+          mNextionWrapper.set_value(PROCESS_COMP_ID_PROGRESS_PROCESS, lPercentComplete);
           mPrevProcessPercentComplete = lPercentComplete;
         }
       }
 
-      // TODO: Display current state of outputs
-      update_output_display(mInWaterWrapper,   mPrevInWaterState,     "t1");
-      update_output_display(mInCleanerWrapper, mPrevInCleanerState,   "t2");
-      update_output_display(mInSaniWrapper,    mPrevInSanitizerState, "t3");
+      // Display current state of outputs
+      update_output_display(mInWaterWrapper,   mPrevInWaterState,     PROCESS_COMP_ID_IN_WATER);
+      update_output_display(mInCleanerWrapper, mPrevInCleanerState,   PROCESS_COMP_ID_IN_CLEANER);
+      update_output_display(mInSaniWrapper,    mPrevInSanitizerState, PROCESS_COMP_ID_IN_SANITIZER);
 
-      update_output_display(mReWasteWrapper,   mPrevReWasteState,     "t4");
-      update_output_display(mReCleanerWrapper, mPrevReCleanerState,   "t5");
-      update_output_display(mReSaniWrapper,    mPrevReSanitizerState, "t6");
+      update_output_display(mReWasteWrapper,   mPrevReWasteState,     PROCESS_COMP_ID_RE_WASTE);
+      update_output_display(mReCleanerWrapper, mPrevReCleanerState,   PROCESS_COMP_ID_RE_CLEANER);
+      update_output_display(mReSaniWrapper,    mPrevReSanitizerState, PROCESS_COMP_ID_RE_SANITIZER);
 
-      update_output_display(mPumpWrapper,      mPrevPumpState,        "t7");
-      update_output_display(mCo2Wrapper,       mPrevCo2State,         "t8");
+      update_output_display(mPumpWrapper,      mPrevPumpState,        PROCESS_COMP_ID_PUMP);
+      update_output_display(mCo2Wrapper,       mPrevCo2State,         PROCESS_COMP_ID_C02);
     }
   }
 
@@ -481,7 +499,7 @@ bool Kleaner::is_process_state(unsigned char aStateId)
      aStateId == mProcessSaniState.get_id()  ||
      aStateId == mProcessWashState.get_id()  ||
      aStateId == mProcessPressState.get_id() ||
-     aStateId == mCompleteState.get_id())
+     aStateId == mProcessShutdownState.get_id())
   {
     return true;
   }
@@ -552,7 +570,8 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     // Stop Button
     if(aPageId == 3 && aCompId == 3 && aEventType == 0)
     {
-      mCommandState = &mCompleteState;
+      mCommandState = &mProcessShutdownState;
+      mReturnToState = &mCompleteState;
     }
   }
 

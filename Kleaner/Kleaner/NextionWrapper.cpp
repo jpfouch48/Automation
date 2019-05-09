@@ -40,9 +40,13 @@ void NextionWrapper::loop()
 // ****************************************************************************
 void NextionWrapper::set_text(char *aComp, char *aValue)
 {
+  TPRINT(aComp);
+  TPRINT(".txt=\"");
+  TPRINT(aValue);
+  TPRINTLN("\"");
+
   mSerial.print(aComp);
-  mSerial.print(".txt=");
-  mSerial.print("\"");
+  mSerial.print(".txt=\"");
   mSerial.print(aValue);
   mSerial.print("\"");
   end_command();   
@@ -53,6 +57,10 @@ void NextionWrapper::set_text(char *aComp, char *aValue)
 // ****************************************************************************
 void NextionWrapper::set_value(char *aComp, int aValue)
 {
+  TPRINT(aComp);
+  TPRINT(".val=");
+  TPRINTLN(aValue);
+
   mSerial.print(aComp);
   mSerial.print(".val=");
   mSerial.print(aValue);
@@ -64,6 +72,9 @@ void NextionWrapper::set_value(char *aComp, int aValue)
 // ****************************************************************************
 void NextionWrapper::set_page(int aPageId)
 {
+  TPRINT("page ");
+  TPRINTLN(aPageId);  
+
   mSerial.print("page ");
   mSerial.print(aPageId);
   end_command();   
@@ -74,6 +85,10 @@ void NextionWrapper::set_page(int aPageId)
 // ****************************************************************************
 void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
 {
+  TPRINT(aComp);
+  TPRINT(".bco=");
+  TPRINTLN(aValue);
+
   mSerial.print(aComp);
   mSerial.print(".bco=");
   mSerial.print(aValue);
