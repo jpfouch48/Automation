@@ -2,7 +2,6 @@
 #define KLEANER_H
 
 #include "KleanerConfig.h"
-#include "KleanerDefines.h"
 #include "KleanerState.h"
 #include "OutputWrapper.h"
 #include "BallValveWrapper.h"
