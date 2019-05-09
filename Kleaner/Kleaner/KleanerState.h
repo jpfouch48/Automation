@@ -26,10 +26,9 @@ public:
   //***************************************************************************
   void add_process_step(ProcessStep *aStep)
   {
-    if(aStep->get_type() == ProcessStep::Type::Delay)
+    if(0 != aStep->get_delay())
     {
-      ProcessStepDelay *lDelayStep = (ProcessStepDelay*)aStep;
-      mTotalProcessTimeInSec += lDelayStep->get_delay() + 1;
+      mTotalProcessTimeInSec += aStep->get_delay();
     } 
     
     mProcessSteps.push_back(aStep);

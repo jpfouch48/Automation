@@ -16,19 +16,208 @@ public:
     Display_Text,
     Display_Value,
 
-    Control_Ball_Valve_Wrapper,
-    Control_Output_Wrapper,
+    Input_Off,
+    Input_Water,
+    Input_Cleaner,
+    Input_Sanitizer,
+
+    Output_Off,
+    Output_Waste,
+    Output_Cleaner,
+    Output_Sanitizer,
+
+    Co2_Off,
+    Co2_On,
+
+    Pump_Off,
+    Pump_On
   };
 
-  ProcessStep(Type aType) : mType(aType)
+  ProcessStep(Type aType) : ProcessStep(aType, 0)
   {
   }
 
-  Type get_type() { return mType; }
+  ProcessStep(Type aType, int aDelayInSec) : mType(aType), mDelayInSec(aDelayInSec)
+  {
+  }
+
+  Type get_type()  { return mType;  }
+  int  get_delay() { return mDelayInSec; }
 
 protected:
 private:
-  Type  mType;
+  Type    mType;
+  uint8_t mDelayInSec;
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepCo2Off : public ProcessStep
+{
+public:
+  ProcessStepCo2Off(uint8_t aDelay=0) : ProcessStep(Type::Co2_Off, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepCo2On : public ProcessStep
+{
+public:
+  ProcessStepCo2On(uint8_t aDelay=0) : ProcessStep(Type::Co2_On, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepPumpOff : public ProcessStep
+{
+public:
+  ProcessStepPumpOff(uint8_t aDelay=0) : ProcessStep(Type::Pump_Off, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepPumpOn : public ProcessStep
+{
+public:
+  ProcessStepPumpOn(uint8_t aDelay=0) : ProcessStep(Type::Pump_On, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepInputOff : public ProcessStep
+{
+public:
+  ProcessStepInputOff(uint8_t aDelay=0) : ProcessStep(Type::Input_Off, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepInputWater : public ProcessStep
+{
+public:
+  ProcessStepInputWater(uint8_t aDelay=0) : ProcessStep(Type::Input_Water, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepInputCleaner : public ProcessStep
+{
+public:
+  ProcessStepInputCleaner(uint8_t aDelay=0) : ProcessStep(Type::Input_Cleaner, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepInputSanitizer : public ProcessStep
+{
+public:
+  ProcessStepInputSanitizer(uint8_t aDelay=0) : ProcessStep(Type::Input_Sanitizer, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepOutputOff : public ProcessStep
+{
+public:
+  ProcessStepOutputOff(uint8_t aDelay=0) : ProcessStep(Type::Output_Off, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepOutputWaste : public ProcessStep
+{
+public:
+  ProcessStepOutputWaste(uint8_t aDelay=0) : ProcessStep(Type::Output_Waste, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepOutputCleaner : public ProcessStep
+{
+public:
+  ProcessStepOutputCleaner(uint8_t aDelay=0) : ProcessStep(Type::Output_Cleaner, aDelay)
+  {
+  }
+
+protected:
+private:
+};
+
+// ****************************************************************************
+//
+// ****************************************************************************
+class ProcessStepOutputSanitizer : public ProcessStep
+{
+public:
+  ProcessStepOutputSanitizer(uint8_t aDelay=0) : ProcessStep(Type::Output_Sanitizer, aDelay)
+  {
+  }
+
+protected:
+private:
 };
 
 // ****************************************************************************
@@ -101,16 +290,11 @@ class ProcessStepDelay: public ProcessStep
 {
 public:
   ProcessStepDelay(uint8_t aDelayInSec) : 
-    ProcessStep(Type::Delay), 
-    mDelayInSec(aDelayInSec)
+    ProcessStep(Type::Delay, aDelayInSec)
   {
   }
-
-  uint8_t get_delay()  { return mDelayInSec; }
-  
 protected:
 private:
-  uint8_t mDelayInSec;
 };
 
 // ****************************************************************************
@@ -135,59 +319,14 @@ private:
 class ProcessStepResetOutputs: public ProcessStep
 {
 public:
-  ProcessStepResetOutputs() : 
-    ProcessStep(Type::Reset_Outputs)
+  ProcessStepResetOutputs(uint8_t aDelay=0) : 
+    ProcessStep(Type::Reset_Outputs, aDelay)
   {
   }
   
 protected:
 private:
 
-};
-
-
-// ****************************************************************************
-//
-// ****************************************************************************
-class ProcessStepControlOutputWrapper: public ProcessStep
-{
-public:
-  ProcessStepControlOutputWrapper(OutputWrapper *aOutputWrapper, uint8_t aState) : 
-    ProcessStep(Type::Control_Output_Wrapper),
-    mOutputWrapper(aOutputWrapper),
-    mState(aState)
-  {
-  }
-
-  OutputWrapper *get_wrapper() { return mOutputWrapper; }
-  uint8_t        get_state()          { return mState; }
-
-protected:
-private:
-  OutputWrapper *mOutputWrapper;
-  uint8_t        mState;
-};
-
-// ****************************************************************************
-//
-// ****************************************************************************
-class ProcessStepControlBallValveWrapper: public ProcessStep
-{
-public:
-  ProcessStepControlBallValveWrapper(BallValveWrapper *aWrapper, BallValveWrapper::State aState) : 
-    ProcessStep(Type::Control_Ball_Valve_Wrapper),
-    mWrapper(aWrapper),
-    mState(aState)
-  {
-  }
-
-  BallValveWrapper        *get_wrapper() { return mWrapper; }
-  BallValveWrapper::State  get_state()          { return mState; }
-
-protected:
-private:
-  BallValveWrapper        *mWrapper;
-  BallValveWrapper::State  mState;
 };
 
 #endif

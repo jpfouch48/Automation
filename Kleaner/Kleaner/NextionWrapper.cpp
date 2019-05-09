@@ -21,8 +21,14 @@ NextionWrapper::NextionWrapper(int aStartupPageId) :
 void NextionWrapper::setup(NextionDataHandler *aDataHandler)
 {      
   mDataHandler = aDataHandler;
-  mSerial.begin(9600);
+  mSerial.begin(115200);
   delay(1000);
+
+ // mSerial.print("baud=115200");
+ // end_command();
+ // delay(1000);
+ // mSerial.begin(115200);
+
   set_page(mStartupPageId);
 }
 

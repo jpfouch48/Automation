@@ -44,8 +44,8 @@ class Kleaner : NextionDataHandler
     OutputWrapper mPumpWrapper;
 
     BallValveWrapper mInWaterWrapper;
-    OutputWrapper mInSaniWrapper;
-    OutputWrapper mInCleanerWrapper;
+    BallValveWrapper mInSaniWrapper;
+    BallValveWrapper mInCleanerWrapper;
 
     OutputWrapper mReWasteWrapper;
     OutputWrapper mReSaniWrapper;
@@ -91,12 +91,15 @@ class Kleaner : NextionDataHandler
     // display of the process state
     int mPrevPumpState;
     int mPrevCo2State;
+    
     BallValveWrapper::State mPrevInWaterState;
-    int mPrevInCleanerState;
-    int mPrevInSanitizerState;
+    BallValveWrapper::State mPrevInCleanerState;
+    BallValveWrapper::State mPrevInSanitizerState;
+
     int mPrevReWasteState;
     int mPrevReCleanerState;
-    int mPrevReSanitizerState;        
+    int mPrevReSanitizerState;   
+
     int mPrevStatePercentComplete;
     int mPrevProcessPercentComplete;
 };
