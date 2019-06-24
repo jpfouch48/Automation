@@ -36,38 +36,38 @@ class Kleaner : NextionDataHandler
     void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId);
 
     // Display Manager
-    NextionWrapper mNextionWrapper;
+    NextionWrapper            mNextionWrapper;
 
     // Output Wrappers
-    OutputWrapper mCo2Wrapper;
-    OutputWrapper mPumpWrapper;
+    OutputWrapper             mCo2Wrapper;
+    OutputWrapper             mPumpWrapper;
 
-    BallValveWrapper mInWaterWrapper;
-    BallValveWrapper mInSaniWrapper;
-    BallValveWrapper mInCleanerWrapper;
+    BallValveWrapper          mInWaterWrapper;
+    BallValveWrapper          mInSaniWrapper;
+    BallValveWrapper          mInCleanerWrapper;
 
-    OutputWrapper mReWasteWrapper;
-    OutputWrapper mReSaniWrapper;
-    OutputWrapper mReCleanerWrapper; 
+    OutputWrapper             mReWasteWrapper;
+    OutputWrapper             mReSaniWrapper;
+    OutputWrapper             mReCleanerWrapper; 
 
     // States
-    KleanerState *mCurrentState;
-    KleanerState *mCommandState;
-    KleanerState *mReturnToState;
+    KleanerState             *mCurrentState;
+    KleanerState             *mCommandState;
+    KleanerState             *mReturnToState;
 
-    KleanerState mSplashState;
-    KleanerState mMenuState;
-    KleanerState mTestState;
-    KleanerState mConfirmState;
-    KleanerState mCompleteState;
+    KleanerState              mSplashState;
+    KleanerState              mMenuState;
+    KleanerState              mTestState;
+    KleanerState              mConfirmState;
+    KleanerState              mCompleteState;
     
-    KleanerState mProcessInitState;
-    KleanerState mProcessPurgeState;
-    KleanerState mProcessRinseState;
-    KleanerState mProcessSaniState;
-    KleanerState mProcessWashState;
-    KleanerState mProcessPressState;
-    KleanerState mProcessShutdownState;
+    KleanerState              mProcessInitState;
+    KleanerState              mProcessPurgeState;
+    KleanerState              mProcessRinseState;
+    KleanerState              mProcessSaniState;
+    KleanerState              mProcessWashState;
+    KleanerState              mProcessPressState;
+    KleanerState              mProcessShutdownState;
 
 
     LinkedList<KleanerState*> mProcessStates;
@@ -77,9 +77,9 @@ class Kleaner : NextionDataHandler
     bool                      mInProcessWaitForInput;
     uint8_t                   mProcessDelayInSec;
 
-    MilliTimer mStateTimer;
-    bool mStateComplete;
-    bool mFirstTimeInState;
+    MilliTimer                mStateTimer;
+    bool                      mStateComplete;
+    bool                      mFirstTimeInState;
 
     // Progress Bar params
     MilliTimer                mCurrentStateTimer;
@@ -88,19 +88,16 @@ class Kleaner : NextionDataHandler
 
     // Previous state variables used for
     // display of the process state
-    int mPrevPumpState;
-    int mPrevCo2State;
-    
-    BallValveWrapper::State mPrevInWaterState;
-    BallValveWrapper::State mPrevInCleanerState;
-    BallValveWrapper::State mPrevInSanitizerState;
-
-    int mPrevReWasteState;
-    int mPrevReCleanerState;
-    int mPrevReSanitizerState;   
-
-    int mPrevStatePercentComplete;
-    int mPrevProcessPercentComplete;
+    int                       mPrevPumpState;
+    int                       mPrevCo2State;
+    BallValveWrapper::State   mPrevInWaterState;
+    BallValveWrapper::State   mPrevInCleanerState;
+    BallValveWrapper::State   mPrevInSanitizerState;
+    int                       mPrevReWasteState;
+    int                       mPrevReCleanerState;
+    int                       mPrevReSanitizerState;   
+    int                       mPrevStatePercentComplete;
+    int                       mPrevProcessPercentComplete;
 };
 
 
