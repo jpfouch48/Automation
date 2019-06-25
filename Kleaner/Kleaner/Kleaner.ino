@@ -3,7 +3,6 @@
 #include <HardwareSerial.h>
 #include "KleanerConfig.h"
 #include "Kleaner.h"
-#include "InputWrapper.h"
 
 Kleaner gKleaner;
 

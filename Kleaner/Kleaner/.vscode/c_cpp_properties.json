@@ -3,20 +3,18 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\bin\\arduino-1.8.5\\tools\\**",
-                "C:\\bin\\arduino-1.8.5\\hardware\\arduino\\avr\\**",
-                "C:\\bin\\arduino-1.8.5\\hardware\\tools\\avr\\avr\\include\\**",
-                "C:\\bin\\arduino-1.8.5\\hardware\\tools\\avr\\lib\\gcc\\avr\\4.9.2\\include\\**",
-                "C:\\bin\\arduino-1.8.5\\hardware\\arduino\\avr\\cores\\arduino\\**",
-                "C:\\Users\\jon-paul.faucher\\Documents\\Arduino\\libraries\\Parallax_LCD\\src\\**"
+                "${workspaceRoot}",
+                "C:\\bin\\arduino-1.8.5\\hardware\\arduino\\avr\\cores\\arduino",
+                "C:\\bin\\arduino-1.8.5\\hardware\\arduino\\avr\\variants\\standard",
+                "C:\\bin\\arduino-1.8.5\\hardware\\arduino\\avr\\libraries\\SoftwareSerial\\src",
+                "C:\\bin\\arduino-1.8.5\\hardware\\tools\\avr\\avr\\include",
+                "C:\\bin\\arduino-1.8.5\\hardware\\tools\\avr\\lib\\gcc\\avr\\4.9.2\\include"
             ],
             "intelliSenseMode": "msvc-x64",
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/bin/Hostx64/x64/cl.exe",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "forcedInclude": [
-                "C:\\bin\\arduino-1.8.5\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
-            ]
+            "defines": ["USBCON"]
         },
         {
             "name": "Mac",
