@@ -15,6 +15,14 @@ class NextionDataHandler
 class NextionWrapper
 {
   public:
+    // Interface defines
+    static const byte MSG_TOUCH_EVENT  = 0x65;
+    static const byte MSG_CURRENT_PAGE = 0x66;
+
+    static const byte TOUCH_EVENT_RELEASE = 0x00;
+    static const byte TOUCH_EVENT_PRESS   = 0x01;
+
+
     // ************************************************************************
     //
     // ************************************************************************
@@ -55,11 +63,6 @@ class NextionWrapper
   private:
     // TODO: REVIST THIS SIZE
     static const int MAX_BUFFER_SIZE = 32;
-
-
-    // Interface defines
-    static const byte MSG_TOUCH_EVENT  = 0x65;
-    static const byte MSG_CURRENT_PAGE = 0x66;
 
     // ************************************************************************
     //

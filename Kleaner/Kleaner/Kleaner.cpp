@@ -23,7 +23,8 @@ Kleaner::Kleaner() :
     // States
     mSplashState                ("Splash"),
     mMenuState                  ("Menu"),
-    mTestState                  ("Test"),
+    mTestOutputState            ("Test Output"),
+    mTestPhaseState             ("Test Phase"),
     mConfirmState               ("Confirm"),
     mCompleteState              ("Complete"),
     
@@ -92,10 +93,15 @@ void Kleaner::setup()
   mMenuState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_MAIN));
   mMenuState.add_process_step(new ProcessStepWaitForInput());
 
-  // Test State
-  mTestState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_TEST));
-  mTestState.add_process_step(new ProcessStepWaitForInput());
-  mTestState.add_process_step(new ProcessStepResetOutputs(5));
+  // Test Output State
+  mTestOutputState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_TEST_OUTPUT));
+  mTestOutputState.add_process_step(new ProcessStepWaitForInput());
+  mTestOutputState.add_process_step(new ProcessStepResetOutputs(5));
+
+  // Test Phase State
+  mTestPhaseState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_TEST_PHASE));
+  mTestPhaseState.add_process_step(new ProcessStepWaitForInput());
+  mTestPhaseState.add_process_step(new ProcessStepResetOutputs(5));
 
   // Confirm State
   // --------------------------------------------------------------------------
@@ -510,7 +516,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       update_output_display(mPumpWrapper,      mPrevPumpState,        PROCESS_COMP_ID_PUMP);
       update_output_display(mCo2Wrapper,       mPrevCo2State,         PROCESS_COMP_ID_C02);
     }
-    else if(mCurrentState->get_id() == mTestState.get_id())
+    else if(mCurrentState->get_id() == mTestOutputState.get_id())
     {
       // Display current state of outputs
       update_output_display(mInWaterWrapper,   mPrevInWaterState,     PROCESS_COMP_ID_IN_WATER);
@@ -584,7 +590,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 
   // We only want to handle the release event type so we will
   // ignore the pressed event
-  if(aEventType == EVENT_TYPE_PRESS)
+  if(aEventType == NextionWrapper::TOUCH_EVENT_PRESS)
     return;
 
   if(mCurrentState->get_id() == mMenuState.get_id())
@@ -597,10 +603,16 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
         mCommandState = &mConfirmState;
         mInProcessWaitForInput = false;
       }
-      // Test Button
-      else if(aCompId == MAIN_BUTTON_ID_TEST)
+      // Test Output Button
+      else if(aCompId == MAIN_BUTTON_ID_TEST_OUTPUT)
       {
-        mCommandState = &mTestState;
+        mCommandState = &mTestOutputState;
+        mInProcessWaitForInput = false;
+      }
+      // Test Phase Button
+      else if(aCompId == MAIN_BUTTON_ID_TEST_PHASE)
+      {
+        mCommandState = &mTestPhaseState;
         mInProcessWaitForInput = false;
       }
     }
@@ -647,18 +659,18 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
       }
     }    
   }
-  else if(mCurrentState->get_id() == mTestState.get_id())
+  else if(mCurrentState->get_id() == mTestOutputState.get_id())
   {
-    if(aPageId == PAGE_ID_TEST)
+    if(aPageId == PAGE_ID_TEST_OUTPUT)
     {
       switch(aCompId)
       {
-        case TEST_BUTTON_ID_BACK:
+        case TEST_OUTPUT_BUTTON_ID_BACK:
         {
           mInProcessWaitForInput = false;
         } break;
 
-        case TEST_BUTTON_ID_IN_WATER:
+        case TEST_OUTPUT_BUTTON_ID_IN_WATER:
         {
           if(mInWaterWrapper.get_state() == BallValveWrapper::State::Close)
             mInWaterWrapper.set_open();
@@ -666,7 +678,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mInWaterWrapper.set_close();
         } break;
 
-        case TEST_BUTTON_ID_IN_CLEANER:
+        case TEST_OUTPUT_BUTTON_ID_IN_CLEANER:
         {
           if(mInCleanerWrapper.get_state() == BallValveWrapper::State::Close)
             mInCleanerWrapper.set_open();
@@ -674,7 +686,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mInCleanerWrapper.set_close();
         } break;
 
-        case TEST_BUTTON_ID_IN_SANITIZER:
+        case TEST_OUTPUT_BUTTON_ID_IN_SANITIZER:
         {
           if(mInSaniWrapper.get_state() == BallValveWrapper::State::Close)
             mInSaniWrapper.set_open();
@@ -682,7 +694,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mInSaniWrapper.set_close();
         } break;
 
-        case TEST_BUTTON_ID_RE_WASTE:
+        case TEST_OUTPUT_BUTTON_ID_RE_WASTE:
         {
           if(mReWasteWrapper.get_state() == HIGH)
             mReWasteWrapper.set_state(LOW);
@@ -690,7 +702,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mReWasteWrapper.set_state(HIGH);            
         } break;
 
-        case TEST_BUTTON_ID_RE_CLEANER:
+        case TEST_OUTPUT_BUTTON_ID_RE_CLEANER:
         {
           if(mReCleanerWrapper.get_state() == HIGH)
             mReCleanerWrapper.set_state(LOW);
@@ -698,7 +710,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mReCleanerWrapper.set_state(HIGH);          
         } break;
 
-        case TEST_BUTTON_ID_RE_SANITIZER:
+        case TEST_OUTPUT_BUTTON_ID_RE_SANITIZER:
         {
           if(mReSaniWrapper.get_state() == HIGH)
             mReSaniWrapper.set_state(LOW);
@@ -706,7 +718,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mReSaniWrapper.set_state(HIGH);
         } break;
 
-        case TEST_BUTTON_ID_PUMP:
+        case TEST_OUTPUT_BUTTON_ID_PUMP:
         {
           if(mPumpWrapper.get_state() == HIGH)
             mPumpWrapper.set_state(LOW);
@@ -714,7 +726,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mPumpWrapper.set_state(HIGH);
         } break;
 
-        case TEST_BUTTON_ID_C02:
+        case TEST_OUTPUT_BUTTON_ID_C02:
         {
           if(mCo2Wrapper.get_state() == HIGH)
             mCo2Wrapper.set_state(LOW);
@@ -722,7 +734,54 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
             mCo2Wrapper.set_state(HIGH);          
         } break;
       }
+    }
+  }
+  else if(mCurrentState->get_id() == mTestPhaseState.get_id())
+  {
+    if(aPageId == PAGE_ID_TEST_PHASE)
+    {
+      switch(aCompId)
+      {
+        case TEST_PHASE_BUTTON_ID_BACK:
+        {
+          mInProcessWaitForInput = false;
+        } break;
 
+        case TEST_PHASE_BUTTON_ID_PURGE:
+        {
+          mCommandState = &mProcessPurgeState;
+          mReturnToState = &mTestPhaseState;
+          mNextionWrapper.set_page(PAGE_ID_PROCESS);
+        } break;
+
+        case TEST_PHASE_BUTTON_ID_WASH:
+        {
+          mCommandState = &mProcessWashState;
+          mReturnToState = &mTestPhaseState;
+          mNextionWrapper.set_page(PAGE_ID_PROCESS);
+        } break;
+
+        case TEST_PHASE_BUTTON_ID_RINSE:
+        {
+          mCommandState = &mProcessRinseState;
+          mReturnToState = &mTestPhaseState;
+          mNextionWrapper.set_page(PAGE_ID_PROCESS);
+        } break;
+
+        case TEST_PHASE_BUTTON_ID_SANI:
+        {
+          mCommandState = &mProcessSaniState;
+          mReturnToState = &mTestPhaseState;
+          mNextionWrapper.set_page(PAGE_ID_PROCESS);
+        } break;
+
+        case TEST_PHASE_BUTTON_ID_PRESSURE:
+        {
+          mCommandState = &mProcessPressState;
+          mReturnToState = &mTestPhaseState;
+          mNextionWrapper.set_page(PAGE_ID_PROCESS);
+        } break;
+      }
     }
   }  
   else if(is_process_state(mCurrentState->get_id()))

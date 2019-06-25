@@ -57,7 +57,8 @@ class Kleaner : NextionDataHandler
 
     KleanerState              mSplashState;
     KleanerState              mMenuState;
-    KleanerState              mTestState;
+    KleanerState              mTestOutputState;
+    KleanerState              mTestPhaseState;
     KleanerState              mConfirmState;
     KleanerState              mCompleteState;
     

@@ -36,7 +36,7 @@
 // ****************************************************************************
 // Version Define
 // ****************************************************************************
-#define KLEANER_VERSION                   "0.2.5"
+#define KLEANER_VERSION                   "0.3.0"
 
 
 // ****************************************************************************
@@ -44,31 +44,42 @@
 // ****************************************************************************
 
 // Page Defines
-#define PAGE_ID_HOME                      0
-#define PAGE_ID_MAIN                      1
-#define PAGE_ID_CONFIRM                   2
-#define PAGE_ID_PROCESS                   3
-#define PAGE_ID_COMPLETE                  4
-#define PAGE_ID_TEST                      5
+#define PAGE_ID_HOME                        0
+#define PAGE_ID_MAIN                        1
+#define PAGE_ID_CONFIRM                     2
+#define PAGE_ID_PROCESS                     3
+#define PAGE_ID_COMPLETE                    4
+#define PAGE_ID_TEST_OUTPUT                 5
+#define PAGE_ID_TEST_PHASE                  6
 
 // Input Event Defines (touch events)
-#define MAIN_BUTTON_ID_CLEAN              1
-#define MAIN_BUTTON_ID_TEST               2
-#define CONFIRM_BUTTON_ID_YES             3
-#define CONFIRM_BUTTON_ID_NO              4
-#define COMPLETE_BUTTON_ID_START_OVER     2
-#define PROCESS_BUTTON_ID_STOP            3
+#define MAIN_BUTTON_ID_CLEAN                1
+#define MAIN_BUTTON_ID_TEST_OUTPUT          3
+#define MAIN_BUTTON_ID_TEST_PHASE           4
 
-#define TEST_BUTTON_ID_BACK               2
-#define TEST_BUTTON_ID_IN_WATER           3
-#define TEST_BUTTON_ID_IN_CLEANER         4
-#define TEST_BUTTON_ID_IN_SANITIZER       5
-#define TEST_BUTTON_ID_RE_WASTE           6
-#define TEST_BUTTON_ID_RE_CLEANER         7
-#define TEST_BUTTON_ID_RE_SANITIZER       8
-#define TEST_BUTTON_ID_PUMP               9
-#define TEST_BUTTON_ID_C02                10
+#define CONFIRM_BUTTON_ID_YES               3
+#define CONFIRM_BUTTON_ID_NO                4
 
+#define COMPLETE_BUTTON_ID_START_OVER       2
+
+#define PROCESS_BUTTON_ID_STOP              3
+
+#define TEST_OUTPUT_BUTTON_ID_BACK          2
+#define TEST_OUTPUT_BUTTON_ID_IN_WATER      3
+#define TEST_OUTPUT_BUTTON_ID_IN_CLEANER    4
+#define TEST_OUTPUT_BUTTON_ID_IN_SANITIZER  5
+#define TEST_OUTPUT_BUTTON_ID_RE_WASTE      6
+#define TEST_OUTPUT_BUTTON_ID_RE_CLEANER    7
+#define TEST_OUTPUT_BUTTON_ID_RE_SANITIZER  8
+#define TEST_OUTPUT_BUTTON_ID_PUMP          9
+#define TEST_OUTPUT_BUTTON_ID_C02           10
+
+#define TEST_PHASE_BUTTON_ID_BACK           2
+#define TEST_PHASE_BUTTON_ID_PURGE          4
+#define TEST_PHASE_BUTTON_ID_RINSE          5
+#define TEST_PHASE_BUTTON_ID_WASH           6
+#define TEST_PHASE_BUTTON_ID_SANI           7
+#define TEST_PHASE_BUTTON_ID_PRESSURE       8
 
 // Text Component Defines
 #define HOME_COMP_ID_VERSION              "t0"
@@ -87,11 +98,6 @@
 #define PROCESS_COMP_ID_C02               "t8"
 
 #define COMPLETE_COMP_ID_DURATION         "t1"
-
-
-
-#define EVENT_TYPE_RELEASE                0
-#define EVENT_TYPE_PRESS                  1
 
 
 // ****************************************************************************
