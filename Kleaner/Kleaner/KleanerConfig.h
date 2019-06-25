@@ -5,19 +5,24 @@
 
 #define TRACE_OUTPUT
 
+
+// ****************************************************************************
+// Version Define
+// ****************************************************************************
+#define KLEANER_VERSION                   "0.3.0"
+
 // ****************************************************************************
 //  Digital I/O Pin definitions
 // ****************************************************************************
 
-//#define DO_PIN_RELAY_AIR                  12
-//#define DO_PIN_ON_BOARD_LED               12
+// Normal Relay outputs
 #define DO_PIN_RELAY_CO2                  11
-
 #define DO_PIN_RECIRC_SANITIZER           10
 #define DO_PIN_RECIRC_WASTE               9
 #define DO_PIN_RECIRC_CLEANER             8
 #define DO_PIN_PUMP                       7
 
+// Motor Controller outputs (ball valves)
 #define DO_PIN_MOTOR_IN_WATER_1           6
 #define DO_PIN_MOTOR_IN_WATER_2           5
 #define DO_PIN_MOTOR_IN_CLEANER_1         4
@@ -25,6 +30,7 @@
 #define DO_PIN_MOTOR_IN_SANITIZER_1       2
 #define DO_PIN_MOTOR_IN_SANITIZER_2       1
 
+// Soft serail pins for nextion display
 #define NEXT_SOFT_SERIAL_TX_PIN           A0
 #define NEXT_SOFT_SERIAL_RX_PIN           A1
 
@@ -34,16 +40,10 @@
 #define LOOP_TIME_IN_MS                   100
 
 // ****************************************************************************
-// Version Define
-// ****************************************************************************
-#define KLEANER_VERSION                   "0.3.0"
-
-
-// ****************************************************************************
 // HMI Defines
 // ****************************************************************************
 
-// Page Defines
+// Page ID Defines
 #define PAGE_ID_HOME                        0
 #define PAGE_ID_MAIN                        1
 #define PAGE_ID_CONFIRM                     2
