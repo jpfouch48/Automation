@@ -75,7 +75,6 @@ class NextionWrapper
     void check_for_input();
 
     int mStartupPageId;
-    SoftwareSerial mSerial;
     int mEndCount;
     int mBufferCount;
     byte mBuffer[MAX_BUFFER_SIZE];

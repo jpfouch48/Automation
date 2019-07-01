@@ -8,7 +8,6 @@
 // ****************************************************************************
 NextionWrapper::NextionWrapper(int aStartupPageId) : 
   mStartupPageId(aStartupPageId),
-  mSerial(NEXT_SOFT_SERIAL_RX_PIN, NEXT_SOFT_SERIAL_TX_PIN),
   mEndCount(0),
   mBufferCount(0),
   mDataHandler(NULL)
@@ -21,12 +20,12 @@ NextionWrapper::NextionWrapper(int aStartupPageId) :
 void NextionWrapper::setup(NextionDataHandler *aDataHandler)
 {      
   mDataHandler = aDataHandler;
-  mSerial.begin(9600);
+  Serial1.begin(9600);
   delay(1000);
-  mSerial.print("baud=115200");
+  Serial1.print("baud=115200");
   end_command();
   delay(1000);
-  mSerial.begin(115200);
+  Serial1.begin(115200);
 
   set_page(mStartupPageId);
 }
@@ -50,10 +49,10 @@ void NextionWrapper::set_text(char *aComp, char *aValue)
   TPRINT(aValue);
   TPRINTLN("\"");
 
-  mSerial.print(aComp);
-  mSerial.print(".txt=\"");
-  mSerial.print(aValue);
-  mSerial.print("\"");
+  Serial1.print(aComp);
+  Serial1.print(".txt=\"");
+  Serial1.print(aValue);
+  Serial1.print("\"");
   end_command();   
 }
 
@@ -66,9 +65,9 @@ void NextionWrapper::set_value(char *aComp, int aValue)
   TPRINT(".val=");
   TPRINTLN(aValue);
 
-  mSerial.print(aComp);
-  mSerial.print(".val=");
-  mSerial.print(aValue);
+  Serial1.print(aComp);
+  Serial1.print(".val=");
+  Serial1.print(aValue);
   end_command();     
 }
 
@@ -80,8 +79,8 @@ void NextionWrapper::set_page(int aPageId)
   TPRINT("page ");
   TPRINTLN(aPageId);  
 
-  mSerial.print("page ");
-  mSerial.print(aPageId);
+  Serial1.print("page ");
+  Serial1.print(aPageId);
   end_command();   
 }
 
@@ -94,9 +93,9 @@ void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
   TPRINT(".bco=");
   TPRINTLN(aValue);
 
-  mSerial.print(aComp);
-  mSerial.print(".bco=");
-  mSerial.print(aValue);
+  Serial1.print(aComp);
+  Serial1.print(".bco=");
+  Serial1.print(aValue);
   end_command();     
 }
 
@@ -105,9 +104,9 @@ void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
 // ****************************************************************************
 void NextionWrapper::end_command()
 {
-  mSerial.write(0xFF);
-  mSerial.write(0xFF);
-  mSerial.write(0xFF);
+  Serial1.write(0xFF);
+  Serial1.write(0xFF);
+  Serial1.write(0xFF);
 }
 
 // ****************************************************************************
@@ -115,10 +114,10 @@ void NextionWrapper::end_command()
 // ****************************************************************************
 void NextionWrapper::check_for_input()
 {
-  while (mSerial.available()) 
+  while (Serial1.available()) 
   {
     bool foundEnd = false;
-    byte inData = mSerial.read();
+    byte inData = Serial1.read();
 
     if(inData == 0xff)
     {
