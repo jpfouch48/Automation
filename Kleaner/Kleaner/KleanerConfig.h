@@ -30,7 +30,7 @@
 #define DO_PIN_MOTOR_IN_CLEANER_1         4
 #define DO_PIN_MOTOR_IN_CLEANER_2         3
 #define DO_PIN_MOTOR_IN_SANITIZER_1       2
-#define DO_PIN_MOTOR_IN_SANITIZER_2       1
+#define DO_PIN_MOTOR_IN_SANITIZER_2       14
 
 
 // ****************************************************************************
