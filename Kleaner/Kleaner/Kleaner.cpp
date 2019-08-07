@@ -149,7 +149,7 @@ void Kleaner::setup()
   // --------------------------------------------------------------------------
   mProcessWashState.add_process_step(new ProcessStepOutputCleaner());
   mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
-  mProcessWashState.add_process_step(new ProcessStepPumpOn(10));
+  mProcessWashState.add_process_step(new ProcessStepPumpOn(150));
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
   mProcessWashState.add_process_step(new ProcessStepInputOff(5));
   mProcessWashState.add_process_step(new ProcessStepCo2On(10));
