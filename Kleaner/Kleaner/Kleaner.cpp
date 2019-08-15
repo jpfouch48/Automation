@@ -130,8 +130,8 @@ void Kleaner::setup()
   mProcessRinseState.add_process_step(new ProcessStepPumpOn(10));
   mProcessRinseState.add_process_step(new ProcessStepPumpOff());
   mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
-  mProcessRinseState.add_process_step(new ProcessStepCo2On(10));
-  mProcessRinseState.add_process_step(new ProcessStepCo2Off());
+  mProcessRinseState.add_process_step(new ProcessStepCo2On(15));
+  mProcessRinseState.add_process_step(new ProcessStepCo2Off(5));
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
   // Sani State
@@ -141,19 +141,58 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniState.add_process_step(new ProcessStepPumpOff());
   mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
-  mProcessSaniState.add_process_step(new ProcessStepCo2On(10));
-  mProcessSaniState.add_process_step(new ProcessStepCo2Off());
+  mProcessSaniState.add_process_step(new ProcessStepCo2On(15));
+  mProcessSaniState.add_process_step(new ProcessStepCo2Off(5));
   mProcessSaniState.add_process_step(new ProcessStepOutputOff());
 
   // Wash State
   // --------------------------------------------------------------------------
   mProcessWashState.add_process_step(new ProcessStepOutputCleaner());
   mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
-  mProcessWashState.add_process_step(new ProcessStepPumpOn(150));
+
+  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
-  mProcessWashState.add_process_step(new ProcessStepInputOff(5));
-  mProcessWashState.add_process_step(new ProcessStepCo2On(10));
-  mProcessWashState.add_process_step(new ProcessStepCo2Off());
+  mProcessWashState.add_process_step(new ProcessStepInputOff(10));
+  mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
+
+  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
+  mProcessWashState.add_process_step(new ProcessStepPumpOff());
+  mProcessWashState.add_process_step(new ProcessStepInputOff(10));
+  mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
+
+  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
+  mProcessWashState.add_process_step(new ProcessStepPumpOff());
+  mProcessWashState.add_process_step(new ProcessStepInputOff(10));
+  mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
+
+  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
+  mProcessWashState.add_process_step(new ProcessStepPumpOff());
+  mProcessWashState.add_process_step(new ProcessStepInputOff(10));
+  mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
+
+  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
+  mProcessWashState.add_process_step(new ProcessStepPumpOff());
+  mProcessWashState.add_process_step(new ProcessStepInputOff(10));
+  mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+
+//  mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
+//  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
+//  mProcessWashState.add_process_step(new ProcessStepInputOff());
+//  mProcessWashState.add_process_step(new ProcessStepPumpOff(30));
+
+
+//  mProcessWashState.add_process_step(new ProcessStepInputOff(5));
+//  mProcessWashState.add_process_step(new ProcessStepCo2On(10));
+//  mProcessWashState.add_process_step(new ProcessStepCo2Off(5));
   mProcessWashState.add_process_step(new ProcessStepOutputOff());
   
   // Pressurize State
@@ -176,11 +215,11 @@ void Kleaner::setup()
   mProcessStates.push_back(&mProcessInitState);
   mProcessStates.push_back(&mProcessPurgeState);
   mProcessStates.push_back(&mProcessRinseState);
-  mProcessStates.push_back(&mProcessPurgeState);
+//  mProcessStates.push_back(&mProcessPurgeState);
   mProcessStates.push_back(&mProcessWashState);
-  mProcessStates.push_back(&mProcessPurgeState);
+//  mProcessStates.push_back(&mProcessPurgeState);
   mProcessStates.push_back(&mProcessSaniState);
-  mProcessStates.push_back(&mProcessPurgeState);
+//  mProcessStates.push_back(&mProcessPurgeState);
   mProcessStates.push_back(&mProcessPressState);
   mProcessStates.push_back(&mProcessShutdownState);
   mProcessStates.push_back(&mCompleteState);
