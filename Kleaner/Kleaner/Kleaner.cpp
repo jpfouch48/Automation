@@ -127,17 +127,35 @@ void Kleaner::setup()
   // --------------------------------------------------------------------------
   mProcessRinseState.add_process_step(new ProcessStepOutputWaste());
   mProcessRinseState.add_process_step(new ProcessStepInputWater(5));
-  mProcessRinseState.add_process_step(new ProcessStepPumpOn(10));
+
+  //mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
+  //mProcessRinseState.add_process_step(new ProcessStepPumpOff());
+  //mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
+  //mProcessRinseState.add_process_step(new ProcessStepCo2On(15));
+  //mProcessRinseState.add_process_step(new ProcessStepCo2Off(5));
+  //mProcessRinseState.add_process_step(new ProcessStepOutputOff());
+
+  mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
   mProcessRinseState.add_process_step(new ProcessStepPumpOff());
   mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
-  mProcessRinseState.add_process_step(new ProcessStepCo2On(15));
-  mProcessRinseState.add_process_step(new ProcessStepCo2Off(5));
-  mProcessRinseState.add_process_step(new ProcessStepOutputOff());
+  mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
+  mProcessRinseState.add_process_step(new ProcessStepCo2Off(10));
+  mProcessRinseState.add_process_step(new ProcessStepInputWater(5));
+
+  mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
+  mProcessRinseState.add_process_step(new ProcessStepPumpOff());
+  mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
+  mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
+  mProcessRinseState.add_process_step(new ProcessStepCo2Off(10));
+
+
+
 
   // Sani State
   // --------------------------------------------------------------------------
   mProcessSaniState.add_process_step(new ProcessStepOutputSanitizer());
   mProcessSaniState.add_process_step(new ProcessStepInputSanitizer(5));
+
   mProcessSaniState.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniState.add_process_step(new ProcessStepPumpOff());
   mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
@@ -154,35 +172,35 @@ void Kleaner::setup()
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
   mProcessWashState.add_process_step(new ProcessStepInputOff(10));
   mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
   mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
 
   mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
   mProcessWashState.add_process_step(new ProcessStepInputOff(10));
   mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
   mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
 
   mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
   mProcessWashState.add_process_step(new ProcessStepInputOff(10));
   mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
   mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
 
   mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
   mProcessWashState.add_process_step(new ProcessStepInputOff(10));
   mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
   mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
 
   mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
   mProcessWashState.add_process_step(new ProcessStepPumpOff());
   mProcessWashState.add_process_step(new ProcessStepInputOff(10));
   mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-  mProcessWashState.add_process_step(new ProcessStepCo2Off(45));
+  mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
 
 //  mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
 //  mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
