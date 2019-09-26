@@ -120,7 +120,7 @@ void Kleaner::setup()
   // --------------------------------------------------------------------------
   mProcessPurgeState.add_process_step(new ProcessStepOutputWaste(5));
   mProcessPurgeState.add_process_step(new ProcessStepCo2On(10));
-  mProcessPurgeState.add_process_step(new ProcessStepCo2Off(10));
+  mProcessPurgeState.add_process_step(new ProcessStepCo2Off(20));
 
   mProcessPurgeState.add_process_step(new ProcessStepOutputOff());
   
@@ -134,7 +134,7 @@ void Kleaner::setup()
     mProcessRinseState.add_process_step(new ProcessStepPumpOff());
     mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
     mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
-    mProcessRinseState.add_process_step(new ProcessStepCo2Off(10));
+    mProcessRinseState.add_process_step(new ProcessStepCo2Off(20));
   }
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
@@ -147,7 +147,7 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStepPumpOff());
   mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
   mProcessSaniState.add_process_step(new ProcessStepCo2On(5));
-  mProcessSaniState.add_process_step(new ProcessStepCo2Off(10));
+  mProcessSaniState.add_process_step(new ProcessStepCo2Off(20));
 
   mProcessSaniState.add_process_step(new ProcessStepOutputOff());
 
