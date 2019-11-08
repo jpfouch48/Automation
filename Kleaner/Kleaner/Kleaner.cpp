@@ -119,23 +119,23 @@ void Kleaner::setup()
   // Purge State
   // --------------------------------------------------------------------------
   mProcessPurgeState.add_process_step(new ProcessStepOutputWaste(5));
-  mProcessPurgeState.add_process_step(new ProcessStepCo2On(10));
-  mProcessPurgeState.add_process_step(new ProcessStepCo2Off(20));
+  mProcessPurgeState.add_process_step(new ProcessStepCo2On(5));
+  mProcessPurgeState.add_process_step(new ProcessStepCo2Off(5));
 
   mProcessPurgeState.add_process_step(new ProcessStepOutputOff());
   
   // Rinse State
   // --------------------------------------------------------------------------
   mProcessRinseState.add_process_step(new ProcessStepOutputWaste());
-  for(int lnRinseIndex = 0; lnRinseIndex < 2; lnRinseIndex++)
-  {
+  //for(int lnRinseIndex = 0; lnRinseIndex < 2; lnRinseIndex++)
+  //{
     mProcessRinseState.add_process_step(new ProcessStepInputWater(5));  
     mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseState.add_process_step(new ProcessStepPumpOff());
     mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
     mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
     mProcessRinseState.add_process_step(new ProcessStepCo2Off(20));
-  }
+  //}
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
   // Sani State
@@ -154,7 +154,7 @@ void Kleaner::setup()
   // Wash State
   // --------------------------------------------------------------------------
   mProcessWashState.add_process_step(new ProcessStepOutputCleaner());
-  for(int lWashIndex = 0; lWashIndex < 6; lWashIndex++)
+  for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
   {
     mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
     mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
