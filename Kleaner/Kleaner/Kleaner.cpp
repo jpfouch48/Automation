@@ -127,8 +127,8 @@ void Kleaner::setup()
   // Rinse State
   // --------------------------------------------------------------------------
   mProcessRinseState.add_process_step(new ProcessStepOutputWaste());
-  //for(int lnRinseIndex = 0; lnRinseIndex < 2; lnRinseIndex++)
-  //{
+  for(int lnRinseIndex = 0; lnRinseIndex < 2; lnRinseIndex++)
+  {
     mProcessRinseState.add_process_step(new ProcessStepInputWater(5));  
     mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseState.add_process_step(new ProcessStepPumpOff());
@@ -141,8 +141,7 @@ void Kleaner::setup()
       mProcessRinseState.add_process_step(new ProcessStepCo2Off(2));
     }
     mProcessRinseState.add_process_step(new ProcessStepDelay(20));
-
-  //}
+  }
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
   // Sani State
