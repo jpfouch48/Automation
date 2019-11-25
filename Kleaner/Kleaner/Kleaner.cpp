@@ -133,8 +133,15 @@ void Kleaner::setup()
     mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseState.add_process_step(new ProcessStepPumpOff());
     mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
-    mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
-    mProcessRinseState.add_process_step(new ProcessStepCo2Off(20));
+    //mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
+    //mProcessRinseState.add_process_step(new ProcessStepCo2Off(20));
+    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    {
+      mProcessRinseState.add_process_step(new ProcessStepCo2On(1));
+      mProcessRinseState.add_process_step(new ProcessStepCo2Off(2));
+    }
+    mProcessRinseState.add_process_step(new ProcessStepDelay(20));
+
   //}
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
@@ -146,8 +153,14 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniState.add_process_step(new ProcessStepPumpOff());
   mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
-  mProcessSaniState.add_process_step(new ProcessStepCo2On(5));
-  mProcessSaniState.add_process_step(new ProcessStepCo2Off(20));
+  //mProcessSaniState.add_process_step(new ProcessStepCo2On(5));
+  //mProcessSaniState.add_process_step(new ProcessStepCo2Off(20));
+  for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+  {
+    mProcessSaniState.add_process_step(new ProcessStepCo2On(1));
+    mProcessSaniState.add_process_step(new ProcessStepCo2Off(2));
+  }
+  mProcessSaniState.add_process_step(new ProcessStepDelay(20));
 
   mProcessSaniState.add_process_step(new ProcessStepOutputOff());
 
@@ -160,8 +173,14 @@ void Kleaner::setup()
     mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
     mProcessWashState.add_process_step(new ProcessStepPumpOff());
     mProcessWashState.add_process_step(new ProcessStepInputOff(5));
-    mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-    mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
+    //mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+    //mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
+    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    {
+      mProcessWashState.add_process_step(new ProcessStepCo2On(1));
+      mProcessWashState.add_process_step(new ProcessStepCo2Off(2));
+    }
+    mProcessWashState.add_process_step(new ProcessStepDelay(35));
   }
   mProcessWashState.add_process_step(new ProcessStepOutputOff());
   
