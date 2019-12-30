@@ -58,7 +58,9 @@ Kleaner::Kleaner() :
     mPrevReCleanerState         (-1),
     mPrevReSanitizerState       (-1),  
     mPrevStatePercentComplete   (-1),     
-    mPrevProcessPercentComplete (-1)      
+    mPrevProcessPercentComplete (-1),
+
+    mIsLargeKeg                 (false)      
 {
 }
 
@@ -133,8 +135,6 @@ void Kleaner::setup()
     mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseState.add_process_step(new ProcessStepPumpOff());
     mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
-    //mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
-    //mProcessRinseState.add_process_step(new ProcessStepCo2Off(20));
     for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
     {
       mProcessRinseState.add_process_step(new ProcessStepCo2On(1));
@@ -152,8 +152,6 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniState.add_process_step(new ProcessStepPumpOff());
   mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
-  //mProcessSaniState.add_process_step(new ProcessStepCo2On(5));
-  //mProcessSaniState.add_process_step(new ProcessStepCo2Off(20));
   for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
   {
     mProcessSaniState.add_process_step(new ProcessStepCo2On(1));
@@ -172,8 +170,6 @@ void Kleaner::setup()
     mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
     mProcessWashState.add_process_step(new ProcessStepPumpOff());
     mProcessWashState.add_process_step(new ProcessStepInputOff(5));
-    //mProcessWashState.add_process_step(new ProcessStepCo2On(5));
-    //mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
     for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
     {
       mProcessWashState.add_process_step(new ProcessStepCo2On(1));
@@ -215,6 +211,15 @@ void Kleaner::setup()
 
   TPRINTLN(F("Kleaner::setup - exit"));
 }
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
+void Kleaner::setup_process_states(bool aUseExtended)
+{
+  // TODO: 
+}
+
 
 // ****************************************************************************
 // See header file for details
@@ -623,10 +628,18 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     if(aPageId == PAGE_ID_MAIN)
     {
       // Clean Button
-      if(aCompId == MAIN_BUTTON_ID_CLEAN)
+      if(aCompId == MAIN_BUTTON_ID_CLEAN || aCompId == MAIN_BUTTON_ID_CLEAN_PLUS)
       {
         mCommandState = &mConfirmState;
         mInProcessWaitForInput = false;
+        mIsLargeKeg = false;
+
+        if(aCompId == MAIN_BUTTON_ID_CLEAN_PLUS)
+        {
+          mIsLargeKeg = true;
+        }
+
+        setup_process_states(mIsLargeKeg);
       }
       // Test Output Button
       else if(aCompId == MAIN_BUTTON_ID_TEST_OUTPUT)

@@ -53,6 +53,7 @@
 
 // Input Event Defines (touch events)
 #define MAIN_BUTTON_ID_CLEAN                1
+#define MAIN_BUTTON_ID_CLEAN_PLUS           5
 #define MAIN_BUTTON_ID_TEST_OUTPUT          3
 #define MAIN_BUTTON_ID_TEST_PHASE           4
 

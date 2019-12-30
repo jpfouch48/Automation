@@ -34,6 +34,7 @@ class Kleaner : NextionDataHandler
     bool is_process_state(unsigned char aStateId);
     void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char *aCompId);
     void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId);
+    void Kleaner::setup_process_states(bool aUseExtended);
 
     // Display Manager
     NextionWrapper            mNextionWrapper;
@@ -70,6 +71,8 @@ class Kleaner : NextionDataHandler
     KleanerState              mProcessPressState;
     KleanerState              mProcessShutdownState;
 
+    // Flag to indicate if we are processing a large or Small keg
+    bool                      mIsLargeKeg;
 
     LinkedList<KleanerState*> mProcessStates;
     Iterator<KleanerState*>   mProcessStateIter;
