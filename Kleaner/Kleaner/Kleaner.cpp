@@ -33,12 +33,6 @@ Kleaner::Kleaner() :
     mProcessRinseState          ("Rinse"),
     mProcessSaniState           ("Sani"),
     mProcessWashState           ("Wash"),
-
-    mProcessPurgeHalfState      ("Purge+"),
-    mProcessRinseHalfState      ("Rinse+"),
-    mProcessSaniHalfState       ("Sani+"),
-    mProcessWashHalfState       ("Wash+"),
-
     mProcessPressState          ("Pressure"),
     mProcessShutdownState       ("Shutdown"),
 
@@ -64,9 +58,7 @@ Kleaner::Kleaner() :
     mPrevReCleanerState         (-1),
     mPrevReSanitizerState       (-1),  
     mPrevStatePercentComplete   (-1),     
-    mPrevProcessPercentComplete (-1),
-
-    mIsLargeKeg                 (false)      
+    mPrevProcessPercentComplete (-1)      
 {
 }
 
@@ -129,16 +121,9 @@ void Kleaner::setup()
   mProcessPurgeState.add_process_step(new ProcessStepOutputWaste(5));
   mProcessPurgeState.add_process_step(new ProcessStepCo2On(5));
   mProcessPurgeState.add_process_step(new ProcessStepCo2Off(5));
+
   mProcessPurgeState.add_process_step(new ProcessStepOutputOff());
-
-  // Purge State (Half Keg Varient)
-  // --------------------------------------------------------------------------
-  mProcessPurgeHalfState.add_process_step(new ProcessStepOutputWaste(5));
-  mProcessPurgeHalfState.add_process_step(new ProcessStepCo2On(5));
-  mProcessPurgeHalfState.add_process_step(new ProcessStepCo2Off(15));
-  mProcessPurgeHalfState.add_process_step(new ProcessStepOutputOff());
-
-
+  
   // Rinse State
   // --------------------------------------------------------------------------
   mProcessRinseState.add_process_step(new ProcessStepOutputWaste());
@@ -148,6 +133,8 @@ void Kleaner::setup()
     mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseState.add_process_step(new ProcessStepPumpOff());
     mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
+    //mProcessRinseState.add_process_step(new ProcessStepCo2On(5));
+    //mProcessRinseState.add_process_step(new ProcessStepCo2Off(20));
     for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
     {
       mProcessRinseState.add_process_step(new ProcessStepCo2On(1));
@@ -157,25 +144,6 @@ void Kleaner::setup()
   }
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
-
-  // Rinse State (Half Keg Varient)
-  // --------------------------------------------------------------------------
-  mProcessRinseHalfState.add_process_step(new ProcessStepOutputWaste());
-  for(int lnRinseIndex = 0; lnRinseIndex < 2; lnRinseIndex++)
-  {
-    mProcessRinseHalfState.add_process_step(new ProcessStepInputWater(5));  
-    mProcessRinseHalfState.add_process_step(new ProcessStepPumpOn(15));
-    mProcessRinseHalfState.add_process_step(new ProcessStepPumpOff());
-    mProcessRinseHalfState.add_process_step(new ProcessStepInputOff(5));
-    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
-    {
-      mProcessRinseHalfState.add_process_step(new ProcessStepCo2On(1));
-      mProcessRinseHalfState.add_process_step(new ProcessStepCo2Off(2));
-    }
-    mProcessRinseHalfState.add_process_step(new ProcessStepDelay(40));
-  }
-  mProcessRinseHalfState.add_process_step(new ProcessStepOutputOff());
-
   // Sani State
   // --------------------------------------------------------------------------
   mProcessSaniState.add_process_step(new ProcessStepOutputSanitizer());
@@ -184,30 +152,16 @@ void Kleaner::setup()
   mProcessSaniState.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniState.add_process_step(new ProcessStepPumpOff());
   mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
+  //mProcessSaniState.add_process_step(new ProcessStepCo2On(5));
+  //mProcessSaniState.add_process_step(new ProcessStepCo2Off(20));
   for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
   {
     mProcessSaniState.add_process_step(new ProcessStepCo2On(1));
     mProcessSaniState.add_process_step(new ProcessStepCo2Off(2));
   }
   mProcessSaniState.add_process_step(new ProcessStepDelay(20));
+
   mProcessSaniState.add_process_step(new ProcessStepOutputOff());
-
-
-  // Sani State (Half Keg Varient)
-  // --------------------------------------------------------------------------
-  mProcessSaniHalfState.add_process_step(new ProcessStepOutputSanitizer());
-  mProcessSaniHalfState.add_process_step(new ProcessStepInputSanitizer(5));
-
-  mProcessSaniHalfState.add_process_step(new ProcessStepPumpOn(10));
-  mProcessSaniHalfState.add_process_step(new ProcessStepPumpOff());
-  mProcessSaniHalfState.add_process_step(new ProcessStepInputOff(5));
-  for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
-  {
-    mProcessSaniHalfState.add_process_step(new ProcessStepCo2On(1));
-    mProcessSaniHalfState.add_process_step(new ProcessStepCo2Off(2));
-  }
-  mProcessSaniHalfState.add_process_step(new ProcessStepDelay(40));
-  mProcessSaniHalfState.add_process_step(new ProcessStepOutputOff());
 
   // Wash State
   // --------------------------------------------------------------------------
@@ -218,6 +172,8 @@ void Kleaner::setup()
     mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
     mProcessWashState.add_process_step(new ProcessStepPumpOff());
     mProcessWashState.add_process_step(new ProcessStepInputOff(5));
+    //mProcessWashState.add_process_step(new ProcessStepCo2On(5));
+    //mProcessWashState.add_process_step(new ProcessStepCo2Off(35));
     for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
     {
       mProcessWashState.add_process_step(new ProcessStepCo2On(1));
@@ -227,24 +183,6 @@ void Kleaner::setup()
   }
   mProcessWashState.add_process_step(new ProcessStepOutputOff());
   
-  // Wash State (Half Keg Varient)
-  // --------------------------------------------------------------------------
-  mProcessWashHalfState.add_process_step(new ProcessStepOutputCleaner());
-  for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
-  {
-    mProcessWashHalfState.add_process_step(new ProcessStepInputCleaner(5));
-    mProcessWashHalfState.add_process_step(new ProcessStepPumpOn(30));
-    mProcessWashHalfState.add_process_step(new ProcessStepPumpOff());
-    mProcessWashHalfState.add_process_step(new ProcessStepInputOff(5));
-    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
-    {
-      mProcessWashHalfState.add_process_step(new ProcessStepCo2On(1));
-      mProcessWashHalfState.add_process_step(new ProcessStepCo2Off(2));
-    }
-    mProcessWashHalfState.add_process_step(new ProcessStepDelay(50));
-  }
-  mProcessWashHalfState.add_process_step(new ProcessStepOutputOff());
-
   // Pressurize State
   // --------------------------------------------------------------------------
   mProcessPressState.add_process_step(new ProcessStepCo2On(10));
@@ -272,21 +210,8 @@ void Kleaner::setup()
   mProcessStates.push_back(&mProcessShutdownState);
   mProcessStates.push_back(&mCompleteState);
 
-  // Setup the process state list
-  // --------------------------------------------------------------------------
-  mProcessStatesHalf.push_back(&mProcessInitState);
-  mProcessStatesHalf.push_back(&mProcessPurgeHalfState);
-  mProcessStatesHalf.push_back(&mProcessRinseHalfState);
-  mProcessStatesHalf.push_back(&mProcessWashHalfState);
-  mProcessStatesHalf.push_back(&mProcessRinseHalfState);
-  mProcessStatesHalf.push_back(&mProcessSaniHalfState);
-  mProcessStatesHalf.push_back(&mProcessPressState);
-  mProcessStatesHalf.push_back(&mProcessShutdownState);
-  mProcessStatesHalf.push_back(&mCompleteState);
-
-
   // Default it to the end until we start the process from the start menu
-  mProcessStateIter = NULL;  
+  mProcessStateIter = mProcessStates.end();  
 
   TPRINTLN(F("Kleaner::setup - exit"));
 }
@@ -337,7 +262,7 @@ void Kleaner::process_state()
     mFirstTimeInState = true;
     mInProcessWaitForInput = false;
     mInProcessDelay = false;
-    mProcessStateIter = NULL;      
+    mProcessStateIter = mProcessStates.end();      
   }
   // Check to see if current state is completed.
   else if(true == mStateComplete)
@@ -357,7 +282,7 @@ void Kleaner::process_state()
     // Check if we are processing the process state list
     // if so, set it current state and advance the iterator to
     // the next state    
-    else if(mProcessStateIter != NULL)
+    else if(mProcessStateIter != mProcessStates.end())
     {
       mCurrentState = *mProcessStateIter;
       mProcessStateIter++;
@@ -428,7 +353,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       // Nothing to do here. Once enter button is pressed, this 
       // flag will be reset and processing will continue
     }
-    else if(aState->process_list_iter() != NULL)
+    else if(aState->process_list_iter() != aState->process_list().end())
     {
       ProcessStep *lCurrentStep = *aState->process_list_iter();
 
@@ -698,16 +623,10 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
     if(aPageId == PAGE_ID_MAIN)
     {
       // Clean Button
-      if(aCompId == MAIN_BUTTON_ID_CLEAN || aCompId == MAIN_BUTTON_ID_CLEAN_PLUS)
+      if(aCompId == MAIN_BUTTON_ID_CLEAN)
       {
         mCommandState = &mConfirmState;
         mInProcessWaitForInput = false;
-        mIsLargeKeg = false;
-
-        if(aCompId == MAIN_BUTTON_ID_CLEAN_PLUS)
-        {
-          mIsLargeKeg = true;
-        }
       }
       // Test Output Button
       else if(aCompId == MAIN_BUTTON_ID_TEST_OUTPUT)
@@ -730,15 +649,11 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
       // YES Button
       if(aCompId == CONFIRM_BUTTON_ID_YES)
       {
-        mTotalProcessingTime = 0;          
-
-        // Compute processing time
-        if(mIsLargeKeg)
-          mProcessStateIter = mProcessStatesHalf.begin(); 
-        else
-          mProcessStateIter = mProcessStates.begin(); 
-
-        while(mProcessStateIter != NULL)
+        // Compute total processing time
+        mProcessStateIter = mProcessStates.begin(); 
+        mTotalProcessingTime = 0;
+        
+        while(mProcessStateIter != mProcessStates.end())
         {
           KleanerState *lCurrentState = *mProcessStateIter;
           mTotalProcessingTime += lCurrentState->get_total_process_time_in_sec();
@@ -746,18 +661,14 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
         }
 
         // Setup list for processing
-        if(mIsLargeKeg)
-          mProcessStateIter = mProcessStatesHalf.begin(); 
-        else
-          mProcessStateIter = mProcessStates.begin(); 
-
+        mProcessStateIter = mProcessStates.begin(); 
         mInProcessWaitForInput = false;
         mProcessTimer.reset();
       }
       // No Button
       else if(aCompId == CONFIRM_BUTTON_ID_NO)
       {      
-        mProcessStateIter = NULL;
+        mProcessStateIter = mProcessStates.end();
         mInProcessWaitForInput = false;  
       }
     }

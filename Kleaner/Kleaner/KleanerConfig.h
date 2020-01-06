@@ -11,7 +11,7 @@
 // ****************************************************************************
 // Version Define
 // ****************************************************************************
-#define KLEANER_VERSION                   "0.3.5"
+#define KLEANER_VERSION                   "0.3.6"
 
 // ****************************************************************************
 //  Digital I/O Pin definitions
@@ -53,7 +53,6 @@
 
 // Input Event Defines (touch events)
 #define MAIN_BUTTON_ID_CLEAN                1
-#define MAIN_BUTTON_ID_CLEAN_PLUS           5
 #define MAIN_BUTTON_ID_TEST_OUTPUT          3
 #define MAIN_BUTTON_ID_TEST_PHASE           4
 
