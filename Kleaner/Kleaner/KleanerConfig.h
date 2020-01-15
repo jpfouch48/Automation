@@ -58,6 +58,8 @@
 
 #define CONFIRM_BUTTON_ID_YES               3
 #define CONFIRM_BUTTON_ID_NO                4
+#define CONFIRM_RADIO_ID_SIXTEL             5
+#define CONFIRM_RADIO_ID_HALF               6
 
 #define COMPLETE_BUTTON_ID_START_OVER       2
 
@@ -98,6 +100,9 @@
 
 #define COMPLETE_COMP_ID_DURATION         "t1"
 
+// Radio compoenets
+#define CONFIRM_COMP_ID_SIXTLE             "r0"
+#define CONFIRM_COMP_ID_HALF               "r1"
 
 // ****************************************************************************
 // Debug output defines

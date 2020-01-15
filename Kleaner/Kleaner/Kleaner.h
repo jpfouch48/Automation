@@ -15,6 +15,15 @@
 class Kleaner : NextionDataHandler
 {
   public:
+
+    enum class KegType
+    {
+      KegType_Sixtel,
+      KegType_Half,
+      KegType_Unknown      
+    };
+
+
     Kleaner();
 
     void setup();
@@ -63,15 +72,24 @@ class Kleaner : NextionDataHandler
     KleanerState              mCompleteState;
     
     KleanerState              mProcessInitState;
-    KleanerState              mProcessPurgeState;
-    KleanerState              mProcessRinseState;
-    KleanerState              mProcessSaniState;
-    KleanerState              mProcessWashState;
-    KleanerState              mProcessPressState;
+    KleanerState              mProcessPurgeStateSixtel;
+    KleanerState              mProcessRinseStateSixtel;
+    KleanerState              mProcessSaniStateSixtel;
+    KleanerState              mProcessWashStateSixtel;
+    KleanerState              mProcessPressStateSixtel;
+
+    KleanerState              mProcessPurgeStateHalf;
+    KleanerState              mProcessRinseStateHalf;
+    KleanerState              mProcessSaniStateHalf;
+    KleanerState              mProcessWashStateHalf;
+    KleanerState              mProcessPressStateHalf;
+
     KleanerState              mProcessShutdownState;
 
 
-    LinkedList<KleanerState*> mProcessStates;
+    LinkedList<KleanerState*> mProcessStatesSixtel;
+    LinkedList<KleanerState*> mProcessStatesHalf;
+
     Iterator<KleanerState*>   mProcessStateIter;
     MilliTimer                mProcessDelayTimer;
     bool                      mInProcessDelay;
@@ -99,6 +117,7 @@ class Kleaner : NextionDataHandler
     int                       mPrevReSanitizerState;   
     int                       mPrevStatePercentComplete;
     int                       mPrevProcessPercentComplete;
+    KegType                   mKegType;
 };
 
 

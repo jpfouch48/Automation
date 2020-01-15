@@ -102,6 +102,23 @@ void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
+void NextionWrapper::click_button(char *aComp, byte aEventType)
+{
+  TPRINT("click ");
+  TPRINT(aComp);
+  TPRINT(",");
+  TPRINTLN(aEventType);
+
+  Serial1.print("click ");
+  Serial1.print(aComp);
+  Serial1.print(",");
+  Serial1.print(aEventType);
+  end_command();
+}
+
+// ****************************************************************************
+// See header file for details
+// ****************************************************************************
 void NextionWrapper::end_command()
 {
   Serial1.write(0xFF);

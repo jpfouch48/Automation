@@ -29,11 +29,18 @@ Kleaner::Kleaner() :
     mCompleteState              ("Complete"),
     
     mProcessInitState           ("Init"),
-    mProcessPurgeState          ("Purge"),
-    mProcessRinseState          ("Rinse"),
-    mProcessSaniState           ("Sani"),
-    mProcessWashState           ("Wash"),
-    mProcessPressState          ("Pressure"),
+    mProcessPurgeStateSixtel    ("Purge"),
+    mProcessRinseStateSixtel    ("Rinse"),
+    mProcessSaniStateSixtel     ("Sani"),
+    mProcessWashStateSixtel     ("Wash"),
+    mProcessPressStateSixtel    ("Pressure"),
+
+    mProcessPurgeStateHalf      ("Purge 1/2"),
+    mProcessRinseStateHalf      ("Rinse 1/2"),
+    mProcessSaniStateHalf       ("Sani 1/2"),
+    mProcessWashStateHalf       ("Wash 1/2"),
+    mProcessPressStateHalf      ("Pressure 1/2"),
+
     mProcessShutdownState       ("Shutdown"),
 
     // State Pointers - We are starting with the splash screen
@@ -58,7 +65,8 @@ Kleaner::Kleaner() :
     mPrevReCleanerState         (-1),
     mPrevReSanitizerState       (-1),  
     mPrevStatePercentComplete   (-1),     
-    mPrevProcessPercentComplete (-1)      
+    mPrevProcessPercentComplete (-1),
+    mKegType                    (KegType::KegType_Sixtel)      
 {
 }
 
@@ -118,72 +126,141 @@ void Kleaner::setup()
 
   // Purge State
   // --------------------------------------------------------------------------
-  mProcessPurgeState.add_process_step(new ProcessStepOutputWaste(5));
-  mProcessPurgeState.add_process_step(new ProcessStepCo2On(5));
-  mProcessPurgeState.add_process_step(new ProcessStepCo2Off(15)); // JPF - was 5 added more for 1/2 keg
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputWaste(5));
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2On(5));
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2Off(5));
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputOff());
 
-  mProcessPurgeState.add_process_step(new ProcessStepOutputOff());
-  
+  // Purge State (Half)
+  // --------------------------------------------------------------------------
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputWaste(5));
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2On(5));
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2Off(15)); // JPF - was 5 added more for 1/2 keg
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputOff());
+
+
   // Rinse State
   // --------------------------------------------------------------------------
-  mProcessRinseState.add_process_step(new ProcessStepOutputWaste());
+  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputWaste());
   for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
   {
-    mProcessRinseState.add_process_step(new ProcessStepInputWater(5));  
-    mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
-    mProcessRinseState.add_process_step(new ProcessStepPumpOff());
-    mProcessRinseState.add_process_step(new ProcessStepInputOff(5));
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputWater(5));  
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepPumpOn(15));
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepPumpOff());
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputOff(5));
 
     for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
     {
-      mProcessRinseState.add_process_step(new ProcessStepCo2On(1));
-      mProcessRinseState.add_process_step(new ProcessStepCo2Off(2));
+      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2On(1));
+      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2Off(2));
     }
-    mProcessRinseState.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepDelay(10));
   }
-  mProcessRinseState.add_process_step(new ProcessStepOutputOff());
+  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputOff());
+
+  // Rinse State (Half)
+  // --------------------------------------------------------------------------
+  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputWaste());
+  for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
+  {
+    mProcessRinseStateHalf.add_process_step(new ProcessStepInputWater(5));  
+    mProcessRinseStateHalf.add_process_step(new ProcessStepPumpOn(15));
+    mProcessRinseStateHalf.add_process_step(new ProcessStepPumpOff());
+    mProcessRinseStateHalf.add_process_step(new ProcessStepInputOff(5));
+
+    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    {
+      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2On(1));
+      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2Off(2));
+    }
+    mProcessRinseStateHalf.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
+  }
+  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputOff());
 
   // Sani State
   // --------------------------------------------------------------------------
-  mProcessSaniState.add_process_step(new ProcessStepOutputSanitizer());
-  mProcessSaniState.add_process_step(new ProcessStepInputSanitizer(5));
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputSanitizer());
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputSanitizer(5));
 
-  mProcessSaniState.add_process_step(new ProcessStepPumpOn(10));
-  mProcessSaniState.add_process_step(new ProcessStepPumpOff());
-  mProcessSaniState.add_process_step(new ProcessStepInputOff(5));
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepPumpOn(10));
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepPumpOff());
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputOff(5));
 
   for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
   {
-    mProcessSaniState.add_process_step(new ProcessStepCo2On(1));
-    mProcessSaniState.add_process_step(new ProcessStepCo2Off(2));
+    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2On(1));
+    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2Off(2));
   }
-  mProcessSaniState.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepDelay(10));
 
-  mProcessSaniState.add_process_step(new ProcessStepOutputOff());
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputOff());
+
+  // Sani State (Half)
+  // --------------------------------------------------------------------------
+  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputSanitizer());
+  mProcessSaniStateHalf.add_process_step(new ProcessStepInputSanitizer(5));
+
+  mProcessSaniStateHalf.add_process_step(new ProcessStepPumpOn(10));
+  mProcessSaniStateHalf.add_process_step(new ProcessStepPumpOff());
+  mProcessSaniStateHalf.add_process_step(new ProcessStepInputOff(5));
+
+  for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+  {
+    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2On(1));
+    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2Off(2));
+  }
+  mProcessSaniStateHalf.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
+
+  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputOff());
 
   // Wash State
   // --------------------------------------------------------------------------
-  mProcessWashState.add_process_step(new ProcessStepOutputCleaner());
+  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputCleaner());
   for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
   {
-    mProcessWashState.add_process_step(new ProcessStepInputCleaner(5));
-    mProcessWashState.add_process_step(new ProcessStepPumpOn(30));
-    mProcessWashState.add_process_step(new ProcessStepPumpOff());
-    mProcessWashState.add_process_step(new ProcessStepInputOff(5));
+    mProcessWashStateSixtel.add_process_step(new ProcessStepInputCleaner(5));
+    mProcessWashStateSixtel.add_process_step(new ProcessStepPumpOn(30));
+    mProcessWashStateSixtel.add_process_step(new ProcessStepPumpOff());
+    mProcessWashStateSixtel.add_process_step(new ProcessStepInputOff(5));
 
     for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
     {
-      mProcessWashState.add_process_step(new ProcessStepCo2On(1));
-      mProcessWashState.add_process_step(new ProcessStepCo2Off(2));
+      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2On(1));
+      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2Off(2));
     }
-    mProcessWashState.add_process_step(new ProcessStepDelay(30));  // JPF - was 20 added more for 1/2 keg
+    mProcessWashStateSixtel.add_process_step(new ProcessStepDelay(20));
   }
-  mProcessWashState.add_process_step(new ProcessStepOutputOff());
-  
+  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputOff());
+
+  // Wash State (Half)
+  // --------------------------------------------------------------------------
+  mProcessWashStateHalf.add_process_step(new ProcessStepOutputCleaner());
+  for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
+  {
+    mProcessWashStateHalf.add_process_step(new ProcessStepInputCleaner(5));
+    mProcessWashStateHalf.add_process_step(new ProcessStepPumpOn(30));
+    mProcessWashStateHalf.add_process_step(new ProcessStepPumpOff());
+    mProcessWashStateHalf.add_process_step(new ProcessStepInputOff(5));
+
+    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    {
+      mProcessWashStateHalf.add_process_step(new ProcessStepCo2On(1));
+      mProcessWashStateHalf.add_process_step(new ProcessStepCo2Off(2));
+    }
+    mProcessWashStateHalf.add_process_step(new ProcessStepDelay(30));  // JPF - was 20 added more for 1/2 keg
+  }
+  mProcessWashStateHalf.add_process_step(new ProcessStepOutputOff());
+
+
   // Pressurize State
   // --------------------------------------------------------------------------
-  mProcessPressState.add_process_step(new ProcessStepCo2On(10));
-  mProcessPressState.add_process_step(new ProcessStepCo2Off());
+  mProcessPressStateSixtel.add_process_step(new ProcessStepCo2On(10));
+  mProcessPressStateSixtel.add_process_step(new ProcessStepCo2Off());
+
+  // Pressurize State (Half)
+  // --------------------------------------------------------------------------
+  mProcessPressStateHalf.add_process_step(new ProcessStepCo2On(10));
+  mProcessPressStateHalf.add_process_step(new ProcessStepCo2Off());
 
   // Shutdown
   // --------------------------------------------------------------------------
@@ -197,18 +274,30 @@ void Kleaner::setup()
 
   // Setup the process state list
   // --------------------------------------------------------------------------
-  mProcessStates.push_back(&mProcessInitState);
-  mProcessStates.push_back(&mProcessPurgeState);
-  mProcessStates.push_back(&mProcessRinseState);
-  mProcessStates.push_back(&mProcessWashState);
-  mProcessStates.push_back(&mProcessRinseState);
-  mProcessStates.push_back(&mProcessSaniState);
-  mProcessStates.push_back(&mProcessPressState);
-  mProcessStates.push_back(&mProcessShutdownState);
-  mProcessStates.push_back(&mCompleteState);
+  mProcessStatesSixtel.push_back(&mProcessInitState);
+  mProcessStatesSixtel.push_back(&mProcessPurgeStateSixtel);
+  mProcessStatesSixtel.push_back(&mProcessRinseStateSixtel);
+  mProcessStatesSixtel.push_back(&mProcessWashStateSixtel);
+  mProcessStatesSixtel.push_back(&mProcessRinseStateSixtel);
+  mProcessStatesSixtel.push_back(&mProcessSaniStateSixtel);
+  mProcessStatesSixtel.push_back(&mProcessPressStateSixtel);
+  mProcessStatesSixtel.push_back(&mProcessShutdownState);
+  mProcessStatesSixtel.push_back(&mCompleteState);
+
+  // Setup the process state list (Half)
+  // --------------------------------------------------------------------------
+  mProcessStatesHalf.push_back(&mProcessInitState);
+  mProcessStatesHalf.push_back(&mProcessPurgeStateHalf);
+  mProcessStatesHalf.push_back(&mProcessRinseStateHalf);
+  mProcessStatesHalf.push_back(&mProcessWashStateHalf);
+  mProcessStatesHalf.push_back(&mProcessRinseStateHalf);
+  mProcessStatesHalf.push_back(&mProcessSaniStateHalf);
+  mProcessStatesHalf.push_back(&mProcessPressStateHalf);
+  mProcessStatesHalf.push_back(&mProcessShutdownState);
+  mProcessStatesHalf.push_back(&mCompleteState);
 
   // Default it to the end until we start the process from the start menu
-  mProcessStateIter = mProcessStates.end();  
+  mProcessStateIter = NULL;  
 
   TPRINTLN(F("Kleaner::setup - exit"));
 }
@@ -259,7 +348,7 @@ void Kleaner::process_state()
     mFirstTimeInState = true;
     mInProcessWaitForInput = false;
     mInProcessDelay = false;
-    mProcessStateIter = mProcessStates.end();      
+    mProcessStateIter = NULL;      
   }
   // Check to see if current state is completed.
   else if(true == mStateComplete)
@@ -279,7 +368,7 @@ void Kleaner::process_state()
     // Check if we are processing the process state list
     // if so, set it current state and advance the iterator to
     // the next state    
-    else if(mProcessStateIter != mProcessStates.end())
+    else if(mProcessStateIter != NULL)
     {
       mCurrentState = *mProcessStateIter;
       mProcessStateIter++;
@@ -326,6 +415,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     if(true == is_process_state(aState->get_id()))
     {
+      TPRINTLN(F("IS PROCESS STATE"));
       mNextionWrapper.set_text(PROCESS_COMP_ID_TITLE, aState->get_state_name());
     }
   }
@@ -350,7 +440,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       // Nothing to do here. Once enter button is pressed, this 
       // flag will be reset and processing will continue
     }
-    else if(aState->process_list_iter() != aState->process_list().end())
+    else if(aState->process_list_iter() != NULL)
     {
       ProcessStep *lCurrentStep = *aState->process_list_iter();
 
@@ -379,15 +469,33 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           if(PAGE_ID_COMPLETE == lStep->get_page_id())
           {
             int lDelta = mProcessTimer.delta_in_secs();
-            int lMin = lDelta / 60;
-            int lSec = lDelta - lMin * 60;
+            int lSec = lDelta % 60;
+            int lMin = ((lDelta - lSec) / 60) % 60;
 
             char *lBuffer = malloc(12);
             sprintf(lBuffer, "%02d.%02d", lMin, lSec);
             mNextionWrapper.set_text(COMPLETE_COMP_ID_DURATION, lBuffer);
             free(lBuffer);
           }
-
+          else if(PAGE_ID_CONFIRM == lStep->get_page_id())
+          {
+            if(mKegType == KegType::KegType_Half)
+            {
+              mNextionWrapper.click_button(CONFIRM_COMP_ID_HALF, NextionWrapper::TOUCH_EVENT_PRESS);
+              mNextionWrapper.click_button(CONFIRM_COMP_ID_HALF, NextionWrapper::TOUCH_EVENT_RELEASE);
+            }
+            else if(mKegType == KegType::KegType_Sixtel)
+            {
+              mNextionWrapper.click_button(CONFIRM_COMP_ID_SIXTLE, NextionWrapper::TOUCH_EVENT_PRESS);
+              mNextionWrapper.click_button(CONFIRM_COMP_ID_SIXTLE, NextionWrapper::TOUCH_EVENT_RELEASE);
+            }
+            else 
+            {
+              mKegType = KegType::KegType_Sixtel;
+              mNextionWrapper.click_button(CONFIRM_COMP_ID_SIXTLE, NextionWrapper::TOUCH_EVENT_PRESS);
+              mNextionWrapper.click_button(CONFIRM_COMP_ID_SIXTLE, NextionWrapper::TOUCH_EVENT_RELEASE);
+            }
+          }
         } break;
 
         case ProcessStep::Type::Display_Text:
@@ -557,7 +665,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   // Check to see if our processing time has completed 
   // Note if 0 value timer is disabled
   if(true == lProcessListComplete)
-  {
+  {  
     return true;
   }
 
@@ -585,11 +693,18 @@ void Kleaner::set_all_off()
 bool Kleaner::is_process_state(unsigned char aStateId)
 {
   if(aStateId == mProcessInitState.get_id()  || 
-     aStateId == mProcessPurgeState.get_id() ||
-     aStateId == mProcessRinseState.get_id() ||
-     aStateId == mProcessSaniState.get_id()  ||
-     aStateId == mProcessWashState.get_id()  ||
-     aStateId == mProcessPressState.get_id() ||
+     aStateId == mProcessPurgeStateSixtel.get_id() ||
+     aStateId == mProcessRinseStateSixtel.get_id() ||
+     aStateId == mProcessSaniStateSixtel.get_id()  ||
+     aStateId == mProcessWashStateSixtel.get_id()  ||
+     aStateId == mProcessPressStateSixtel.get_id() ||
+
+     aStateId == mProcessPurgeStateHalf.get_id() ||
+     aStateId == mProcessRinseStateHalf.get_id() ||
+     aStateId == mProcessSaniStateHalf.get_id()  ||
+     aStateId == mProcessWashStateHalf.get_id()  ||
+     aStateId == mProcessPressStateHalf.get_id() ||
+
      aStateId == mProcessShutdownState.get_id())
   {
     return true;
@@ -647,10 +762,14 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
       if(aCompId == CONFIRM_BUTTON_ID_YES)
       {
         // Compute total processing time
-        mProcessStateIter = mProcessStates.begin(); 
+        if(mKegType == KegType::KegType_Half)
+          mProcessStateIter = mProcessStatesHalf.begin(); 
+        else
+          mProcessStateIter = mProcessStatesSixtel.begin(); 
+        
         mTotalProcessingTime = 0;
         
-        while(mProcessStateIter != mProcessStates.end())
+        while(mProcessStateIter != NULL)
         {
           KleanerState *lCurrentState = *mProcessStateIter;
           mTotalProcessingTime += lCurrentState->get_total_process_time_in_sec();
@@ -658,15 +777,30 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
         }
 
         // Setup list for processing
-        mProcessStateIter = mProcessStates.begin(); 
+        // Compute total processing time
+        if(mKegType == KegType::KegType_Half)
+          mProcessStateIter = mProcessStatesHalf.begin(); 
+        else
+          mProcessStateIter = mProcessStatesSixtel.begin(); 
+
         mInProcessWaitForInput = false;
         mProcessTimer.reset();
       }
       // No Button
       else if(aCompId == CONFIRM_BUTTON_ID_NO)
       {      
-        mProcessStateIter = mProcessStates.end();
+        mProcessStateIter = NULL;
         mInProcessWaitForInput = false;  
+      }
+      else if(aCompId == CONFIRM_RADIO_ID_SIXTEL)
+      {
+        TPRINTLN(F("Sixtel Keg set"));
+        mKegType = KegType::KegType_Sixtel;
+      }
+      else if(aCompId == CONFIRM_RADIO_ID_HALF)
+      {
+        TPRINTLN(F("Half Keg set"));
+        mKegType = KegType::KegType_Half;
       }
     }
   }
@@ -771,35 +905,35 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 
         case TEST_PHASE_BUTTON_ID_PURGE:
         {
-          mCommandState = &mProcessPurgeState;
+          mCommandState = &mProcessPurgeStateSixtel;
           mReturnToState = &mTestPhaseState;
           mNextionWrapper.set_page(PAGE_ID_PROCESS);
         } break;
 
         case TEST_PHASE_BUTTON_ID_WASH:
         {
-          mCommandState = &mProcessWashState;
+          mCommandState = &mProcessWashStateSixtel;
           mReturnToState = &mTestPhaseState;
           mNextionWrapper.set_page(PAGE_ID_PROCESS);
         } break;
 
         case TEST_PHASE_BUTTON_ID_RINSE:
         {
-          mCommandState = &mProcessRinseState;
+          mCommandState = &mProcessRinseStateSixtel;
           mReturnToState = &mTestPhaseState;
           mNextionWrapper.set_page(PAGE_ID_PROCESS);
         } break;
 
         case TEST_PHASE_BUTTON_ID_SANI:
         {
-          mCommandState = &mProcessSaniState;
+          mCommandState = &mProcessSaniStateSixtel;
           mReturnToState = &mTestPhaseState;
           mNextionWrapper.set_page(PAGE_ID_PROCESS);
         } break;
 
         case TEST_PHASE_BUTTON_ID_PRESSURE:
         {
-          mCommandState = &mProcessPressState;
+          mCommandState = &mProcessPressStateSixtel;
           mReturnToState = &mTestPhaseState;
           mNextionWrapper.set_page(PAGE_ID_PROCESS);
         } break;

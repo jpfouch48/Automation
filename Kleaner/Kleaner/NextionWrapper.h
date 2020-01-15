@@ -58,6 +58,12 @@ class NextionWrapper
     // ************************************************************************
     void set_background_color(char *aComp, uint16_t aValue);
 
+    // ************************************************************************
+    //
+    // ************************************************************************
+    void click_button(char *aComp, byte aEventType);
+
+
   protected:
 
   private:
