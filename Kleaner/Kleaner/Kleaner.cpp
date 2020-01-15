@@ -127,7 +127,7 @@ void Kleaner::setup()
   // Rinse State
   // --------------------------------------------------------------------------
   mProcessRinseState.add_process_step(new ProcessStepOutputWaste());
-  for(int lnRinseIndex = 0; lnRinseIndex < 2; lnRinseIndex++)
+  for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
   {
     mProcessRinseState.add_process_step(new ProcessStepInputWater(5));  
     mProcessRinseState.add_process_step(new ProcessStepPumpOn(15));
@@ -139,7 +139,7 @@ void Kleaner::setup()
       mProcessRinseState.add_process_step(new ProcessStepCo2On(1));
       mProcessRinseState.add_process_step(new ProcessStepCo2Off(2));
     }
-    mProcessRinseState.add_process_step(new ProcessStepDelay(30));  // JPF - was 20 added more for 1/2 keg
+    mProcessRinseState.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
   }
   mProcessRinseState.add_process_step(new ProcessStepOutputOff());
 
@@ -157,7 +157,7 @@ void Kleaner::setup()
     mProcessSaniState.add_process_step(new ProcessStepCo2On(1));
     mProcessSaniState.add_process_step(new ProcessStepCo2Off(2));
   }
-  mProcessSaniState.add_process_step(new ProcessStepDelay(30));  // JPF - was 20 added more for 1/2 keg
+  mProcessSaniState.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
 
   mProcessSaniState.add_process_step(new ProcessStepOutputOff());
 
@@ -176,7 +176,7 @@ void Kleaner::setup()
       mProcessWashState.add_process_step(new ProcessStepCo2On(1));
       mProcessWashState.add_process_step(new ProcessStepCo2Off(2));
     }
-    mProcessWashState.add_process_step(new ProcessStepDelay(45));  // JPF - was 35 added more for 1/2 keg
+    mProcessWashState.add_process_step(new ProcessStepDelay(30));  // JPF - was 20 added more for 1/2 keg
   }
   mProcessWashState.add_process_step(new ProcessStepOutputOff());
   
