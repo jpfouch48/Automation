@@ -40,7 +40,6 @@ class Kleaner : NextionDataHandler
 
     void set_all_off();
 
-    bool is_process_state(unsigned char aStateId);
     void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char *aCompId);
     void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId);
 

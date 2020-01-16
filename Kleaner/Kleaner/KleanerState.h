@@ -13,13 +13,14 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(char *aStateName);
+  KleanerState(char *aStateName, bool aIsProcessState);
 
   // **************************************************************************
   // Accessor functions
   //***************************************************************************
   int                    get_id()                const { return mId;             }
   const char *           get_state_name()        const { return mStateName;      }
+  bool                   is_process_state()      const { return mIsProcessState; }
 
   // **************************************************************************
   //
@@ -74,6 +75,7 @@ private:
   char                     *mStateName;
   LinkedList<ProcessStep*>  mProcessSteps;
   Iterator<ProcessStep*>    mProcessStepIter;
+  bool                      mIsProcessState;  
   static unsigned char      gStateCount;
 };
 

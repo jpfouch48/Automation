@@ -21,27 +21,28 @@ Kleaner::Kleaner() :
     mReCleanerWrapper           (DO_PIN_RECIRC_CLEANER,         LOW),
 
     // States
-    mSplashState                ("Splash"),
-    mMenuState                  ("Menu"),
-    mTestOutputState            ("Test Output"),
-    mTestPhaseState             ("Test Phase"),
-    mConfirmState               ("Confirm"),
-    mCompleteState              ("Complete"),
+    mSplashState                ("Splash",       false),
+    mMenuState                  ("Menu",         false),
+    mTestOutputState            ("Test Output",  false),
+    mTestPhaseState             ("Test Phase",   false),
+    mConfirmState               ("Confirm",      false),
+    mCompleteState              ("Complete",     false),
     
-    mProcessInitState           ("Init"),
-    mProcessPurgeStateSixtel    ("Purge"),
-    mProcessRinseStateSixtel    ("Rinse"),
-    mProcessSaniStateSixtel     ("Sani"),
-    mProcessWashStateSixtel     ("Wash"),
-    mProcessPressStateSixtel    ("Pressure"),
+    mProcessInitState           ("Init",         true),
 
-    mProcessPurgeStateHalf      ("Purge 1/2"),
-    mProcessRinseStateHalf      ("Rinse 1/2"),
-    mProcessSaniStateHalf       ("Sani 1/2"),
-    mProcessWashStateHalf       ("Wash 1/2"),
-    mProcessPressStateHalf      ("Pressure 1/2"),
+    mProcessPurgeStateSixtel    ("Purge",        true),
+    mProcessRinseStateSixtel    ("Rinse",        true),
+    mProcessSaniStateSixtel     ("Sani",         true),
+    mProcessWashStateSixtel     ("Wash",         true),
+    mProcessPressStateSixtel    ("Pressure",     true),
 
-    mProcessShutdownState       ("Shutdown"),
+    mProcessPurgeStateHalf      ("Purge 1/2",    true),
+    mProcessRinseStateHalf      ("Rinse 1/2",    true),
+    mProcessSaniStateHalf       ("Sani 1/2",     true),
+    mProcessWashStateHalf       ("Wash 1/2",     true),
+    mProcessPressStateHalf      ("Pressure 1/2", true),
+
+    mProcessShutdownState       ("Shutdown",     true),
 
     // State Pointers - We are starting with the splash screen
     // once the splash is done, the menu state is initiated
@@ -413,7 +414,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     mCurrentStateTimer.reset();
 
-    if(true == is_process_state(aState->get_id()))
+    if(aState->is_process_state())
     {
       TPRINTLN(F("IS PROCESS STATE"));
       mNextionWrapper.set_text(PROCESS_COMP_ID_TITLE, aState->get_state_name());
@@ -566,25 +567,10 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
           mReCleanerWrapper.set_state(LOW); 
         } break;     
 
-        case ProcessStep::Type::Co2_Off:
-        {
-          mCo2Wrapper.set_state(LOW);
-        } break;     
-
-        case ProcessStep::Type::Co2_On:
-        {
-          mCo2Wrapper.set_state(HIGH);
-        } break;    
-
-        case ProcessStep::Type::Pump_Off:
-        {
-          mPumpWrapper.set_state(LOW);
-        } break;     
-
-        case ProcessStep::Type::Pump_On:
-        {
-          mPumpWrapper.set_state(HIGH);
-        } break;                      
+        case ProcessStep::Type::Co2_Off:  { mCo2Wrapper.set_state(LOW);   } break;     
+        case ProcessStep::Type::Co2_On:   { mCo2Wrapper.set_state(HIGH);  } break;    
+        case ProcessStep::Type::Pump_Off: { mPumpWrapper.set_state(LOW);  } break;     
+        case ProcessStep::Type::Pump_On:  { mPumpWrapper.set_state(HIGH); } break;                      
         
         default:
           // TODO: Should not get here but lets flag an error
@@ -610,7 +596,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
     }
 
     // State Specific processing
-    if(true == is_process_state(aState->get_id()))
+    if(aState->is_process_state())
     {
       if(0 != aState->get_total_process_time_in_sec())
       {
@@ -685,32 +671,6 @@ void Kleaner::set_all_off()
   mReWasteWrapper.reset();
   mReSaniWrapper.reset();
   mReCleanerWrapper.reset();
-}
-
-// ****************************************************************************
-// See header file for details
-// ****************************************************************************
-bool Kleaner::is_process_state(unsigned char aStateId)
-{
-  if(aStateId == mProcessInitState.get_id()  || 
-     aStateId == mProcessPurgeStateSixtel.get_id() ||
-     aStateId == mProcessRinseStateSixtel.get_id() ||
-     aStateId == mProcessSaniStateSixtel.get_id()  ||
-     aStateId == mProcessWashStateSixtel.get_id()  ||
-     aStateId == mProcessPressStateSixtel.get_id() ||
-
-     aStateId == mProcessPurgeStateHalf.get_id() ||
-     aStateId == mProcessRinseStateHalf.get_id() ||
-     aStateId == mProcessSaniStateHalf.get_id()  ||
-     aStateId == mProcessWashStateHalf.get_id()  ||
-     aStateId == mProcessPressStateHalf.get_id() ||
-
-     aStateId == mProcessShutdownState.get_id())
-  {
-    return true;
-  }
-
-  return false;
 }
 
 // ****************************************************************************
@@ -940,7 +900,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
       }
     }
   }  
-  else if(is_process_state(mCurrentState->get_id()))
+  else if(mCurrentState->is_process_state())
   {
     if(aPageId == PAGE_ID_PROCESS)
     {
