@@ -11,7 +11,7 @@
 // ****************************************************************************
 // Version Define
 // ****************************************************************************
-#define KLEANER_VERSION                   "0.4.1"
+#define KLEANER_VERSION                   "0.4.2"
 
 // ****************************************************************************
 //  Digital I/O Pin definitions
@@ -21,7 +21,6 @@
 #define DO_PIN_PUMP                       11
 #define DO_PIN_RELAY_CO2                  10
 #define DO_PIN_RECIRC_SANITIZER           9
-#define DO_PIN_RECIRC_WASTE               8
 #define DO_PIN_RECIRC_CLEANER             7
 
 // Motor Controller outputs (ball valves)
@@ -31,6 +30,9 @@
 #define DO_PIN_MOTOR_IN_CLEANER_2         3
 #define DO_PIN_MOTOR_IN_SANITIZER_1       2
 #define DO_PIN_MOTOR_IN_SANITIZER_2       14
+#define DO_PIN_RECIRC_WASTE_1             8
+#define DO_PIN_RECIRC_WASTE_2             15
+
 
 
 // ****************************************************************************

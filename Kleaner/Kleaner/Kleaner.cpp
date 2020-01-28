@@ -16,7 +16,7 @@ Kleaner::Kleaner() :
     mInWaterWrapper             (DO_PIN_MOTOR_IN_WATER_1,       DO_PIN_MOTOR_IN_WATER_2),
     mInCleanerWrapper           (DO_PIN_MOTOR_IN_CLEANER_1,     DO_PIN_MOTOR_IN_CLEANER_2),
     mInSaniWrapper              (DO_PIN_MOTOR_IN_SANITIZER_1,   DO_PIN_MOTOR_IN_SANITIZER_2),
-    mReWasteWrapper             (DO_PIN_RECIRC_WASTE,           LOW),
+    mReWasteWrapper             (DO_PIN_RECIRC_WASTE_1,         DO_PIN_RECIRC_WASTE_2),
     mReSaniWrapper              (DO_PIN_RECIRC_SANITIZER,       LOW),
     mReCleanerWrapper           (DO_PIN_RECIRC_CLEANER,         LOW),
 
@@ -62,7 +62,7 @@ Kleaner::Kleaner() :
     mPrevInWaterState           (BallValveWrapper::State::Unknown),
     mPrevInCleanerState         (BallValveWrapper::State::Unknown),
     mPrevInSanitizerState       (BallValveWrapper::State::Unknown),
-    mPrevReWasteState           (-1),
+    mPrevReWasteState           (BallValveWrapper::State::Unknown),
     mPrevReCleanerState         (-1),
     mPrevReSanitizerState       (-1),  
     mPrevStatePercentComplete   (-1),     
@@ -130,19 +130,19 @@ void Kleaner::setup()
   mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputWaste(5));
   mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2On(5));
   mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2Off(5));
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputOff());
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputOff(5));
 
   // Purge State (Half)
   // --------------------------------------------------------------------------
   mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputWaste(5));
   mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2On(5));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2Off(15)); // JPF - was 5 added more for 1/2 keg
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputOff());
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2Off(15));
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputOff(5));
 
 
   // Rinse State
   // --------------------------------------------------------------------------
-  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputWaste());
+  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputWaste(5));
   for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
   {
     mProcessRinseStateSixtel.add_process_step(new ProcessStepInputWater(5));  
@@ -157,11 +157,11 @@ void Kleaner::setup()
     }
     mProcessRinseStateSixtel.add_process_step(new ProcessStepDelay(10));
   }
-  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputOff());
+  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputOff(5));
 
   // Rinse State (Half)
   // --------------------------------------------------------------------------
-  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputWaste());
+  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputWaste(5));
   for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
   {
     mProcessRinseStateHalf.add_process_step(new ProcessStepInputWater(5));  
@@ -176,7 +176,7 @@ void Kleaner::setup()
     }
     mProcessRinseStateHalf.add_process_step(new ProcessStepDelay(20));  // JPF - was 10 added more for 1/2 keg
   }
-  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputOff());
+  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputOff(5));
 
   // Sani State
   // --------------------------------------------------------------------------
@@ -541,28 +541,28 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Output_Off:
         {
-          mReWasteWrapper.set_state(LOW);
+          mReWasteWrapper.set_state(BallValveWrapper::State::Close);
           mReSaniWrapper.set_state(LOW);
           mReCleanerWrapper.set_state(LOW); 
         } break;
 
         case ProcessStep::Type::Output_Waste:
         {
-          mReWasteWrapper.set_state(HIGH);
+          mReWasteWrapper.set_state(BallValveWrapper::State::Open);
           mReSaniWrapper.set_state(LOW);
           mReCleanerWrapper.set_state(LOW); 
         } break;
 
         case ProcessStep::Type::Output_Cleaner:
         {
-          mReWasteWrapper.set_state(LOW);
+          mReWasteWrapper.set_state(BallValveWrapper::State::Close);
           mReSaniWrapper.set_state(LOW);
           mReCleanerWrapper.set_state(HIGH); 
         } break;
 
         case ProcessStep::Type::Output_Sanitizer:
         {
-          mReWasteWrapper.set_state(LOW);
+          mReWasteWrapper.set_state(BallValveWrapper::State::Close);
           mReSaniWrapper.set_state(HIGH);
           mReCleanerWrapper.set_state(LOW); 
         } break;     
@@ -812,10 +812,10 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 
         case TEST_OUTPUT_BUTTON_ID_RE_WASTE:
         {
-          if(mReWasteWrapper.get_state() == HIGH)
-            mReWasteWrapper.set_state(LOW);
+          if(mReWasteWrapper.get_state() == BallValveWrapper::State::Close)
+            mReWasteWrapper.set_open();
           else
-            mReWasteWrapper.set_state(HIGH);            
+            mReWasteWrapper.set_close();         
         } break;
 
         case TEST_OUTPUT_BUTTON_ID_RE_CLEANER:
