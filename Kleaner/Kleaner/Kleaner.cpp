@@ -260,7 +260,7 @@ void Kleaner::setup()
 
   // Pressurize State (Half)
   // --------------------------------------------------------------------------
-  mProcessPressStateHalf.add_process_step(new ProcessStepCo2On(10));
+  mProcessPressStateHalf.add_process_step(new ProcessStepCo2On(20));
   mProcessPressStateHalf.add_process_step(new ProcessStepCo2Off());
 
   // Shutdown
