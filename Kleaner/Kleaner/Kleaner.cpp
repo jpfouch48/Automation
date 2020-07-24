@@ -17,8 +17,8 @@ Kleaner::Kleaner() :
     mInCleanerWrapper           (DO_PIN_MOTOR_IN_CLEANER_1,     DO_PIN_MOTOR_IN_CLEANER_2),
     mInSaniWrapper              (DO_PIN_MOTOR_IN_SANITIZER_1,   DO_PIN_MOTOR_IN_SANITIZER_2),
     mReWasteWrapper             (DO_PIN_RECIRC_WASTE_1,         DO_PIN_RECIRC_WASTE_2),
-    mReSaniWrapper              (DO_PIN_RECIRC_SANITIZER,       LOW),
-    mReCleanerWrapper           (DO_PIN_RECIRC_CLEANER,         LOW),
+    mReSaniWrapper              (DO_PIN_RECIRC_SANITIZER_1,     DO_PIN_RECIRC_SANITIZER_2),
+    mReCleanerWrapper           (DO_PIN_RECIRC_CLEANER_1,       DO_PIN_RECIRC_CLEANER_2),
 
     // States
     mSplashState                ("Splash",       false),
@@ -63,8 +63,8 @@ Kleaner::Kleaner() :
     mPrevInCleanerState         (BallValveWrapper::State::Unknown),
     mPrevInSanitizerState       (BallValveWrapper::State::Unknown),
     mPrevReWasteState           (BallValveWrapper::State::Unknown),
-    mPrevReCleanerState         (-1),
-    mPrevReSanitizerState       (-1),  
+    mPrevReCleanerState         (BallValveWrapper::State::Unknown),
+    mPrevReSanitizerState       (BallValveWrapper::State::Unknown),  
     mPrevStatePercentComplete   (-1),     
     mPrevProcessPercentComplete (-1),
     mKegType                    (KegType::KegType_Sixtel)      
@@ -542,29 +542,29 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
         case ProcessStep::Type::Output_Off:
         {
           mReWasteWrapper.set_state(BallValveWrapper::State::Close);
-          mReSaniWrapper.set_state(LOW);
-          mReCleanerWrapper.set_state(LOW); 
+          mReSaniWrapper.set_state(BallValveWrapper::State::Close);
+          mReCleanerWrapper.set_state(BallValveWrapper::State::Close); 
         } break;
 
         case ProcessStep::Type::Output_Waste:
         {
           mReWasteWrapper.set_state(BallValveWrapper::State::Open);
-          mReSaniWrapper.set_state(LOW);
-          mReCleanerWrapper.set_state(LOW); 
+          mReSaniWrapper.set_state(BallValveWrapper::State::Close);
+          mReCleanerWrapper.set_state(BallValveWrapper::State::Close); 
         } break;
 
         case ProcessStep::Type::Output_Cleaner:
         {
           mReWasteWrapper.set_state(BallValveWrapper::State::Close);
-          mReSaniWrapper.set_state(LOW);
-          mReCleanerWrapper.set_state(HIGH); 
+          mReSaniWrapper.set_state(BallValveWrapper::State::Close);
+          mReCleanerWrapper.set_state(BallValveWrapper::State::Open); 
         } break;
 
         case ProcessStep::Type::Output_Sanitizer:
         {
           mReWasteWrapper.set_state(BallValveWrapper::State::Close);
-          mReSaniWrapper.set_state(HIGH);
-          mReCleanerWrapper.set_state(LOW); 
+          mReSaniWrapper.set_state(BallValveWrapper::State::Open);
+          mReCleanerWrapper.set_state(BallValveWrapper::State::Close); 
         } break;     
 
         case ProcessStep::Type::Co2_Off:  { mCo2Wrapper.set_state(LOW);   } break;     
@@ -820,18 +820,18 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 
         case TEST_OUTPUT_BUTTON_ID_RE_CLEANER:
         {
-          if(mReCleanerWrapper.get_state() == HIGH)
-            mReCleanerWrapper.set_state(LOW);
+          if(mReCleanerWrapper.get_state() == BallValveWrapper::State::Close)
+            mReCleanerWrapper.set_open();
           else
-            mReCleanerWrapper.set_state(HIGH);          
+            mReCleanerWrapper.set_close();         
         } break;
 
         case TEST_OUTPUT_BUTTON_ID_RE_SANITIZER:
         {
-          if(mReSaniWrapper.get_state() == HIGH)
-            mReSaniWrapper.set_state(LOW);
+          if(mReSaniWrapper.get_state() == BallValveWrapper::State::Close)
+            mReSaniWrapper.set_open();
           else
-            mReSaniWrapper.set_state(HIGH);
+            mReSaniWrapper.set_close();      
         } break;
 
         case TEST_OUTPUT_BUTTON_ID_PUMP:

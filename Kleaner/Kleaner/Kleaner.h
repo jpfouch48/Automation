@@ -54,8 +54,8 @@ class Kleaner : NextionDataHandler
     BallValveWrapper          mInSaniWrapper;
     BallValveWrapper          mInCleanerWrapper;
     BallValveWrapper          mReWasteWrapper;
-    OutputWrapper             mReSaniWrapper;
-    OutputWrapper             mReCleanerWrapper; 
+    BallValveWrapper          mReSaniWrapper;
+    BallValveWrapper          mReCleanerWrapper; 
 
     // States
     KleanerState             *mCurrentState;
@@ -111,8 +111,8 @@ class Kleaner : NextionDataHandler
     BallValveWrapper::State   mPrevInCleanerState;
     BallValveWrapper::State   mPrevInSanitizerState;
     BallValveWrapper::State   mPrevReWasteState;
-    int                       mPrevReCleanerState;
-    int                       mPrevReSanitizerState;   
+    BallValveWrapper::State   mPrevReCleanerState;
+    BallValveWrapper::State   mPrevReSanitizerState;   
     int                       mPrevStatePercentComplete;
     int                       mPrevProcessPercentComplete;
     KegType                   mKegType;

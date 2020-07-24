@@ -11,7 +11,7 @@
 // ****************************************************************************
 // Version Define
 // ****************************************************************************
-#define KLEANER_VERSION                   "0.4.2"
+#define KLEANER_VERSION                   "0.4.5"
 
 // ****************************************************************************
 //  Digital I/O Pin definitions
@@ -20,8 +20,6 @@
 // Normal Relay outputs
 #define DO_PIN_PUMP                       11
 #define DO_PIN_RELAY_CO2                  10
-#define DO_PIN_RECIRC_SANITIZER           9
-#define DO_PIN_RECIRC_CLEANER             7
 
 // Motor Controller outputs (ball valves)
 #define DO_PIN_MOTOR_IN_WATER_1           6
@@ -33,6 +31,11 @@
 #define DO_PIN_RECIRC_WASTE_1             8
 #define DO_PIN_RECIRC_WASTE_2             15
 
+#define DO_PIN_RECIRC_SANITIZER_1           9
+#define DO_PIN_RECIRC_SANITIZER_2          12
+
+#define DO_PIN_RECIRC_CLEANER_1             7
+#define DO_PIN_RECIRC_CLEANER_2            13
 
 
 // ****************************************************************************
