@@ -44,7 +44,7 @@ void NextionWrapper::loop()
 // ****************************************************************************
 void NextionWrapper::set_text(char *aComp, char *aValue)
 {
-  TPRINT(aComp);
+  TSPRINT(aComp);
   TPRINT(".txt=\"");
   TPRINT(aValue);
   TPRINTLN("\"");
@@ -61,9 +61,9 @@ void NextionWrapper::set_text(char *aComp, char *aValue)
 // ****************************************************************************
 void NextionWrapper::set_value(char *aComp, int aValue)
 {
-  TPRINT(aComp);
-  TPRINT(".val=");
-  TPRINTLN(aValue);
+//  TSPRINT(aComp);
+//  TPRINT(".val=");
+//  TPRINTLN(aValue);
 
   Serial1.print(aComp);
   Serial1.print(".val=");
@@ -76,7 +76,7 @@ void NextionWrapper::set_value(char *aComp, int aValue)
 // ****************************************************************************
 void NextionWrapper::set_page(int aPageId)
 {
-  TPRINT("page ");
+  TSPRINT("page ");
   TPRINTLN(aPageId);  
 
   Serial1.print("page ");
@@ -89,9 +89,9 @@ void NextionWrapper::set_page(int aPageId)
 // ****************************************************************************
 void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
 {
-  TPRINT(aComp);
-  TPRINT(".bco=");
-  TPRINTLN(aValue);
+//  TSPRINT(aComp);
+//  TPRINT(".bco=");
+//  TPRINTLN(aValue);
 
   Serial1.print(aComp);
   Serial1.print(".bco=");
@@ -104,7 +104,7 @@ void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
 // ****************************************************************************
 void NextionWrapper::click_button(char *aComp, byte aEventType)
 {
-  TPRINT("click ");
+  TSPRINT("click ");
   TPRINT(aComp);
   TPRINT(",");
   TPRINTLN(aEventType);

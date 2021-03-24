@@ -76,7 +76,7 @@ Kleaner::Kleaner() :
 // ****************************************************************************    
 void Kleaner::setup()
 {
-  TPRINTLN(F("Kleaner::setup - enter"));
+  TSPRINTLN(F("Kleaner::setup - enter"));
 
   // Init Nextion
   mNextionWrapper.setup(this);  
@@ -216,7 +216,7 @@ void Kleaner::setup()
 
   // Wash State
   // --------------------------------------------------------------------------
-  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputCleaner());
+  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputCleaner(5));
   for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
   {
     mProcessWashStateSixtel.add_process_step(new ProcessStepInputCleaner(5));
@@ -235,7 +235,7 @@ void Kleaner::setup()
 
   // Wash State (Half)
   // --------------------------------------------------------------------------
-  mProcessWashStateHalf.add_process_step(new ProcessStepOutputCleaner());
+  mProcessWashStateHalf.add_process_step(new ProcessStepOutputCleaner(5));
   for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
   {
     mProcessWashStateHalf.add_process_step(new ProcessStepInputCleaner(5));
@@ -300,7 +300,7 @@ void Kleaner::setup()
   // Default it to the end until we start the process from the start menu
   mProcessStateIter = NULL;  
 
-  TPRINTLN(F("Kleaner::setup - exit"));
+  TSPRINTLN(F("Kleaner::setup - exit"));
 }
 
 // ****************************************************************************
@@ -341,7 +341,7 @@ void Kleaner::process_state()
   // A new state has been commanded, transition to it
   if (mCommandState != NULL)
   {
-    TPRINT(F("Commanding State: "));
+    TSPRINT(F("Commanding State: "));
     TPRINTLN(mCommandState->get_state_name());
 
     mCurrentState = mCommandState;
@@ -354,7 +354,7 @@ void Kleaner::process_state()
   // Check to see if current state is completed.
   else if(true == mStateComplete)
   {
-    TPRINT(F("Complete State: "));
+    TSPRINT(F("Complete State: "));
     TPRINTLN(mCurrentState->get_state_name());
 
     // Current state complete, setup next state
@@ -398,7 +398,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
   // Check to see if this is our first time in this state
   if(aInitState)
   {
-    TPRINT(F("Init State: "));
+    TSPRINT(F("Init State: "));
     TPRINT(F(" ID: "));
     TPRINT(aState->get_id());
     TPRINT(F(" Duration: "));
@@ -416,7 +416,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
     if(aState->is_process_state())
     {
-      TPRINTLN(F("IS PROCESS STATE"));
+      TSPRINTLN(F("IS PROCESS STATE"));
       mNextionWrapper.set_text(PROCESS_COMP_ID_TITLE, aState->get_state_name());
     }
   }
@@ -429,8 +429,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       // Check to see if our delay has
       if(mProcessDelayTimer.delta_in_secs() >= mProcessDelayInSec)
       {
-        TPRINT(aState->get_state_name());
-        TPRINTLN(F(" - Delay Complete"));
+        TPRINTLN(F(" - Complete"));
 
         mInProcessDelay = false;
         mProcessDelayInSec = 0;
@@ -448,12 +447,12 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
       switch(lCurrentStep->get_type())
       {
         case ProcessStep::Type::Reset_Outputs:
-          TPRINTLN(F("All OFF"));
+          TSPRINTLN(F("All OFF"));
           set_all_off();
         break;
 
         case ProcessStep::Type::Wait_For_Input:
-          TPRINTLN(F("Wait for input "));
+          TSPRINTLN(F("Wait for input "));
           mInProcessWaitForInput = true;
         break;
 
@@ -513,6 +512,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Input_Off:
         {
+          TSPRINTLN(F("IN - W:C S:C C:C"));
           mInWaterWrapper.set_state(BallValveWrapper::State::Close);
           mInSaniWrapper.set_state(BallValveWrapper::State::Close);
           mInCleanerWrapper.set_state(BallValveWrapper::State::Close);
@@ -520,6 +520,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Input_Water:
         {
+          TSPRINTLN(F("IN - W:O S:C C:C"));
           mInWaterWrapper.set_state(BallValveWrapper::State::Open);
           mInSaniWrapper.set_state(BallValveWrapper::State::Close);
           mInCleanerWrapper.set_state(BallValveWrapper::State::Close);
@@ -527,6 +528,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Input_Cleaner:
         {
+          TSPRINTLN(F("IN - W:C S:C C:O"));
           mInWaterWrapper.set_state(BallValveWrapper::State::Close);
           mInSaniWrapper.set_state(BallValveWrapper::State::Close);
           mInCleanerWrapper.set_state(BallValveWrapper::State::Open);
@@ -534,6 +536,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Input_Sanitizer:
         {
+          TSPRINTLN(F("IN - W:C S:O C:C"));
           mInWaterWrapper.set_state(BallValveWrapper::State::Close);
           mInSaniWrapper.set_state(BallValveWrapper::State::Open);
           mInCleanerWrapper.set_state(BallValveWrapper::State::Close);
@@ -541,6 +544,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Output_Off:
         {
+          TSPRINTLN(F("RE - W:C S:C C:C"));
           mReWasteWrapper.set_state(BallValveWrapper::State::Close);
           mReSaniWrapper.set_state(BallValveWrapper::State::Close);
           mReCleanerWrapper.set_state(BallValveWrapper::State::Close); 
@@ -548,6 +552,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Output_Waste:
         {
+          TSPRINTLN(F("RE - W:O S:C C:C"));
           mReWasteWrapper.set_state(BallValveWrapper::State::Open);
           mReSaniWrapper.set_state(BallValveWrapper::State::Close);
           mReCleanerWrapper.set_state(BallValveWrapper::State::Close); 
@@ -555,6 +560,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Output_Cleaner:
         {
+          TSPRINTLN(F("RE - W:C S:C C:O"));
           mReWasteWrapper.set_state(BallValveWrapper::State::Close);
           mReSaniWrapper.set_state(BallValveWrapper::State::Close);
           mReCleanerWrapper.set_state(BallValveWrapper::State::Open); 
@@ -562,26 +568,47 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 
         case ProcessStep::Type::Output_Sanitizer:
         {
+          TSPRINTLN(F("RE - W:C S:O C:C"));
           mReWasteWrapper.set_state(BallValveWrapper::State::Close);
           mReSaniWrapper.set_state(BallValveWrapper::State::Open);
           mReCleanerWrapper.set_state(BallValveWrapper::State::Close); 
         } break;     
 
-        case ProcessStep::Type::Co2_Off:  { mCo2Wrapper.set_state(LOW);   } break;     
-        case ProcessStep::Type::Co2_On:   { mCo2Wrapper.set_state(HIGH);  } break;    
-        case ProcessStep::Type::Pump_Off: { mPumpWrapper.set_state(LOW);  } break;     
-        case ProcessStep::Type::Pump_On:  { mPumpWrapper.set_state(HIGH); } break;                      
+        case ProcessStep::Type::Co2_Off:  
+        { 
+          TSPRINTLN(F("CO2 OFF"));
+          mCo2Wrapper.set_state(LOW);   
+        } break;     
+        
+        case ProcessStep::Type::Co2_On:   
+        { 
+          TSPRINTLN(F("CO2 ON"));
+          mCo2Wrapper.set_state(HIGH);  
+        } break;    
+        
+        case ProcessStep::Type::Pump_Off: 
+        {
+          TSPRINTLN(F("PUMP OFF"));
+          mPumpWrapper.set_state(LOW);  
+        } break;     
+        
+        case ProcessStep::Type::Pump_On:  
+        {
+          TSPRINTLN(F("PUMP ON"));
+          mPumpWrapper.set_state(HIGH); 
+        } break;                      
         
         default:
           // TODO: Should not get here but lets flag an error
+          TSPRINTLN(F("!!!! UNKNOWN Process step !!!!"));
         break;
       }
 
       // If this step is delayed, set the delay timer
       if(0 != lCurrentStep->get_delay())
       {
-        TPRINT(F("Delay "));
-        TPRINTLN(lCurrentStep->get_delay());
+        TSPRINT(F("Delay "));
+        TPRINT(lCurrentStep->get_delay());
         mInProcessDelay = true;
         mProcessDelayInSec = lCurrentStep->get_delay();
         mProcessDelayTimer.reset();
@@ -663,6 +690,11 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
 // ****************************************************************************
 void Kleaner::set_all_off()          
 { 
+  TSPRINTLN(F("IN - W:C S:C C:C"));
+  TSPRINTLN(F("RE - W:C S:C C:C"));
+  TSPRINTLN(F("PUMP OFF"));
+  TSPRINTLN(F("CO2 OFF"));
+
   mCo2Wrapper.reset(); 
   mPumpWrapper.reset();
   mInWaterWrapper.reset();
@@ -678,7 +710,7 @@ void Kleaner::set_all_off()
 // ****************************************************************************
 void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 {
-  TPRINT(F("nextion_touch_event: Page "));
+  TSPRINT(F("nextion_touch_event: Page "));
   TPRINT(aPageId);
   TPRINT(" Comp ");
   TPRINT(aCompId);
@@ -754,12 +786,12 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
       }
       else if(aCompId == CONFIRM_RADIO_ID_SIXTEL)
       {
-        TPRINTLN(F("Sixtel Keg set"));
+        TSPRINTLN(F("Sixtel Keg set"));
         mKegType = KegType::KegType_Sixtel;
       }
       else if(aCompId == CONFIRM_RADIO_ID_HALF)
       {
-        TPRINTLN(F("Half Keg set"));
+        TSPRINTLN(F("Half Keg set"));
         mKegType = KegType::KegType_Half;
       }
     }
@@ -919,7 +951,7 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 // ****************************************************************************
 void Kleaner::nextion_page_event(byte aPageId)
 {
-  TPRINT(F("nextion_page_event: Page "));
+  TSPRINT(F("nextion_page_event: Page "));
   TPRINTLN(aPageId);
 }
 

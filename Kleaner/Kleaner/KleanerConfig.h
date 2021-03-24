@@ -6,12 +6,12 @@
 // ****************************************************************************
 // Debug output controls
 // ****************************************************************************
-#define TRACE_OUTPUT
+//#define TRACE_OUTPUT
 
 // ****************************************************************************
 // Version Define
 // ****************************************************************************
-#define KLEANER_VERSION                   "0.4.5"
+#define KLEANER_VERSION                   "0.4.6"
 
 // ****************************************************************************
 //  Digital I/O Pin definitions
@@ -115,9 +115,16 @@
 #if defined TRACE_OUTPUT
   #define TPRINT(...)   Serial.print(__VA_ARGS__)
   #define TPRINTLN(...) Serial.println(__VA_ARGS__)
+
+  #define TS() { char gzBuffer00001[10]; sprintf(gzBuffer00001, "%09d", millis()/1000); Serial.print(gzBuffer00001); Serial.print(F(" - ")); }
+
+  #define TSPRINT(...)   TS(); Serial.print(__VA_ARGS__)
+  #define TSPRINTLN(...) TS(); Serial.println(__VA_ARGS__)
 #else
   #define TPRINT(...)
   #define TPRINTLN(...)
+  #define TSPRINT(...)
+  #define TSPRINTLN(...)
 #endif
 
 #endif
