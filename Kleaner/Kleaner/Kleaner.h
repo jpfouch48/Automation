@@ -36,12 +36,12 @@ class Kleaner : NextionDataHandler
 
   private:
     void process_state();
-    bool process_state(const KleanerState *aState, bool aInitState);
+    bool process_state(KleanerState *aState, bool aInitState);
 
     void set_all_off();
 
-    void update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char *aCompId);
-    void update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId);
+    void update_output_display(OutputWrapper &aOutputWrapper, int &aPrevState, const char *aCompId);
+    void update_output_display(BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, const char *aCompId);
 
     // Display Manager
     NextionWrapper            mNextionWrapper;

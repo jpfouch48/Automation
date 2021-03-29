@@ -42,7 +42,7 @@ void NextionWrapper::loop()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::set_text(char *aComp, char *aValue)
+void NextionWrapper::set_text(const char *aComp, const char *aValue)
 {
   TSPRINT(aComp);
   TPRINT(".txt=\"");
@@ -59,7 +59,7 @@ void NextionWrapper::set_text(char *aComp, char *aValue)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::set_value(char *aComp, int aValue)
+void NextionWrapper::set_value(const char *aComp, int aValue)
 {
 //  TSPRINT(aComp);
 //  TPRINT(".val=");
@@ -87,7 +87,7 @@ void NextionWrapper::set_page(int aPageId)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
+void NextionWrapper::set_background_color(const char *aComp, uint16_t aValue)
 {
 //  TSPRINT(aComp);
 //  TPRINT(".bco=");
@@ -102,7 +102,7 @@ void NextionWrapper::set_background_color(char *aComp, uint16_t aValue)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void NextionWrapper::click_button(char *aComp, byte aEventType)
+void NextionWrapper::click_button(const char *aComp, byte aEventType)
 {
   TSPRINT("click ");
   TPRINT(aComp);

@@ -1,33 +1,45 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Win32-Arduino",
             "includePath": [
                 "${workspaceRoot}",
-                "C:\\bin\\arduino-1.8.13\\hardware\\arduino\\avr\\cores\\arduino",
-                "C:\\bin\\arduino-1.8.13\\hardware\\arduino\\avr\\variants\\standard",
-                "C:\\bin\\arduino-1.8.13\\hardware\\arduino\\avr\\libraries\\SoftwareSerial\\src",
-                "C:\\bin\\arduino-1.8.13\\hardware\\tools\\avr\\avr\\include",
-                "C:\\bin\\arduino-1.8.13\\hardware\\tools\\avr\\lib\\gcc\\avr\\4.9.2\\include"
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/cores/arduino/",
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/libraries/EEPROM/",
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/libraries/SPI/",
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/libraries/SoftwareSerial/src",
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/libraries/Wire/",
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/variants/mega",
+                "c:/bin/arduino-1.8.13/hardware/tools/avr/avr/include/",
+                "c:/bin/arduino-1.8.13/hardware/tools/avr/avr/include/avr/",
+                "c:/bin/arduino-1.8.13/hardware/tools/avr/avr/include/compat/",
+                "c:/bin/arduino-1.8.13/hardware/tools/avr/avr/include/util/",
+                "c:/bin/arduino-1.8.13/hardware/tools/avr/lib/gcc/avr/7.3.0/include/",
+                "c:/bin/arduino-1.8.13/hardware/tools/avr/lib/gcc/avr/7.3.0/include-fixed/"
             ],
-            "intelliSenseMode": "msvc-x64",
-            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.14.26428/bin/Hostx64/x64/cl.exe",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "c:/bin/arduino-1.8.13/hardware/arduino/avr/cores/arduino",
+                    "c:/bin/arduino-1.8.13/hardware/tools/avr/avr/include",
+                    "c:/Users/jpfaucher/Documents/Arduino/libraries"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "defines": [
-                "USBCON"
-            ]
-        },
-        {
-            "name": "Mac",
-            "includePath": [
-                "/Applications/Arduino.app/Contents/Java/tools/**",
-                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/**"
-            ],
+            "intelliSenseMode": "msvc-x64",
+
             "forcedInclude": [
-                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino/Arduino.h"
-            ]
-        }
+                "c:/bin/arduino-1.8.13/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ]        
+            }
     ],
     "version": 4
 }

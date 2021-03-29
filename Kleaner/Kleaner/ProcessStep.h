@@ -41,8 +41,8 @@ public:
   {
   }
 
-  Type get_type()  { return mType;  }
-  int  get_delay() { return mDelayInSec; }
+  Type get_type()  const { return mType;  }
+  int  get_delay() const { return mDelayInSec; }
 
 protected:
 private:
@@ -226,20 +226,20 @@ private:
 class ProcessStepDisplayValue : public ProcessStep
 {
 public:
-  ProcessStepDisplayValue(char *aComp, int16_t aValue) : 
+  ProcessStepDisplayValue(const char *aComp, int16_t aValue) : 
     ProcessStep(Type::Display_Value), 
     mComp(aComp), 
     mValue(aValue)
   {
   }
 
-  const char *get_comp()  { return mComp; }
-  int16_t     get_value() { return mValue; }
+  const char *get_comp()  const { return mComp; }
+  int16_t     get_value() const { return mValue; }
   
 protected:
 private:
-  char    *mComp;
-  int16_t  mValue;
+  const char *mComp;
+  int16_t     mValue;
 };
 
 // ****************************************************************************
@@ -248,20 +248,20 @@ private:
 class ProcessStepDisplayText : public ProcessStep
 {
 public:
-  ProcessStepDisplayText(char *aComp, char *aValue) : 
+  ProcessStepDisplayText(const char *aComp, const char *aValue) : 
     ProcessStep(Type::Display_Text), 
     mComp(aComp), 
     mValue(aValue)
   {
   }
 
-  const char *get_comp()  { return mComp; }
-  const char *get_value() { return mValue; }
+  const char *get_comp()  const { return mComp; }
+  const char *get_value() const { return mValue; }
   
 protected:
 private:
-  char    *mComp;
-  char    *mValue;
+  const char    *mComp;
+  const char    *mValue;
 };
 
 // ****************************************************************************
@@ -276,7 +276,7 @@ public:
   {
   }
 
-  uint8_t get_page_id()  { return mPageId; }
+  uint8_t get_page_id() const { return mPageId; }
   
 protected:
 private:

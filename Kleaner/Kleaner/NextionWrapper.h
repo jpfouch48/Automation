@@ -41,12 +41,12 @@ class NextionWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    void set_text(char *aComp, char *aValue);
+    void set_text(const char *aComp, const char *aValue);
 
     // ************************************************************************
     //
     // ************************************************************************
-    void set_value(char *aComp, int aValue);
+    void set_value(const char *aComp, int aValue);
 
     // ************************************************************************
     //
@@ -56,12 +56,12 @@ class NextionWrapper
     // ************************************************************************
     //
     // ************************************************************************
-    void set_background_color(char *aComp, uint16_t aValue);
+    void set_background_color(const char *aComp, uint16_t aValue);
 
     // ************************************************************************
     //
     // ************************************************************************
-    void click_button(char *aComp, byte aEventType);
+    void click_button(const char *aComp, byte aEventType);
 
 
   protected:

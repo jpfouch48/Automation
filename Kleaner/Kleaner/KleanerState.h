@@ -13,7 +13,7 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  KleanerState(char *aStateName, bool aIsProcessState);
+  KleanerState(const char *aStateName, bool aIsProcessState);
 
   // **************************************************************************
   // Accessor functions
@@ -62,7 +62,7 @@ public:
   // **************************************************************************
   //
   //***************************************************************************
-  uint16_t get_total_process_time_in_sec()
+  uint16_t get_total_process_time_in_sec() const
   {
     return mTotalProcessTimeInSec;
   }
@@ -72,7 +72,7 @@ protected:
 private:
   uint16_t                  mTotalProcessTimeInSec;
   unsigned char             mId;
-  char                     *mStateName;
+  const char               *mStateName;
   LinkedList<ProcessStep*>  mProcessSteps;
   Iterator<ProcessStep*>    mProcessStepIter;
   bool                      mIsProcessState;  

@@ -95,7 +95,7 @@ void Kleaner::setup()
   // --------------------------------------------------------------------------
   mSplashState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_HOME));
   mSplashState.add_process_step(new ProcessStepDisplayText(HOME_COMP_ID_VERSION,  KLEANER_VERSION));
-  mSplashState.add_process_step(new ProcessStepResetOutputs(5));
+  mSplashState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
 
   // Menu State
   // --------------------------------------------------------------------------
@@ -105,12 +105,12 @@ void Kleaner::setup()
   // Test Output State
   mTestOutputState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_TEST_OUTPUT));
   mTestOutputState.add_process_step(new ProcessStepWaitForInput());
-  mTestOutputState.add_process_step(new ProcessStepResetOutputs(5));
+  mTestOutputState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
 
   // Test Phase State
   mTestPhaseState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_TEST_PHASE));
   mTestPhaseState.add_process_step(new ProcessStepWaitForInput());
-  mTestPhaseState.add_process_step(new ProcessStepResetOutputs(5));
+  mTestPhaseState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
 
   // Confirm State
   // --------------------------------------------------------------------------
@@ -123,149 +123,181 @@ void Kleaner::setup()
   mProcessInitState.add_process_step(new ProcessStepDisplayValue(PROCESS_COMP_ID_PROGRESS_STATE, 0));
   mProcessInitState.add_process_step(new ProcessStepDisplayValue(PROCESS_COMP_ID_PROGRESS_PROCESS, 0));
   mProcessInitState.add_process_step(new ProcessStepDisplayText(PROCESS_COMP_ID_TITLE,  "Init"));
-  mProcessInitState.add_process_step(new ProcessStepResetOutputs(5));
+  mProcessInitState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
+  TSPRINT(mProcessInitState.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessInitState.get_total_process_time_in_sec());
 
   // Purge State
   // --------------------------------------------------------------------------
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputWaste(5));
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2On(5));
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2On(10));
   mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2Off(5));
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputOff(5));
+  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessPurgeStateSixtel.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessPurgeStateSixtel.get_total_process_time_in_sec());
 
   // Purge State (Half)
   // --------------------------------------------------------------------------
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputWaste(5));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2On(5));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2Off(15));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputOff(5));
-
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2On(15));
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2Off(5));
+  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessPurgeStateHalf.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessPurgeStateHalf.get_total_process_time_in_sec());
 
   // Rinse State
   // --------------------------------------------------------------------------
-  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputWaste(5));
+  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
   for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
   {
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputWater(5));  
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputWater(BALL_VALVE_DELAY));  
     mProcessRinseStateSixtel.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseStateSixtel.add_process_step(new ProcessStepPumpOff());
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputOff(5));
+    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
 
-    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
     {
-      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2On(1));
-      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2Off(2));
+      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2On(10));
+      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2Off(0));
     }
     mProcessRinseStateSixtel.add_process_step(new ProcessStepDelay(10));
   }
-  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputOff(5));
+  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessRinseStateSixtel.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessRinseStateSixtel.get_total_process_time_in_sec());
 
   // Rinse State (Half)
   // --------------------------------------------------------------------------
-  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputWaste(5));
+  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
   for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
   {
-    mProcessRinseStateHalf.add_process_step(new ProcessStepInputWater(5));  
+    mProcessRinseStateHalf.add_process_step(new ProcessStepInputWater(BALL_VALVE_DELAY));  
     mProcessRinseStateHalf.add_process_step(new ProcessStepPumpOn(15));
     mProcessRinseStateHalf.add_process_step(new ProcessStepPumpOff());
-    mProcessRinseStateHalf.add_process_step(new ProcessStepInputOff(5));
+    mProcessRinseStateHalf.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
 
-    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
     {
-      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2On(1));
-      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2Off(2));
+      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2On(10));
+      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2Off(0));
     }
     mProcessRinseStateHalf.add_process_step(new ProcessStepDelay(35));
   }
-  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputOff(5));
+  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessRinseStateHalf.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessRinseStateHalf.get_total_process_time_in_sec());
 
   // Sani State
   // --------------------------------------------------------------------------
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputSanitizer());
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputSanitizer(5));
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputSanitizer(BALL_VALVE_DELAY));
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputSanitizer(BALL_VALVE_DELAY));
 
   mProcessSaniStateSixtel.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniStateSixtel.add_process_step(new ProcessStepPumpOff());
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputOff(5));
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
 
-  for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+  for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
   {
-    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2On(1));
-    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2Off(2));
+    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2On(7));
+    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2Off(0));
   }
   mProcessSaniStateSixtel.add_process_step(new ProcessStepDelay(10));
 
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputOff());
+  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessSaniStateSixtel.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessSaniStateSixtel.get_total_process_time_in_sec());
 
   // Sani State (Half)
   // --------------------------------------------------------------------------
-  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputSanitizer());
-  mProcessSaniStateHalf.add_process_step(new ProcessStepInputSanitizer(5));
+  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputSanitizer(BALL_VALVE_DELAY));
+  mProcessSaniStateHalf.add_process_step(new ProcessStepInputSanitizer(BALL_VALVE_DELAY));
 
   mProcessSaniStateHalf.add_process_step(new ProcessStepPumpOn(10));
   mProcessSaniStateHalf.add_process_step(new ProcessStepPumpOff());
-  mProcessSaniStateHalf.add_process_step(new ProcessStepInputOff(5));
+  mProcessSaniStateHalf.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
 
-  for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+  for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
   {
-    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2On(1));
-    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2Off(2));
+    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2On(10));
+    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2Off(0));
   }
   mProcessSaniStateHalf.add_process_step(new ProcessStepDelay(50));
 
-  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputOff());
+  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessSaniStateHalf.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessSaniStateHalf.get_total_process_time_in_sec());
 
   // Wash State
   // --------------------------------------------------------------------------
-  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputCleaner(5));
+  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputCleaner(BALL_VALVE_DELAY));
   for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
   {
-    mProcessWashStateSixtel.add_process_step(new ProcessStepInputCleaner(5));
+    mProcessWashStateSixtel.add_process_step(new ProcessStepInputCleaner(BALL_VALVE_DELAY));
     mProcessWashStateSixtel.add_process_step(new ProcessStepPumpOn(30));
     mProcessWashStateSixtel.add_process_step(new ProcessStepPumpOff());
-    mProcessWashStateSixtel.add_process_step(new ProcessStepInputOff(5));
+    mProcessWashStateSixtel.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
 
-    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
     {
-      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2On(1));
-      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2Off(2));
+      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2On(10));
+      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2Off(0));
     }
-    mProcessWashStateSixtel.add_process_step(new ProcessStepDelay(20));
+    mProcessWashStateSixtel.add_process_step(new ProcessStepDelay(30));
   }
-  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputOff());
+  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessWashStateSixtel.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessWashStateSixtel.get_total_process_time_in_sec());
 
   // Wash State (Half)
   // --------------------------------------------------------------------------
-  mProcessWashStateHalf.add_process_step(new ProcessStepOutputCleaner(5));
+  mProcessWashStateHalf.add_process_step(new ProcessStepOutputCleaner(BALL_VALVE_DELAY));
   for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
   {
-    mProcessWashStateHalf.add_process_step(new ProcessStepInputCleaner(5));
+    mProcessWashStateHalf.add_process_step(new ProcessStepInputCleaner(BALL_VALVE_DELAY));
     mProcessWashStateHalf.add_process_step(new ProcessStepPumpOn(30));
     mProcessWashStateHalf.add_process_step(new ProcessStepPumpOff());
-    mProcessWashStateHalf.add_process_step(new ProcessStepInputOff(5));
+    mProcessWashStateHalf.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
 
-    for (int lnCo2Index = 0; lnCo2Index < 4; lnCo2Index++)
+    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
     {
-      mProcessWashStateHalf.add_process_step(new ProcessStepCo2On(1));
-      mProcessWashStateHalf.add_process_step(new ProcessStepCo2Off(2));
+      mProcessWashStateHalf.add_process_step(new ProcessStepCo2On(10));
+      mProcessWashStateHalf.add_process_step(new ProcessStepCo2Off(0));
     }
     mProcessWashStateHalf.add_process_step(new ProcessStepDelay(60));
   }
-  mProcessWashStateHalf.add_process_step(new ProcessStepOutputOff());
+  mProcessWashStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
+  TSPRINT(mProcessWashStateHalf.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessWashStateHalf.get_total_process_time_in_sec());
 
 
   // Pressurize State
   // --------------------------------------------------------------------------
   mProcessPressStateSixtel.add_process_step(new ProcessStepCo2On(10));
   mProcessPressStateSixtel.add_process_step(new ProcessStepCo2Off());
+  TSPRINT(mProcessPressStateSixtel.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessPressStateSixtel.get_total_process_time_in_sec());
 
   // Pressurize State (Half)
   // --------------------------------------------------------------------------
   mProcessPressStateHalf.add_process_step(new ProcessStepCo2On(20));
   mProcessPressStateHalf.add_process_step(new ProcessStepCo2Off());
+  TSPRINT(mProcessPressStateHalf.get_state_name());
+  TPRINT(" Duration - ");
+  TPRINTLN(mProcessPressStateHalf.get_total_process_time_in_sec());
 
   // Shutdown
   // --------------------------------------------------------------------------
-  mProcessShutdownState.add_process_step(new ProcessStepResetOutputs(5));
+  mProcessShutdownState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
 
   // Complete State
   // --------------------------------------------------------------------------
@@ -299,6 +331,14 @@ void Kleaner::setup()
 
   // Default it to the end until we start the process from the start menu
   mProcessStateIter = NULL;  
+
+#ifdef AUTO_START
+  if(mKegType == KegType::KegType_Half)
+    mProcessStateIter = mProcessStatesHalf.begin(); 
+  else
+    mProcessStateIter = mProcessStatesSixtel.begin(); 
+#endif
+
 
   TSPRINTLN(F("Kleaner::setup - exit"));
 }
@@ -389,7 +429,7 @@ void Kleaner::process_state()
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
+bool Kleaner::process_state(KleanerState *aState, bool aInitState)
 {
   // TODO: ERROR CHECK FOR NULL STATE
 
@@ -472,7 +512,7 @@ bool Kleaner::process_state(const KleanerState *aState, bool aInitState)
             int lSec = lDelta % 60;
             int lMin = ((lDelta - lSec) / 60) % 60;
 
-            char *lBuffer = malloc(12);
+            char *lBuffer = (char *)malloc(12);
             sprintf(lBuffer, "%02d.%02d", lMin, lSec);
             mNextionWrapper.set_text(COMPLETE_COMP_ID_DURATION, lBuffer);
             free(lBuffer);
@@ -958,7 +998,7 @@ void Kleaner::nextion_page_event(byte aPageId)
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aPrevState, char *aCompId)
+void Kleaner::update_output_display(OutputWrapper &aOutputWrapper, int &aPrevState, const char *aCompId)
 {
   int lCurrentState = aOutputWrapper.get_state();
 
@@ -976,7 +1016,7 @@ void Kleaner::update_output_display(const OutputWrapper &aOutputWrapper, int &aP
 // ****************************************************************************
 // See header file for details
 // ****************************************************************************
-void Kleaner::update_output_display(const BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, char *aCompId)
+void Kleaner::update_output_display(BallValveWrapper &aOutputWrapper, BallValveWrapper::State &aPrevState, const char *aCompId)
 {
   BallValveWrapper::State lCurrentState = (BallValveWrapper::State)aOutputWrapper.get_state();
 
