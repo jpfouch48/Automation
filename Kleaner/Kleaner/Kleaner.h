@@ -6,6 +6,7 @@
 #include "OutputWrapper.h"
 #include "BallValveWrapper.h"
 #include "NextionWrapper.h"
+#include "Config.h"
 
 #include "MilliTimer.h"
 
@@ -46,6 +47,9 @@ class Kleaner : NextionDataHandler
     // Display Manager
     NextionWrapper            mNextionWrapper;
 
+    // Configuration Class
+    Config                    mConfig;
+
     // Output Wrappers
     OutputWrapper             mCo2Wrapper;
     OutputWrapper             mPumpWrapper;
@@ -66,6 +70,8 @@ class Kleaner : NextionDataHandler
     KleanerState              mMenuState;
     KleanerState              mTestOutputState;
     KleanerState              mTestPhaseState;
+    KleanerState              mConfigState;
+    KleanerState              mConfigEditState;
     KleanerState              mConfirmState;
     KleanerState              mCompleteState;
     
@@ -102,6 +108,10 @@ class Kleaner : NextionDataHandler
     MilliTimer                mCurrentStateTimer;
     MilliTimer                mProcessTimer;
     int                       mTotalProcessingTime;
+
+    // Config parameters
+    int mConfigCycleIndex;
+    int mConfigTypeIndex;
 
     // Previous state variables used for
     // display of the process state

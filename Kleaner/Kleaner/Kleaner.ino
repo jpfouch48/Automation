@@ -32,7 +32,7 @@ void loop()
 
   if(lIdleTime <= 0)
   {
-    //Serial.print("Overprocessing time: ");
+    //Serial.print(F("Overprocessing time: "));
     //Serial.println(lProcTime);
   }
   else

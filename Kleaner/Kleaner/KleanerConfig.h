@@ -12,7 +12,7 @@
 // ****************************************************************************
 // Version Define
 // ****************************************************************************
-#define KLEANER_VERSION                   "0.4.7"
+#define KLEANER_VERSION                   "0.5.0"
 
 // ****************************************************************************
 //  Digital I/O Pin definitions
@@ -44,7 +44,7 @@
 // ****************************************************************************
 #define LOOP_TIME_IN_MS                   100
 
-#define BALL_VALVE_DELAY                    8
+#define BALL_VALVE_DELAY                    5
 // ****************************************************************************
 // HMI Defines
 // ****************************************************************************
@@ -57,11 +57,14 @@
 #define PAGE_ID_COMPLETE                    4
 #define PAGE_ID_TEST_OUTPUT                 5
 #define PAGE_ID_TEST_PHASE                  6
+#define PAGE_ID_CONFIG                      7
+#define PAGE_ID_CONFIG_EDIT                 8
 
 // Input Event Defines (touch events)
 #define MAIN_BUTTON_ID_CLEAN                1
 #define MAIN_BUTTON_ID_TEST_OUTPUT          3
 #define MAIN_BUTTON_ID_TEST_PHASE           4
+#define MAIN_BUTTON_ID_CONFIG               5
 
 #define CONFIRM_BUTTON_ID_YES               3
 #define CONFIRM_BUTTON_ID_NO                4
@@ -89,6 +92,31 @@
 #define TEST_PHASE_BUTTON_ID_SANI           7
 #define TEST_PHASE_BUTTON_ID_PRESSURE       8
 
+#define CONFIG_BUTTON_ID_SAVE               2
+#define CONFIG_BUTTON_ID_BACK               1
+#define CONFIG_BUTTON_ID_EDIT               6
+#define CONFIG_BUTTON_ID_RESET_FACTORY      7
+
+#define CONFIG_BUTTON_ID_TYPE_PREV          4
+#define CONFIG_BUTTON_ID_TYPE_NEXT          5
+
+#define CONFIG_EDIT_BUTTON_ID_OK            13
+#define CONFIG_EDIT_BUTTON_ID_CYCLE_PREV    14
+#define CONFIG_EDIT_BUTTON_ID_CYCLE_NEXT    16
+
+#define CONFIG_EDIT_BUTTON_ID_RINSE_CNT_INC 17
+#define CONFIG_EDIT_BUTTON_ID_RINSE_CNT_DEC 18
+#define CONFIG_EDIT_BUTTON_ID_CO2_CNT_INC   20
+#define CONFIG_EDIT_BUTTON_ID_CO2_CNT_DEC   19
+#define CONFIG_EDIT_BUTTON_ID_PMP_DUR_INC   22
+#define CONFIG_EDIT_BUTTON_ID_PMP_DUR_DEC   21
+#define CONFIG_EDIT_BUTTON_ID_CO2ON_DUR_INC 24
+#define CONFIG_EDIT_BUTTON_ID_CO2ON_DUR_DEC 23
+#define CONFIG_EDIT_BUTTON_ID_CO2OF_DUR_INC 26
+#define CONFIG_EDIT_BUTTON_ID_CO2OF_DUR_DEC 25
+#define CONFIG_EDIT_BUTTON_ID_PURGE_DUR_INC 28
+#define CONFIG_EDIT_BUTTON_ID_PURGE_DUR_DEC 27
+
 // Text Component Defines
 #define HOME_COMP_ID_VERSION              "t0"
 
@@ -107,9 +135,21 @@
 
 #define COMPLETE_COMP_ID_DURATION         "t1"
 
+// Config Text
+#define CONFIG_COMP_ID_TYPE               "t0"
+
+// Config-Edit Text
+#define CONFIG_EDIT_COMP_ID_CYCLE         "t0"
+#define CONFIG_EDIT_COMP_ID_RINSE_CNT     "t8"
+#define CONFIG_EDIT_COMP_ID_CO2_CNT       "t9"
+#define CONFIG_EDIT_COMP_ID_PUMP_DUR      "t10"
+#define CONFIG_EDIT_COMP_ID_CO2_ON_DUR    "t11"
+#define CONFIG_EDIT_COMP_ID_CO2_OFF_DUR   "t12"
+#define CONFIG_EDIT_COMP_ID_PURGE_DUR     "t13"
+
 // Radio compoenets
-#define CONFIRM_COMP_ID_SIXTLE             "r0"
-#define CONFIRM_COMP_ID_HALF               "r1"
+#define CONFIRM_COMP_ID_SIXTLE            "r0"
+#define CONFIRM_COMP_ID_HALF              "r1"
 
 // ****************************************************************************
 // Debug output defines
@@ -120,8 +160,8 @@
 
   #define TS() { char gzBuffer00001[10]; sprintf(gzBuffer00001, "%09d", millis()/1000); Serial.print(gzBuffer00001); Serial.print(F(" - ")); }
 
-  #define TSPRINT(...)   TS(); Serial.print(__VA_ARGS__)
-  #define TSPRINTLN(...) TS(); Serial.println(__VA_ARGS__)
+  #define TSPRINT(...)   { TS(); Serial.print(__VA_ARGS__); }
+  #define TSPRINTLN(...) { TS(); Serial.println(__VA_ARGS__); }
 #else
   #define TPRINT(...)
   #define TPRINTLN(...)

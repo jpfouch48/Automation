@@ -1,5 +1,4 @@
 #include "Kleaner.h"
-#include <Arduino.h>
 #include "KleanerConfig.h"
 
 //#define F(s)(s)
@@ -25,6 +24,8 @@ Kleaner::Kleaner() :
     mMenuState                  ("Menu",         false),
     mTestOutputState            ("Test Output",  false),
     mTestPhaseState             ("Test Phase",   false),
+    mConfigState                ("Cfg",          false),    
+    mConfigEditState            ("Cfg Edit",     false),
     mConfirmState               ("Confirm",      false),
     mCompleteState              ("Complete",     false),
     
@@ -67,7 +68,11 @@ Kleaner::Kleaner() :
     mPrevReSanitizerState       (BallValveWrapper::State::Unknown),  
     mPrevStatePercentComplete   (-1),     
     mPrevProcessPercentComplete (-1),
-    mKegType                    (KegType::KegType_Sixtel)      
+    mKegType                    (KegType::KegType_Sixtel),
+
+    // Config params
+    mConfigCycleIndex(0),
+    mConfigTypeIndex(0)
 {
 }
 
@@ -77,6 +82,9 @@ Kleaner::Kleaner() :
 void Kleaner::setup()
 {
   TSPRINTLN(F("Kleaner::setup - enter"));
+
+  // Init configuration
+  mConfig.setup();
 
   // Init Nextion
   mNextionWrapper.setup(this);  
@@ -112,6 +120,14 @@ void Kleaner::setup()
   mTestPhaseState.add_process_step(new ProcessStepWaitForInput());
   mTestPhaseState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
 
+  // Config State
+  mConfigState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_CONFIG));
+  mConfigState.add_process_step(new ProcessStepWaitForInput());
+
+  // Config State
+  mConfigEditState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_CONFIG_EDIT));
+  mConfigEditState.add_process_step(new ProcessStepWaitForInput());
+
   // Confirm State
   // --------------------------------------------------------------------------
   mConfirmState.add_process_step(new ProcessStepDisplayPage(PAGE_ID_CONFIRM));
@@ -125,175 +141,61 @@ void Kleaner::setup()
   mProcessInitState.add_process_step(new ProcessStepDisplayText(PROCESS_COMP_ID_TITLE,  "Init"));
   mProcessInitState.add_process_step(new ProcessStepResetOutputs(BALL_VALVE_DELAY));
   TSPRINT(mProcessInitState.get_state_name());
-  TPRINT(" Duration - ");
+  TPRINT(F(" Duration - "));
   TPRINTLN(mProcessInitState.get_total_process_time_in_sec());
+
+
+
 
   // Purge State
   // --------------------------------------------------------------------------
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2On(10));
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepCo2Off(5));
-  mProcessPurgeStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessPurgeStateSixtel.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessPurgeStateSixtel.get_total_process_time_in_sec());
+  mProcessPurgeStateSixtel.init_process_cycle(ProcessStep::Type::Output_Waste, ProcessStep::Type::Input_Off,
+                                              mConfig.mConfig.mCycles[ProcessType::Sixtel][CycleType::Purge]);
 
   // Purge State (Half)
   // --------------------------------------------------------------------------
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2On(15));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepCo2Off(5));
-  mProcessPurgeStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessPurgeStateHalf.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessPurgeStateHalf.get_total_process_time_in_sec());
+  mProcessPurgeStateHalf.init_process_cycle(ProcessStep::Type::Output_Waste, ProcessStep::Type::Input_Off,
+                                            mConfig.mConfig.mCycles[ProcessType::Half][CycleType::Purge]);
 
   // Rinse State
   // --------------------------------------------------------------------------
-  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
-  for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
-  {
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputWater(BALL_VALVE_DELAY));  
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepPumpOn(15));
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepPumpOff());
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
-
-    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
-    {
-      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2On(10));
-      mProcessRinseStateSixtel.add_process_step(new ProcessStepCo2Off(0));
-    }
-    mProcessRinseStateSixtel.add_process_step(new ProcessStepDelay(10));
-  }
-  mProcessRinseStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessRinseStateSixtel.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessRinseStateSixtel.get_total_process_time_in_sec());
+  mProcessRinseStateSixtel.init_process_cycle(ProcessStep::Type::Output_Waste, ProcessStep::Type::Input_Water,
+                                              mConfig.mConfig.mCycles[ProcessType::Sixtel][CycleType::Rinse]);
 
   // Rinse State (Half)
   // --------------------------------------------------------------------------
-  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputWaste(BALL_VALVE_DELAY));
-  for(int lnRinseIndex = 0; lnRinseIndex < 3; lnRinseIndex++)
-  {
-    mProcessRinseStateHalf.add_process_step(new ProcessStepInputWater(BALL_VALVE_DELAY));  
-    mProcessRinseStateHalf.add_process_step(new ProcessStepPumpOn(15));
-    mProcessRinseStateHalf.add_process_step(new ProcessStepPumpOff());
-    mProcessRinseStateHalf.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
-
-    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
-    {
-      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2On(10));
-      mProcessRinseStateHalf.add_process_step(new ProcessStepCo2Off(0));
-    }
-    mProcessRinseStateHalf.add_process_step(new ProcessStepDelay(35));
-  }
-  mProcessRinseStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessRinseStateHalf.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessRinseStateHalf.get_total_process_time_in_sec());
+  mProcessRinseStateHalf.init_process_cycle(ProcessStep::Type::Output_Waste, ProcessStep::Type::Input_Water,
+                                            mConfig.mConfig.mCycles[ProcessType::Half][CycleType::Rinse]);
 
   // Sani State
   // --------------------------------------------------------------------------
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputSanitizer(BALL_VALVE_DELAY));
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputSanitizer(BALL_VALVE_DELAY));
-
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepPumpOn(10));
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepPumpOff());
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
-
-  for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
-  {
-    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2On(7));
-    mProcessSaniStateSixtel.add_process_step(new ProcessStepCo2Off(0));
-  }
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepDelay(10));
-
-  mProcessSaniStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessSaniStateSixtel.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessSaniStateSixtel.get_total_process_time_in_sec());
+  mProcessSaniStateSixtel.init_process_cycle(ProcessStep::Type::Output_Sanitizer, ProcessStep::Type::Input_Sanitizer,
+                                             mConfig.mConfig.mCycles[ProcessType::Sixtel][CycleType::Sanitize]);
 
   // Sani State (Half)
   // --------------------------------------------------------------------------
-  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputSanitizer(BALL_VALVE_DELAY));
-  mProcessSaniStateHalf.add_process_step(new ProcessStepInputSanitizer(BALL_VALVE_DELAY));
-
-  mProcessSaniStateHalf.add_process_step(new ProcessStepPumpOn(10));
-  mProcessSaniStateHalf.add_process_step(new ProcessStepPumpOff());
-  mProcessSaniStateHalf.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
-
-  for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
-  {
-    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2On(10));
-    mProcessSaniStateHalf.add_process_step(new ProcessStepCo2Off(0));
-  }
-  mProcessSaniStateHalf.add_process_step(new ProcessStepDelay(50));
-
-  mProcessSaniStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessSaniStateHalf.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessSaniStateHalf.get_total_process_time_in_sec());
+  mProcessSaniStateHalf.init_process_cycle(ProcessStep::Type::Output_Sanitizer, ProcessStep::Type::Input_Sanitizer,
+                                           mConfig.mConfig.mCycles[ProcessType::Half][CycleType::Sanitize]);
 
   // Wash State
   // --------------------------------------------------------------------------
-  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputCleaner(BALL_VALVE_DELAY));
-  for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
-  {
-    mProcessWashStateSixtel.add_process_step(new ProcessStepInputCleaner(BALL_VALVE_DELAY));
-    mProcessWashStateSixtel.add_process_step(new ProcessStepPumpOn(30));
-    mProcessWashStateSixtel.add_process_step(new ProcessStepPumpOff());
-    mProcessWashStateSixtel.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
-
-    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
-    {
-      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2On(10));
-      mProcessWashStateSixtel.add_process_step(new ProcessStepCo2Off(0));
-    }
-    mProcessWashStateSixtel.add_process_step(new ProcessStepDelay(30));
-  }
-  mProcessWashStateSixtel.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessWashStateSixtel.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessWashStateSixtel.get_total_process_time_in_sec());
+  mProcessWashStateSixtel.init_process_cycle(ProcessStep::Type::Output_Cleaner, ProcessStep::Type::Input_Cleaner,
+                                             mConfig.mConfig.mCycles[ProcessType::Sixtel][CycleType::Wash]);
 
   // Wash State (Half)
   // --------------------------------------------------------------------------
-  mProcessWashStateHalf.add_process_step(new ProcessStepOutputCleaner(BALL_VALVE_DELAY));
-  for(int lWashIndex = 0; lWashIndex < 2; lWashIndex++)
-  {
-    mProcessWashStateHalf.add_process_step(new ProcessStepInputCleaner(BALL_VALVE_DELAY));
-    mProcessWashStateHalf.add_process_step(new ProcessStepPumpOn(30));
-    mProcessWashStateHalf.add_process_step(new ProcessStepPumpOff());
-    mProcessWashStateHalf.add_process_step(new ProcessStepInputOff(BALL_VALVE_DELAY));
-
-    for (int lnCo2Index = 0; lnCo2Index < 1; lnCo2Index++)
-    {
-      mProcessWashStateHalf.add_process_step(new ProcessStepCo2On(10));
-      mProcessWashStateHalf.add_process_step(new ProcessStepCo2Off(0));
-    }
-    mProcessWashStateHalf.add_process_step(new ProcessStepDelay(60));
-  }
-  mProcessWashStateHalf.add_process_step(new ProcessStepOutputOff(BALL_VALVE_DELAY));
-  TSPRINT(mProcessWashStateHalf.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessWashStateHalf.get_total_process_time_in_sec());
-
+  mProcessWashStateHalf.init_process_cycle(ProcessStep::Type::Output_Cleaner, ProcessStep::Type::Input_Cleaner,
+                                           mConfig.mConfig.mCycles[ProcessType::Half][CycleType::Wash]);
 
   // Pressurize State
   // --------------------------------------------------------------------------
-  mProcessPressStateSixtel.add_process_step(new ProcessStepCo2On(10));
-  mProcessPressStateSixtel.add_process_step(new ProcessStepCo2Off());
-  TSPRINT(mProcessPressStateSixtel.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessPressStateSixtel.get_total_process_time_in_sec());
+  mProcessPressStateSixtel.init_process_cycle(ProcessStep::Type::Output_Off, ProcessStep::Type::Input_Off,
+                                              mConfig.mConfig.mCycles[ProcessType::Sixtel][CycleType::Pressure]);
 
   // Pressurize State (Half)
   // --------------------------------------------------------------------------
-  mProcessPressStateHalf.add_process_step(new ProcessStepCo2On(20));
-  mProcessPressStateHalf.add_process_step(new ProcessStepCo2Off());
-  TSPRINT(mProcessPressStateHalf.get_state_name());
-  TPRINT(" Duration - ");
-  TPRINTLN(mProcessPressStateHalf.get_total_process_time_in_sec());
+  mProcessPressStateHalf.init_process_cycle(ProcessStep::Type::Output_Off, ProcessStep::Type::Input_Off,
+                                            mConfig.mConfig.mCycles[ProcessType::Half][CycleType::Pressure]);
 
   // Shutdown
   // --------------------------------------------------------------------------
@@ -536,6 +438,21 @@ bool Kleaner::process_state(KleanerState *aState, bool aInitState)
               mNextionWrapper.click_button(CONFIRM_COMP_ID_SIXTLE, NextionWrapper::TOUCH_EVENT_RELEASE);
             }
           }
+          else if(PAGE_ID_CONFIG == lStep->get_page_id())
+          {
+            mNextionWrapper.set_text(CONFIG_COMP_ID_TYPE, Config::process_type_to_string((ProcessType)mConfigTypeIndex));
+          }
+          else if(PAGE_ID_CONFIG_EDIT == lStep->get_page_id())
+          {
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CYCLE, Config::cycle_type_to_string((CycleType)mConfigCycleIndex));
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_RINSE_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount);
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount);
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PUMP_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration);
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_ON_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration);
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_OFF_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration);
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PURGE_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration);
+          }
+
         } break;
 
         case ProcessStep::Type::Display_Text:
@@ -752,9 +669,9 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
 {
   TSPRINT(F("nextion_touch_event: Page "));
   TPRINT(aPageId);
-  TPRINT(" Comp ");
+  TPRINT(F(" Comp "));
   TPRINT(aCompId);
-  TPRINT(" Event ");
+  TPRINT(F(" Event "));
   TPRINTLN(aEventType);
 
   // We only want to handle the release event type so we will
@@ -784,12 +701,17 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
         mCommandState = &mTestPhaseState;
         mInProcessWaitForInput = false;
       }
+      else if(aCompId == MAIN_BUTTON_ID_CONFIG)
+      {
+        mCommandState = &mConfigState;
+        mInProcessWaitForInput = false;
+      }
     }
   }
   else if(mCurrentState->get_id() == mConfirmState.get_id())
   {
     if(aPageId == PAGE_ID_CONFIRM)
-    {
+      {
       // YES Button
       if(aCompId == CONFIRM_BUTTON_ID_YES)
       {
@@ -972,6 +894,176 @@ void Kleaner::nextion_touch_event(byte aPageId, byte aCompId, byte aEventType)
       }
     }
   }  
+  else if(mCurrentState->get_id() == mConfigState.get_id())
+  {
+    if(aPageId == PAGE_ID_CONFIG)
+    {
+      switch(aCompId)
+      {
+        case CONFIG_BUTTON_ID_BACK:
+        {
+          mInProcessWaitForInput = false;
+        } break;
+
+        case CONFIG_BUTTON_ID_SAVE:
+        {
+          mConfig.save_current_config();
+        } break;
+
+        case CONFIG_BUTTON_ID_RESET_FACTORY:
+        {
+          mConfig.reset_factory_config();
+        } break;
+
+        case CONFIG_BUTTON_ID_EDIT:
+        {
+          mCommandState = &mConfigEditState;
+          mInProcessWaitForInput = false;
+        } break;
+
+        case CONFIG_BUTTON_ID_TYPE_PREV:
+        {
+            mConfigTypeIndex = (mConfigTypeIndex - 1 < 0 ? mConfigTypeIndex : mConfigTypeIndex - 1);    
+            mNextionWrapper.set_text(CONFIG_COMP_ID_TYPE, Config::process_type_to_string((ProcessType)mConfigTypeIndex));  
+        } break;
+
+        case CONFIG_BUTTON_ID_TYPE_NEXT:
+        {
+            mConfigTypeIndex = (mConfigTypeIndex + 1 >= ProcessType::ProcessTypeCount ? mConfigTypeIndex : mConfigTypeIndex + 1);    
+            mNextionWrapper.set_text(CONFIG_COMP_ID_TYPE, Config::process_type_to_string((ProcessType)mConfigTypeIndex));
+        } break;
+      }
+    }
+  } 
+  else if(mCurrentState->get_id() == mConfigEditState.get_id())
+  {
+    if(aPageId == PAGE_ID_CONFIG_EDIT)
+    {
+      bool lUpdateConfig = false;
+      switch(aCompId)
+      {
+        case CONFIG_EDIT_BUTTON_ID_CYCLE_PREV:
+        {
+            mConfigCycleIndex = (mConfigCycleIndex - 1 < 0 ? mConfigCycleIndex : mConfigCycleIndex - 1);    
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CYCLE, Config::cycle_type_to_string((CycleType)mConfigCycleIndex));
+            lUpdateConfig = true;
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CYCLE_NEXT:
+        {
+            mConfigCycleIndex = (mConfigCycleIndex + 1 >= CycleType::CycleTypeCount ? mConfigCycleIndex : mConfigCycleIndex + 1);    
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CYCLE, Config::cycle_type_to_string((CycleType)mConfigCycleIndex));
+            lUpdateConfig = true;
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_OK:
+        {
+          mCommandState = &mConfigState;
+          mInProcessWaitForInput = false;
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_RINSE_CNT_INC:
+        {
+          mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount++;
+          mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_RINSE_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount);
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_RINSE_CNT_DEC:
+        {
+          if(0 < mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount)
+          {
+            mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount--;
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_RINSE_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount);
+          }
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CO2_CNT_INC:
+        {
+          mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount++;
+          mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount);
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CO2_CNT_DEC:
+        {
+          if(0 < mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount)
+          {
+            mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount--;
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount);
+          }
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_PMP_DUR_INC:
+        {
+          mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration++;
+          mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PUMP_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration);
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_PMP_DUR_DEC:
+        {
+          if(0 < mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration)
+          {
+            mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration--;
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PUMP_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration);
+          }
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CO2ON_DUR_INC:
+        {
+          mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration++;
+          mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_ON_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration);
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CO2ON_DUR_DEC:
+        {
+          if(0 < mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration)
+          {
+            mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration--;
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_ON_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration);
+          }
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CO2OF_DUR_INC:
+        {
+          mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration++;
+          mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_OFF_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration);
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_CO2OF_DUR_DEC:
+        {
+          if(0 < mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration)
+          {
+            mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration--;
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_OFF_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration);
+          }
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_PURGE_DUR_INC:
+        {
+          mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration++;
+          mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PURGE_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration);
+        } break;
+
+        case CONFIG_EDIT_BUTTON_ID_PURGE_DUR_DEC:
+        {
+          if(0 < mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration)
+          {
+            mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration--;
+            mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PURGE_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration);
+          }
+        } break;
+      }
+
+      if(true == lUpdateConfig)
+      {
+        mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_RINSE_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mRinseCycleCount);
+        mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_CNT, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2CycleCount);
+        mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PUMP_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPumpOnDuration);
+        mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_ON_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OnDuration);
+        mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_CO2_OFF_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mCo2OffDuration);
+        mNextionWrapper.set_text(CONFIG_EDIT_COMP_ID_PURGE_DUR, mConfig.mConfig.mCycles[mConfigTypeIndex][mConfigCycleIndex].mPurgeDuration);
+      }
+    }
+  } 
   else if(mCurrentState->is_process_state())
   {
     if(aPageId == PAGE_ID_PROCESS)

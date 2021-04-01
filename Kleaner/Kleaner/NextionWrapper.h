@@ -42,6 +42,7 @@ class NextionWrapper
     //
     // ************************************************************************
     void set_text(const char *aComp, const char *aValue);
+    void set_text(const char *aComp, int         aValue);
 
     // ************************************************************************
     //
